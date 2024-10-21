@@ -22,10 +22,10 @@ return new class extends Migration
             $table->boolean('used')->default(false);
             $table->timestamp('used_at')->nullable();
             $table->timestamps();
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->foreign('worker_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('set null');
-            $table->foreign('dealer_id')->references('id')->on('users')->onDelete('set null');
+//            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+//            $table->foreign('worker_id')->references('id')->on('users')->onDelete('set null');
+//            $table->foreign('order_id')->references('id')->on('orders')->onDelete('set null');
+//            $table->foreign('dealer_id')->references('id')->on('users')->onDelete('set null');
         });
     }
 

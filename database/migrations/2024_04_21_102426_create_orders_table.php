@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('note')->nullable();
             $table->enum('status', ['draft', 'pending', 'processing', 'completed', 'cancelled', 'refunded'])->default('draft');
             $table->timestamps();
-            $table->foreign('dealer_id')->references('id')->on('users')->onDelete('cascade');
+            //$table->foreign('dealer_id')->references('id')->on('users')->onDelete('cascade');
             $table->softDeletes();
         });
     }

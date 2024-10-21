@@ -21,7 +21,7 @@ class Dealer extends \App\Http\Controllers\Controller
     {
         return User::where('role', 'admin')->where('id', '!=', auth()->id())->orderBy('id', 'desc')->get()->map(function ($dealer) {
             if (!str_contains($dealer['avatar'], 'http')) {
-                $dealer['avatar'] = asset('storage/' . $dealer['avatar']);
+                $dealer['avatar'] = url('uploads/default.png');
             }
             return $dealer;
         });

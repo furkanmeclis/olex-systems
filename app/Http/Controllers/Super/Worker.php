@@ -97,7 +97,7 @@ class Worker extends Controller
                 }
             }
             if($request->has('dealer_id')){
-                if($request->get('dealer_id') == "undefined" || $request->get('dealer_id') == undefined){
+                if($request->get('dealer_id') == "undefined" || $request->get('dealer_id') == null){
                     $worker->parent_id = $worker->parent_id;
                 }elseif($worker->parent_id != $request->get('dealer_id')){
                     $worker->parent_id = $request->get('dealer_id');

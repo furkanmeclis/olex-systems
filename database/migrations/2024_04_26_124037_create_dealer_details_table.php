@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('company_address')->nullable();
             $table->string('company_geo_location')->nullable();
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+//            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
