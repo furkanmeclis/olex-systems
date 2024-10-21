@@ -70,7 +70,7 @@ class ProductController extends Controller
                 $request->file('image')->move(public_path("uploads/products_images"), $fileName);
                 $product->image = url(("uploads/products_images/").$fileName);
             } else {
-                $product->image = 'products/default.png';
+                $product->image = url("uploads/default.png");
             }
             if ($product->save()) {
                 return response()->json(['message' => 'Ürün başarıyla eklendi.', 'status' => true, 'products' => $this->getAllProducts()]);

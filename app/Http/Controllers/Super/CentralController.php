@@ -67,7 +67,7 @@ class CentralController extends \App\Http\Controllers\Controller
             $request->file('logo')->move(public_path("uploads/central_avatars"), $fileName);
             $centralUser->avatar = url(("uploads/central_avatars/").$fileName);
         } else {
-            $centralUser->avatar = 'avatars/default.png';
+            $centralUser->avatar = url("uploads/default.png");
         }
         if ($centralUser->save()) {
             return response()->json(['message' => 'Merkez üyesi başarıyla eklendi.', 'status' => true, 'users' => $this->getAllUsers(), 'dealer_id' => $centralUser->id]);

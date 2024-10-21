@@ -69,7 +69,7 @@ class Dealer extends \App\Http\Controllers\Controller
             $request->file('image')->move(public_path("uploads/dealer_avatars"), $fileName);
             $dealer->avatar = url(("uploads/dealer_avatars/").$fileName);
         } else {
-            $dealer->avatar = 'avatars/default.png';
+            $dealer->avatar = url("uploads/default.png");
         }
         if ($dealer->save()) {
             return response()->json(['message' => 'Bayi başarıyla eklendi.', 'status' => true, 'dealers' => $this->getAllDealers(), 'dealer_id' => $dealer->id]);

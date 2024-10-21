@@ -56,7 +56,7 @@ class WorkerController extends Controller
             $request->file('image')->move(public_path("uploads/worker_avatars"), $fileName);
             $worker->avatar = url(("uploads/worker_avatars/").$fileName);
         } else {
-            $worker->avatar = 'avatars/default.png';
+            $worker->avatar = url("uploads/default.png");
         }
         if ($worker->save()) {
             $hasPage = $request->has('hasPage') ? $request->get('hasPage') : false;
