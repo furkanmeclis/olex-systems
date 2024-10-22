@@ -34,19 +34,7 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
     const [categories, setCategories] = useState(categoriesAll);
     const [products, setProducts] = useState(productsAll);
     const [newCategoryName, setNewCategoryName] = useState('');
-    const columns = [
-        'id',
-        'sku',
-        'name',
-        'image',
-        'price',
-        'category',
-        'warranty',
-        'active',
-        'updated_at',
-        'created_at',
-        'actions'
-    ];
+    const columns = ['id', 'sku', 'name', 'image', 'price', 'category', 'warranty', 'active', 'updated_at', 'created_at', 'actions'];
     const columnsTurkishNames = {
         'id': 'ID',
         'sku': 'Stok Kodu',
@@ -69,7 +57,7 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
     useEffect(() => {
         localStorage.setItem('selectedColumnsForProductsTable', JSON.stringify(selectedColumns));
     }, [selectedColumns]);
-    const onGlobalFilterChange = (e , action = false) => {
+    const onGlobalFilterChange = (e, action = false) => {
         const value = action ? e : e.target.value;
         let _filters = {...filters};
 
@@ -79,8 +67,7 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
         setGlobalFilterValue(value);
     };
     const renderHeader = () => {
-        return (
-            <>
+        return (<>
                 <Toolbar start={() => <>
                     <Button icon="pi pi-plus" size={"small"} severity={"success"} tooltip={"Yeni Ürün Ekle"}
                             tooltipOptions={{
@@ -118,26 +105,29 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
                                         accept: () => {
                                             let url = route('super.products.multipleDestroy');
                                             fetch(url, {
-                                                method: 'POST',
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                    'X-CSRF-TOKEN': csrf_token
-                                                },
-                                                body: JSON.stringify({
+                                                method: 'POST', headers: {
+                                                    'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
+                                                }, body: JSON.stringify({
                                                     productIds: selectedProducts.map(product => product.id)
                                                 })
                                             }).then(async response => {
                                                 let data = await response.json();
                                                 if (response.status === 404) {
-                                                    toast.current.show({severity: 'error', summary: 'Hata', detail: data.message});
+                                                    toast.current.show({
+                                                        severity: 'error', summary: 'Hata', detail: data.message
+                                                    });
                                                 } else if (response.status === 500) {
-                                                    toast.current.show({severity: 'warning', summary: 'Hata', detail: data.message});
+                                                    toast.current.show({
+                                                        severity: 'warning', summary: 'Hata', detail: data.message
+                                                    });
                                                 } else if (response.status === 200) {
-                                                    toast.current.show({severity: 'success', summary: 'Başarılı', detail: data.message});
+                                                    toast.current.show({
+                                                        severity: 'success', summary: 'Başarılı', detail: data.message
+                                                    });
                                                     setProducts(products.map(produc => {
                                                         if (!selectedProducts.map(product => product.id).includes(produc.id)) {
                                                             return produc
-                                                        }else{
+                                                        } else {
                                                             return null
                                                         }
                                                     }).filter(Boolean));
@@ -167,26 +157,13 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
                                  <span>{selectedProducts.length} ürün seçildi.</span>
                              </p>)}
                          </>}
-                         end={() => <>
-
-                    <span className="p-input-icon-left">
-                            <i className="pi pi-search"/>
-                            <InputText size={"small"} value={globalFilterValue} onChange={onGlobalFilterChange}
-                                       placeholder="Ürünlerde Arama Yapın"/>
-                    </span>{globalFilterValue !== '' && (<Button size={"small"}
-                                                                 icon="pi pi-times" className="p-button-info ml-2"
-                                                                 onClick={() => onGlobalFilterChange('',true)} tooltip={"Filtreyi Temizle"} tooltipOptions={{
-                             position: 'top'
-                         }}/>)}
-                         </>}/>
-            </>
-        );
+                />
+            </>);
     };
     const verifiedBodyTemplate = (rowData) => {
         return <Button className={"flex justify-center"}
                        tooltip={Boolean(rowData.active) === true ? "Aktif" : "DeAktif"} tooltipOptions={{
-            position: 'top',
-            mouseTrack: true
+            position: 'top', mouseTrack: true
         }} unstyled>
             <i className={classNames('pi ', {
                 'true-icon pi-check-circle text-green-400': Boolean(rowData.active),
@@ -200,10 +177,8 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
         const deleteFunction = () => {
             if (isCategory) {
                 fetch(route('super.categories.delete', itemId), {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrf_token
+                    method: 'DELETE', headers: {
+                        'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
                     }
                 }).then(async response => {
                     let data = await response.json();
@@ -218,19 +193,15 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
                     }
                 }).catch((error) => {
                     toast.current.show({
-                        severity: 'error',
-                        summary: 'Hata',
-                        detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                        severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
                     });
                 }).finally(() => {
 
                 });
             } else {
                 fetch(route('super.products.destroy', itemId), {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrf_token
+                    method: 'DELETE', headers: {
+                        'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
                     }
                 }).then(async response => {
                     let data = await response.json();
@@ -244,9 +215,7 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
                     }
                 }).catch((error) => {
                     toast.current.show({
-                        severity: 'error',
-                        summary: 'Hata',
-                        detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                        severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
                     });
                 }).finally(() => {
                     setSelectedProducts(selectedProducts.filter(product => product.id !== itemId ? product : null).filter(Boolean));
@@ -267,12 +236,9 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
     };
     const storeCategory = () => {
         fetch(route('super.categories.store'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrf_token
-            },
-            body: JSON.stringify({
+            method: 'POST', headers: {
+                'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
+            }, body: JSON.stringify({
                 name: newCategoryName
             })
         }).then(async response => {
@@ -288,9 +254,7 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
             }
         }).catch((error) => {
             toast.current.show({
-                severity: 'error',
-                summary: 'Hata',
-                detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
             });
         }).finally(() => {
             setNewCategoryName('')
@@ -298,12 +262,9 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
     }
     const updateCategory = (category) => {
         fetch(route('super.categories.update', category.id), {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrf_token
-            },
-            body: JSON.stringify({
+            method: 'PUT', headers: {
+                'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
+            }, body: JSON.stringify({
                 name: category.name
             })
         }).then(async response => {
@@ -319,9 +280,7 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
             }
         }).catch((error) => {
             toast.current.show({
-                severity: 'error',
-                summary: 'Hata',
-                detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
             });
         }).finally(() => {
             setCategoryDialog(false)
@@ -337,8 +296,7 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
         setProductCodes(product);
         setProductCodesModal(true)
     }
-    return (
-        <AuthenticatedLayout
+    return (<AuthenticatedLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Ürünler</h2>}
         >
@@ -379,7 +337,15 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <DataTable value={products} removableSort paginator
                                    paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-                                   rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id" filters={filters}
+                                   rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id"
+                                   filterDisplay={"row"}
+                                   filters={{
+                                       sku:{value:"",matchMode:"contains"},
+                                       name:{value:"",matchMode:"contains"},
+                                        category:{value:"",matchMode:"contains"},
+                                        warranty:{value:"",matchMode:"contains"},
+                                       price:{value:"",matchMode:"contains"},
+                                   }}
                                    loading={false}
                                    selectionMode={null} selection={selectedProducts}
                                    onSelectionChange={(e) => setSelectedProducts(e.value)}
@@ -388,21 +354,20 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
                                    currentPageReportTemplate="{first}. ile {last}. arası toplam {totalRecords} kayıttan">
                             <Column selectionMode="multiple" headerStyle={{width: '3rem'}}></Column>
                             {selectedColumns.includes('id') && <Column field="id" sortable header="#"/>}
-                            {selectedColumns.includes('sku') && <Column field="sku" sortable header="SKU"/>}
-                            {selectedColumns.includes('name') && <Column field="name" header="Ürün Adı"/>}
+                            {selectedColumns.includes('sku') && <Column field="sku" filter filterPlaceholder={"SKU'ya Göre Filtreleyin"} sortable header="SKU"/>}
+                            {selectedColumns.includes('name') && <Column field="name" filter filterPlaceholder={"Ürün Adına Göre Filtreleyin"} header="Ürün Adı"/>}
                             {selectedColumns.includes('image') &&
                                 <Column field="image" header="Ürün Resmi" body={(product) => {
                                     return <Image src={`${product.image}`} preview style={{
-                                        width: '6rem',
-                                        borderRadius: '1rem'
+                                        width: '6rem', borderRadius: '1rem'
                                     }} alt={product.image} className="w-[6rem] shadow-2 rounded-lg"/>;
                                 }}/>}
                             {selectedColumns.includes('price') &&
-                                <Column field="price" sortable header="Ürün Fiyatı" body={(product) => {
+                                <Column field="price" sortable header="Ürün Fiyatı" filter filterPlaceholder={"Ürün Fiyatına Göre Filtreleyin"} body={(product) => {
                                     return <span>{product.price} $</span>;
                                 }}/>}
-                            {selectedColumns.includes('category') && <Column field="category" header="Kategori"/>}
-                            {selectedColumns.includes('warranty') && <Column field="warranty" header="Garanti Süresi"/>}
+                            {selectedColumns.includes('category') && <Column field="category" filter filterPlaceholder={"Kategoriye Göre Filtreleyin"} header="Kategori"/>}
+                            {selectedColumns.includes('warranty') && <Column field="warranty" filter filterPlaceholder={"Garanti Süresine Göre Filtreleyin"} header="Garanti Süresi"/>}
                             {selectedColumns.includes('active') &&
                                 <Column field="active" header="Ürün Durumu" dataType="boolean"
                                         body={verifiedBodyTemplate}/>}
@@ -464,11 +429,11 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
                                                                         onChange={(e) => options.editorCallback(e.target.value)}/>}/>
                                 <Column header={"Ürün Sayısı"} body={(category) => {
                                     const productCount = products.filter(product => product.category === category.name).length;
-                                    return <Button label={productCount+" Ürün"} link onClick={() => {
+                                    return <Button label={productCount + " Ürün"} link onClick={() => {
                                         onGlobalFilterChange(category.name, true);
                                         setCategoryDialog(false)
-                                    }} />;
-                                }} />
+                                    }}/>;
+                                }}/>
                                 <Column header="Düzenle" rowEditor={true}/>
                                 <Column header="Sil" body={(category) => <>
                                     {category.id !== 0 &&
@@ -482,19 +447,31 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
 
                             </DataTable>
                         </Dialog>
-                        <Dialog header="Yeni Ürün Ekle" style={{ width: '50vw' }} breakpoints={{ '960px': '75vw', '641px': '100vw' }} onHide={() => setAddModal(false)} maximizable visible={addModal} footer={addModalFooter}>
-                            <Create addModal={addModal} categories={categories} csrf_token={csrf_token} toast={toast} onHide={() => setAddModal(false)} setProducts={setProducts} setAddModalFooter={setAddModalFooter}/>
+                        <Dialog header="Yeni Ürün Ekle" style={{width: '50vw'}}
+                                breakpoints={{'960px': '75vw', '641px': '100vw'}} onHide={() => setAddModal(false)}
+                                maximizable visible={addModal} footer={addModalFooter}>
+                            <Create addModal={addModal} categories={categories} csrf_token={csrf_token} toast={toast}
+                                    onHide={() => setAddModal(false)} setProducts={setProducts}
+                                    setAddModalFooter={setAddModalFooter}/>
                         </Dialog>
-                        <Dialog header="Ürünü Düzenle" style={{ width: '50vw' }} breakpoints={{ '960px': '75vw', '641px': '100vw' }} onHide={() => setUpdateModal(false)} maximizable visible={updateModal} footer={updateModalFooter}>
-                            <Update updateModal={updateModal} categories={categories} product={updateProduct} csrf_token={csrf_token} toast={toast} onHide={() => setUpdateModal(false)} setProducts={setProducts} setUpdateModalFooter={setUpdateModalFooter}/>
+                        <Dialog header="Ürünü Düzenle" style={{width: '50vw'}}
+                                breakpoints={{'960px': '75vw', '641px': '100vw'}} onHide={() => setUpdateModal(false)}
+                                maximizable visible={updateModal} footer={updateModalFooter}>
+                            <Update updateModal={updateModal} categories={categories} product={updateProduct}
+                                    csrf_token={csrf_token} toast={toast} onHide={() => setUpdateModal(false)}
+                                    setProducts={setProducts} setUpdateModalFooter={setUpdateModalFooter}/>
                         </Dialog>
-                        <Dialog header="Ürün Kodları" style={{ width: '70vw' }} breakpoints={{ '960px': '75vw', '641px': '100vw' }} onHide={() => setProductCodesModal(false)} maximizable visible={productCodesModal} footer={productCodesFooter}>
-                            <ProductCodes productCodesModal={productCodesModal} product={productCodes} csrf_token={csrf_token} toast={toast} onHide={() => setProductCodesModal(false)} setFooter={setProductCodesFooter}/>
+                        <Dialog header="Ürün Kodları" style={{width: '70vw'}}
+                                breakpoints={{'960px': '75vw', '641px': '100vw'}}
+                                onHide={() => setProductCodesModal(false)} maximizable visible={productCodesModal}
+                                footer={productCodesFooter}>
+                            <ProductCodes productCodesModal={productCodesModal} product={productCodes}
+                                          csrf_token={csrf_token} toast={toast}
+                                          onHide={() => setProductCodesModal(false)} setFooter={setProductCodesFooter}/>
                         </Dialog>
                     </div>
                 </div>
             </div>
 
-        </AuthenticatedLayout>
-    );
+        </AuthenticatedLayout>);
 }

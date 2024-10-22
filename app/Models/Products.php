@@ -19,6 +19,10 @@ class Products extends Model
             if ($code->dealer_id) {
                 $code->dealer = User::find($code->dealer_id);
             }
+            $code->service_number = "";
+            if ($code->used == 1) {
+                $code->service_number = ServiceProducts::where("product_code", $code->code)->first()->service()->service_no;
+            }
             return $code;
         });
         return $codes;

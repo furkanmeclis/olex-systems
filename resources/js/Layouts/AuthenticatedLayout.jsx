@@ -39,148 +39,117 @@ export default function Authenticated({user, header, children}) {
                 </>
         }
     }
-    const routes = [
-        {
-            name: 'Anasayfa',
-            href: route('dashboard'),
-            active: route().current('dashboard'),
-            roles: ['super', 'central', 'central_salesman', 'central_contact', 'central_worker', 'admin']
-        },
-        {
-            name: 'Merkez Çalışanları',
-            href: route('super.central.index'),
-            active: route().current('super.central*'),
-            roles: ['super']
-        },
-        {
-            name: 'Bayiler',
-            href: route('super.dealers.index'),
-            active: route().current('super.dealers*'),
-            roles: ['super']
-        },
-        {
-            name: 'Çalışanlar',
-            href: route('super.workers.index'),
-            active: route().current('super.workers*'),
-            roles: ['super']
-        },
-        {
-            name: 'Ürünler',
-            href: route('super.products.index'),
-            active: route().current('super.products*'),
-            roles: ['super']
-        },
-        {
-            name: 'Siparişler',
-            href: route('super.orders.index'),
-            active: route().current('super.orders*'),
-            roles: ['super']
-        },
-        {
-            name: 'Stok Yönetimi',
-            href: route('super.stock-management.index'),
-            active: route().current('super.stock-management*'),
-            roles: ['super']
-        },
-        {
-            name: 'Müşteriler',
-            href: route('super.customers.index'),
-            active: route().current('super.customers*'),
-            roles: ['super']
-        },
+    const routes = [{
+        name: 'Anasayfa',
+        href: route('dashboard'),
+        active: route().current('dashboard'),
+        roles: ['super', 'central', 'central_salesman', 'central_contact', 'central_worker', 'admin']
+    }, {
+        name: 'Merkez Çalışanları',
+        href: route('super.central.index'),
+        active: route().current('super.central*'),
+        roles: ['super']
+    }, {
+        name: 'Bayiler', href: route('super.dealers.index'), active: route().current('super.dealers*'), roles: ['super']
+    }, {
+        name: 'Çalışanlar',
+        href: route('super.workers.index'),
+        active: route().current('super.workers*'),
+        roles: ['super']
+    }, {
+        name: 'Ürünler',
+        href: route('super.products.index'),
+        active: route().current('super.products*'),
+        roles: ['super']
+    }, {
+        name: 'Siparişler',
+        href: route('super.orders.index'),
+        active: route().current('super.orders*'),
+        roles: ['super']
+    }, {
+        name: 'Stok Yönetimi',
+        href: route('super.stock-management.index'),
+        active: route().current('super.stock-management*'),
+        roles: ['super']
+    }, {
+        name: 'Müşteriler',
+        href: route('super.customers.index'),
+        active: route().current('super.customers*'),
+        roles: ['super']
+    }, //Central Routes
         {
             name: 'Bayiler',
             href: route('central.dealers.index'),
             active: route().current('central.dealers*'),
-            roles: ['central', 'central_salesman', 'central_contact', 'central_worker']
-        },
-        {
+            roles: ['central', 'central_salesman', 'central_contact']
+        }, {
             name: 'Çalışanlar',
             href: route('central.workers.index'),
             active: route().current('central.workers*'),
-            roles: ['central', 'central_salesman', 'central_contact', 'central_worker']
-        },
-        {
+            roles: ['central', 'central_salesman', 'central_contact']
+        }, {
             name: 'Ürünler',
             href: route('central.products.index'),
             active: route().current('central.products*'),
             roles: ['central', 'central_salesman', 'central_contact', 'central_worker']
-        },
-        {
+        }, {
             name: 'Siparişler',
             href: route('central.orders.index'),
             active: route().current('central.orders*'),
             roles: ['central', 'central_salesman', 'central_contact', 'central_worker']
-        },
-        {
+        }, {
             name: 'Stok Yönetimi',
             href: route('central.stock-management.index'),
             active: route().current('central.stock-management*'),
             roles: ['central', 'central_salesman', 'central_contact', 'central_worker']
-        },
-        {
+        }, {
             name: 'Müşteriler',
             href: route('central.customers.index'),
             active: route().current('central.customers*'),
-            roles: ['central', 'central_salesman', 'central_contact', 'central_worker']
-        },
+            roles: ['central', 'central_salesman', 'central_contact']
+        }, //Dealer Routes
         {
-            name: "Siparişler",
-            href: route('dealer.orders'),
-            active: route().current('dealer.orders'),
-            roles: ['admin']
-        },
-        {
+            name: "Siparişler", href: route('dealer.orders'), active: route().current('dealer.orders'), roles: ['admin']
+        }, {
             name: 'Hizmetler',
             href: route('dealer.services'),
             active: route().current('dealer.services'),
             roles: ['admin']
-        },
-        {
+        }, {
             name: 'Müşteriler',
             href: route('dealer.customers'),
             active: route().current('dealer.customers'),
             roles: ['admin']
-        },
-        {
+        }, {
             name: 'Çalışanlar',
             href: route('dealer.workers.index'),
             active: route().current('dealer.workers*'),
             roles: ['admin']
-        },
-        {
+        }, {
             name: 'Stok Kayıtları',
             href: route('dealer.stockRecords'),
             active: route().current('dealer.stockRecords'),
             roles: ['admin']
-        },
-        {
+        }, {
             name: 'Bayi Ayarları',
             href: route('dealer.settings'),
             active: route().current('dealer.settings'),
             roles: ['admin']
-        },
+        }, //Worker Routes
         {
-            name: 'Anasayfa',
-            href: route('worker.index'),
-            active: route().current('worker.index'),
-            roles: ['worker']
-        },
-        {
+            name: 'Anasayfa', href: route('worker.index'), active: route().current('worker.index'), roles: ['worker']
+        }, {
             name: 'Müşteriler',
             href: route('worker.customers.index'),
             active: route().current('worker.customers*'),
             roles: ['worker']
-        },
-        {
+        }, {
             name: 'Hizmetler',
             href: route('worker.services.index'),
             active: route().current('worker.services*'),
             roles: ['worker']
-        },
-    ];
-    return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        },];
+    return (<div className="min-h-screen bg-gray-100 dark:bg-gray-900">
             <Toast ref={toast}/>
             <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -196,10 +165,9 @@ export default function Authenticated({user, header, children}) {
                             <div className="hidden space-x-2 sm:-my-px sm:ms-10 sm:flex">
                                 {routes.map(({name, href, active, roles}, index) => {
                                     if (roles.includes(user.role) || roles.includes("*")) {
-                                        return (
-                                            <NavLink key={index} href={href} active={active}>
-                                                {name}
-                                            </NavLink>)
+                                        return (<NavLink key={index} href={href} active={active}>
+                                            {name}
+                                        </NavLink>)
                                     } else {
                                         return null;
                                     }
@@ -276,10 +244,9 @@ export default function Authenticated({user, header, children}) {
                     <div className="pt-2 pb-3 space-y-1">
                         {routes.map(({name, href, active, roles}, index) => {
                             if (roles.includes(user.role) || roles.includes("*")) {
-                                return (
-                                    <ResponsiveNavLink key={index} href={href} active={active}>
-                                        {name}
-                                    </ResponsiveNavLink>)
+                                return (<ResponsiveNavLink key={index} href={href} active={active}>
+                                    {name}
+                                </ResponsiveNavLink>)
                             } else {
                                 return null;
                             }
@@ -303,13 +270,10 @@ export default function Authenticated({user, header, children}) {
                 </div>
             </nav>
 
-            {header && (
-                <header className="bg-white dark:bg-gray-800 shadow">
+            {header && (<header className="bg-white dark:bg-gray-800 shadow">
                     <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
-                </header>
-            )}
+                </header>)}
 
             <main>{children}</main>
-        </div>
-    );
+        </div>);
 }

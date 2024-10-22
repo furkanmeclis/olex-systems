@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Services;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
 

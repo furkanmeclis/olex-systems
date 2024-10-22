@@ -19,18 +19,14 @@ const ProductCodes = ({csrf_token, product, productCodesModal, setFooter, onHide
         if (product) {
             setLoading(true)
             fetch(route('super.products.listCodes', product.id), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf_token
+                method: 'POST', headers: {
+                    'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
                 },
             }).then(r => r.json()).then(response => {
                 setCodes(response.codes);
             }).catch((err) => {
                 toast.current.show({
-                    severity: 'error',
-                    summary: 'Hata',
-                    detail: 'Ürün kodları getirilirken bir hata oluştu.'
+                    severity: 'error', summary: 'Hata', detail: 'Ürün kodları getirilirken bir hata oluştu.'
                 });
             }).finally(() => {
                 setLoading(false);
@@ -45,12 +41,9 @@ const ProductCodes = ({csrf_token, product, productCodesModal, setFooter, onHide
         if (value.length > 0) {
             setLoading(true)
             fetch(route('super.products.addCode', product.id), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf_token
-                },
-                body: JSON.stringify({codes: value.join(",")})
+                method: 'POST', headers: {
+                    'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
+                }, body: JSON.stringify({codes: value.join(",")})
             }).then(r => r.json()).then(response => {
                 if (response.status) {
                     setValue([]);
@@ -61,18 +54,14 @@ const ProductCodes = ({csrf_token, product, productCodesModal, setFooter, onHide
                 }
             }).catch((err) => {
                 toast.current.show({
-                    severity: 'error',
-                    summary: 'Hata',
-                    detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                    severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
                 });
             }).finally(() => {
                 setLoading(false);
             });
         } else {
             toast.current.show({
-                severity: 'error',
-                summary: 'Hata',
-                detail: 'Ürün kodu eklemek için en az bir ürün kodu girmelisiniz.'
+                severity: 'error', summary: 'Hata', detail: 'Ürün kodu eklemek için en az bir ürün kodu girmelisiniz.'
             });
         }
     }
@@ -87,44 +76,48 @@ const ProductCodes = ({csrf_token, product, productCodesModal, setFooter, onHide
         <Divider/>
         <DataTable value={codes} removableSort paginator emptyMessage="Ürün kodu bulunamadı."
                    currentPageReportTemplate="{first}. ile {last}. arası toplam {totalRecords} kayıttan"
+                   filterDisplay={"row"}
+                   filters={{
+                       'code': {value: null, matchMode: 'contains'},
+                       'service_number': {value: null, matchMode: 'contains'},
+                       'dealer.name': {value: null, matchMode: 'contains'},
+                   }}
                    paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
                    rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id" loading={loading} editMode="row"
                    onRowEditComplete={(e) => {
-                        let {code,id,product_id} = e.newData;
-                        setLoading(true);
-                        if(e.data.code !== code){
-                            fetch(route('super.products.updateCode',product_id), {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': csrf_token
-                                },
-                                body: JSON.stringify({
-                                    code_id: id,
-                                    code,
-                                    _method: 'put'
-                                })
-                            }).then(r => r.json()).then(response => {
-                                if (response.status) {
-                                    toast.current.show({severity: 'success', summary: 'Başarılı', detail: response.message});
-                                    setCodes(response.codes);
-                                } else {
-                                    toast.current.show({severity: 'error', summary: 'Hata', detail: response.message});
-                                }
-                            }).catch((err) => {
-                                toast.current.show({
-                                    severity: 'error',
-                                    summary: 'Hata',
-                                    detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
-                                });
-                            }).finally(() => {
-                                setLoading(false);
-                            });
-                        }else{
-                            setLoading(false);
-                        }
+                       let {code, id, product_id} = e.newData;
+                       setLoading(true);
+                       if (e.data.code !== code) {
+                           fetch(route('super.products.updateCode', product_id), {
+                               method: 'POST', headers: {
+                                   'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
+                               }, body: JSON.stringify({
+                                   code_id: id, code, _method: 'put'
+                               })
+                           }).then(r => r.json()).then(response => {
+                               if (response.status) {
+                                   toast.current.show({
+                                       severity: 'success', summary: 'Başarılı', detail: response.message
+                                   });
+                                   setCodes(response.codes);
+                               } else {
+                                   toast.current.show({severity: 'error', summary: 'Hata', detail: response.message});
+                               }
+                           }).catch((err) => {
+                               toast.current.show({
+                                   severity: 'error',
+                                   summary: 'Hata',
+                                   detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                               });
+                           }).finally(() => {
+                               setLoading(false);
+                           });
+                       } else {
+                           setLoading(false);
+                       }
                    }}>
             <Column field="code" sortable header="Ürün Kodu"
+                    filter filterPlaceholder={"Koda Göre Filtreleyin"}
                     editor={(options) => <InputText type="text" size={"small"} value={options.value}
                                                     onChange={(e) => options.editorCallback(e.target.value)}/>}/>
             <Column field="used" sortable header="Durumu" body={(rowData) => {
@@ -139,20 +132,36 @@ const ProductCodes = ({csrf_token, product, productCodesModal, setFooter, onHide
                     })}></i>
                 </Button>;
             }}/>
-            <Column sortable header="Konumu" body={(rowData) => {
+            <Column header="Konumu" filter field={"dealer.name"} filterPlaceholder={"Konuma Göre Filtreleyin"} body={(rowData) => {
                 if (rowData.location !== "central") {
-                    return <Button label={rowData.dealer.name} link size={"small"} tooltip={"Bayiyi Görüntüle"} onClick={() => {
-                        router.visit(route('super.dealers.show', rowData.dealer.id));
-                    }}/>
+                    return <Button label={rowData.dealer.name} link size={"small"} tooltip={"Bayiyi Görüntüle"}
+                                   onClick={() => {
+                                       router.visit(route('super.dealers.show', rowData.dealer.id));
+                                   }}/>
                 } else {
                     return "Merkez";
                 }
             }}/>
+            <Column header="Hizmet" field={"service_number"} filter
+                    filterPlaceholder={"Hizmet Numarasına Göre Filtreleyin"} body={(rowData) => {
+                if (rowData.location !== "central") {
+                    if (rowData.used) {
+                        return <Button label={rowData.service_number} link size={"small"} tooltip={"Hizmeti Görüntüle"}
+                                       onClick={() => {
+                                           window.open(route('warranty.index', rowData.service_number), '_blank');
+                                       }}/>
+                    } else {
+                        return "Kullanılmamış";
+                    }
+                } else {
+                    return "Kullanılmamış";
+                }
+            }}/>
 
             <Column field="used_at" sortable header="Kullanılma Tarihi" body={(rowData) => {
-                if(rowData.used_at !== null){
+                if (rowData.used_at !== null) {
                     return new Date(rowData.used_at).toLocaleString();
-                }else{
+                } else {
                     return "...";
                 }
             }}/>
@@ -182,26 +191,20 @@ const ProductCodes = ({csrf_token, product, productCodesModal, setFooter, onHide
                             accept: () => {
                                 setLoading(true)
                                 fetch(route('super.products.deleteCode', rowData.id), {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': csrf_token
+                                    method: 'DELETE', headers: {
+                                        'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
                                     },
                                 }).then(r => r.json()).then(response => {
                                     if (response.status) {
                                         toast.current.show({
-                                            severity: 'success',
-                                            summary: 'Başarılı',
-                                            detail: response.message
+                                            severity: 'success', summary: 'Başarılı', detail: response.message
                                         });
                                         setCodes(prevCodes => {
                                             return prevCodes.filter((code) => code.id !== rowData.id);
                                         })
                                     } else {
                                         toast.current.show({
-                                            severity: 'error',
-                                            summary: 'Hata',
-                                            detail: response.message
+                                            severity: 'error', summary: 'Hata', detail: response.message
                                         });
                                     }
                                 }).catch((err) => {

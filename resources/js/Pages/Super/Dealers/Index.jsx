@@ -31,17 +31,7 @@ export default function Index({auth, dealersAll, csrf_token}) {
     const [selectedDealers, setSelectedDealers] = useState([]);
     const [updateDelaer, setUpdateDelaer] = useState({});
     const [dealers, setDealers] = useState(dealersAll);
-    const columns = [
-        'id',
-        'name',
-        'email',
-        'phone',
-        'avatar',
-        'active',
-        'updated_at',
-        'created_at',
-        'actions'
-    ];
+    const columns = ['id', 'name', 'email', 'phone', 'avatar', 'active', 'updated_at', 'created_at', 'actions'];
     const columnsTurkishNames = {
         'id': 'ID',
         'name': 'Bayi Adı',
@@ -70,8 +60,7 @@ export default function Index({auth, dealersAll, csrf_token}) {
         setGlobalFilterValue(value);
     };
     const renderHeader = () => {
-        return (
-            <>
+        return (<>
                 <Toolbar start={() => <>
                     <Button icon="pi pi-plus" size={"small"} severity={"success"} tooltip={"Yeni Bayi Ekle"}
                             tooltipOptions={{
@@ -103,33 +92,24 @@ export default function Index({auth, dealersAll, csrf_token}) {
                                         accept: () => {
                                             let url = route('super.dealers.multipleDestroy');
                                             fetch(url, {
-                                                method: 'POST',
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                    'X-CSRF-TOKEN': csrf_token
-                                                },
-                                                body: JSON.stringify({
+                                                method: 'POST', headers: {
+                                                    'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
+                                                }, body: JSON.stringify({
                                                     dealerIds: selectedDealers.map(dealer => dealer.id)
                                                 })
                                             }).then(async response => {
                                                 let data = await response.json();
                                                 if (response.status === 404) {
                                                     toast.current.show({
-                                                        severity: 'error',
-                                                        summary: 'Hata',
-                                                        detail: data.message
+                                                        severity: 'error', summary: 'Hata', detail: data.message
                                                     });
                                                 } else if (response.status === 500) {
                                                     toast.current.show({
-                                                        severity: 'warning',
-                                                        summary: 'Hata',
-                                                        detail: data.message
+                                                        severity: 'warning', summary: 'Hata', detail: data.message
                                                     });
                                                 } else if (response.status === 200) {
                                                     toast.current.show({
-                                                        severity: 'success',
-                                                        summary: 'Başarılı',
-                                                        detail: data.message
+                                                        severity: 'success', summary: 'Başarılı', detail: data.message
                                                     });
                                                     setDealers(dealers.map(produc => {
                                                         if (!selectedDealers.map(dealer => dealer.id).includes(produc.id)) {
@@ -165,27 +145,13 @@ export default function Index({auth, dealersAll, csrf_token}) {
                                  <span>{selectedDealers.length} bayi seçildi.</span>
                              </p>)}
                          </>}
-                         end={() => <>
-
-                    <span className="p-input-icon-left">
-                            <i className="pi pi-search"/>
-                            <InputText size={"small"} value={globalFilterValue} onChange={onGlobalFilterChange}
-                                       placeholder="Bayilerde Arama Yapın"/>
-                    </span>{globalFilterValue !== '' && (<Button size={"small"}
-                                                                 icon="pi pi-times" className="p-button-info ml-2"
-                                                                 onClick={() => onGlobalFilterChange('', true)}
-                                                                 tooltip={"Filtreyi Temizle"} tooltipOptions={{
-                             position: 'top'
-                         }}/>)}
-                         </>}/>
-            </>
-        );
+                />
+            </>);
     };
     const verifiedBodyTemplate = (rowData) => {
         return <Button className={"flex justify-center"}
                        tooltip={Boolean(rowData.active) === true ? "Aktif" : "DeAktif"} tooltipOptions={{
-            position: 'top',
-            mouseTrack: true
+            position: 'top', mouseTrack: true
         }} unstyled>
             <i className={classNames('pi ', {
                 'true-icon pi-check-circle text-green-400': Boolean(rowData.active),
@@ -197,10 +163,8 @@ export default function Index({auth, dealersAll, csrf_token}) {
     const confirmPopupForDealerDelete = (event, itemId, item = "dealer") => {
         const deleteFunction = () => {
             fetch(route('super.dealers.destroy', itemId), {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf_token
+                method: 'DELETE', headers: {
+                    'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
                 }
             }).then(async response => {
                 let data = await response.json();
@@ -215,9 +179,7 @@ export default function Index({auth, dealersAll, csrf_token}) {
             }).catch((error) => {
                 console.log(error)
                 toast.current.show({
-                    severity: 'error',
-                    summary: 'Hata',
-                    detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                    severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
                 });
             }).finally(() => {
                 setSelectedDealers(selectedDealers.filter(dealer => dealer.id !== itemId ? dealer : null).filter(Boolean));
@@ -242,8 +204,7 @@ export default function Index({auth, dealersAll, csrf_token}) {
         setUpdateDelaer(user);
         setUpdateModal(true);
     }
-    return (
-        <AuthenticatedLayout
+    return (<AuthenticatedLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Bayiler</h2>}
         >
@@ -284,7 +245,13 @@ export default function Index({auth, dealersAll, csrf_token}) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <DataTable dragSelection value={dealers} removableSort paginator
                                    paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-                                   rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id" filters={filters}
+                                   rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id"
+                                   filters={{
+                                       name:{value:"", matchMode: "contains"},
+                                       email:{value:"", matchMode: "contains"},
+                                       phone:{value:"", matchMode: "contains"},
+                                   }}
+                                   filterDisplay={"row"}
                                    loading={false}
                                    selectionMode={null} selection={selectedDealers}
                                    onSelectionChange={(e) => setSelectedDealers(e.value)}
@@ -294,9 +261,9 @@ export default function Index({auth, dealersAll, csrf_token}) {
                                    currentPageReportTemplate="{first}. ile {last}. arası toplam {totalRecords} kayıttan">
                             <Column selectionMode="multiple" headerStyle={{width: '3rem'}}></Column>
                             {selectedColumns.includes('id') && <Column field="id" sortable header="#"/>}
-                            {selectedColumns.includes('name') && <Column field="name" sortable header="Bayi Adı"/>}
-                            {selectedColumns.includes('email') && <Column field="email" sortable header="Email"/>}
-                            {selectedColumns.includes('phone') && <Column field="phone" sortable header="Telefon No"/>}
+                            {selectedColumns.includes('name') && <Column field="name" filter filterPlaceholder={"Ada Göre Filtreleyin"} sortable header="Bayi Adı"/>}
+                            {selectedColumns.includes('email') && <Column field="email" filter filterPlaceholder={"Emaile Göre Filtreleyin"} sortable header="Email"/>}
+                            {selectedColumns.includes('phone') && <Column field="phone" filter filterPlaceholder={"Telefona Göre Filtreleyin"} sortable header="Telefon No"/>}
                             {selectedColumns.includes('avatar') &&
                                 <Column field="image" header="Avatar" body={(user) => {
                                     return <Avatar image={user.avatar} shape="circle" size={"large"}/>
@@ -333,16 +300,23 @@ export default function Index({auth, dealersAll, csrf_token}) {
                                 </div>
                             }}/>}
                         </DataTable>
-                        <Dialog header="Yeni Bayi Ekle" style={{ width: '50vw' }} breakpoints={{ '960px': '75vw', '641px': '100vw' }} onHide={() => setAddModal(false)} maximizable visible={addModal} footer={addModalFooter}>
-                            <Create addModal={addModal} csrf_token={csrf_token} toast={toast} onHide={() => setAddModal(false)} setDealers={setDealers} setAddModalFooter={setAddModalFooter}/>
+                        <Dialog header="Yeni Bayi Ekle" style={{width: '50vw'}}
+                                breakpoints={{'960px': '75vw', '641px': '100vw'}} onHide={() => setAddModal(false)}
+                                maximizable visible={addModal} footer={addModalFooter}>
+                            <Create addModal={addModal} csrf_token={csrf_token} toast={toast}
+                                    onHide={() => setAddModal(false)} setDealers={setDealers}
+                                    setAddModalFooter={setAddModalFooter}/>
                         </Dialog>
-                        <Dialog header="Bayiyi Düzenle" style={{ width: '50vw' }} breakpoints={{ '960px': '75vw', '641px': '100vw' }} onHide={() => setUpdateModal(false)} maximizable visible={updateModal} footer={updateModalFooter}>
-                            <Update updateModal={updateModal} dealer={updateDelaer} csrf_token={csrf_token} toast={toast} onHide={() => setUpdateModal(false)} setDealers={setDealers} setUpdateModalFooter={setUpdateModalFooter}/>
+                        <Dialog header="Bayiyi Düzenle" style={{width: '50vw'}}
+                                breakpoints={{'960px': '75vw', '641px': '100vw'}} onHide={() => setUpdateModal(false)}
+                                maximizable visible={updateModal} footer={updateModalFooter}>
+                            <Update updateModal={updateModal} dealer={updateDelaer} csrf_token={csrf_token}
+                                    toast={toast} onHide={() => setUpdateModal(false)} setDealers={setDealers}
+                                    setUpdateModalFooter={setUpdateModalFooter}/>
                         </Dialog>
                     </div>
                 </div>
             </div>
 
-        </AuthenticatedLayout>
-    );
+        </AuthenticatedLayout>);
 }

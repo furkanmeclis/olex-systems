@@ -30,7 +30,7 @@ class User extends Authenticatable
         'central' => 'Merkez',
         'central_salesman' => 'Merkez Satış Elemanı',
         'central_contact' => 'Merkez İletişim Elemanı',
-        'central_worker' => 'Merkez Çalışanı',
+        'central_worker' => 'Merkez Depo Sorumlusu',
         'admin' => 'Bayi',
         'worker' => 'Çalışan',
     ];

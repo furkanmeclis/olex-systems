@@ -20,7 +20,8 @@ import Create from "@/Pages/Super/Central/Create.jsx";
 import Update from "@/Pages/Super/Central/Update.jsx";
 import {Avatar} from "primereact/avatar";
 import {useLocalStorage} from "primereact/hooks"
-export default function Index({auth, usersAll, csrf_token,roles}) {
+
+export default function Index({auth, usersAll, csrf_token, roles}) {
     const toast = useRef(null);
     const op = useRef(null);
     const [filters, setFilters] = useState({
@@ -31,18 +32,7 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [updateWorker, setUpdateWorker] = useState({});
     const [users, setUsers] = useState(usersAll);
-    const columns = [
-        'id',
-        'name',
-        'email',
-        'phone',
-        'role',
-        'avatar',
-        'active',
-        'updated_at',
-        'created_at',
-        'actions'
-    ];
+    const columns = ['id', 'name', 'email', 'phone', 'role', 'avatar', 'active', 'updated_at', 'created_at', 'actions'];
     const columnsTurkishNames = {
         'id': 'ID',
         'name': 'Üye Adı',
@@ -55,7 +45,7 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
         'created_at': 'Eklenme Tarihi',
         'actions': 'İşlemler'
     }
-    const [selectedColumns, setSelectedColumns] = useLocalStorage(columns,'super-central-users-table-columns')
+    const [selectedColumns, setSelectedColumns] = useLocalStorage(columns, 'super-central-users-table-columns')
     const [addModal, setAddModal] = useState(false);
     const [updateModal, setUpdateModal] = useState(false);
     const onGlobalFilterChange = (e, action = false) => {
@@ -68,8 +58,7 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
         setGlobalFilterValue(value);
     };
     const renderHeader = () => {
-        return (
-            <>
+        return (<>
                 <Toolbar start={() => <>
                     <Button icon="pi pi-plus" size={"small"} severity={"success"} tooltip={"Yeni Merkez Üyesi Ekle"}
                             tooltipOptions={{
@@ -101,33 +90,24 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
                                         accept: () => {
                                             let url = route('super.central.multipleDestroy');
                                             fetch(url, {
-                                                method: 'POST',
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                    'X-CSRF-TOKEN': csrf_token
-                                                },
-                                                body: JSON.stringify({
+                                                method: 'POST', headers: {
+                                                    'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
+                                                }, body: JSON.stringify({
                                                     workerIds: selectedUsers.map(user => user.id)
                                                 })
                                             }).then(async response => {
                                                 let data = await response.json();
                                                 if (response.status === 404) {
                                                     toast.current.show({
-                                                        severity: 'error',
-                                                        summary: 'Hata',
-                                                        detail: data.message
+                                                        severity: 'error', summary: 'Hata', detail: data.message
                                                     });
                                                 } else if (response.status === 500) {
                                                     toast.current.show({
-                                                        severity: 'warning',
-                                                        summary: 'Hata',
-                                                        detail: data.message
+                                                        severity: 'warning', summary: 'Hata', detail: data.message
                                                     });
                                                 } else if (response.status === 200) {
                                                     toast.current.show({
-                                                        severity: 'success',
-                                                        summary: 'Başarılı',
-                                                        detail: data.message
+                                                        severity: 'success', summary: 'Başarılı', detail: data.message
                                                     });
                                                     setUsers(users.map(produc => {
                                                         if (!selectedUsers.map(user => user.id).includes(produc.id)) {
@@ -153,9 +133,10 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
                                     });
                                 }}
                                 icon="pi pi-trash" className="p-button-danger"
-                                tooltip={"Seçilen " + `${selectedUsers.length}` + " Merkez Üyesini Sil"} tooltipOptions={{
-                            position: 'top'
-                        }}/>
+                                tooltip={"Seçilen " + `${selectedUsers.length}` + " Merkez Üyesini Sil"}
+                                tooltipOptions={{
+                                    position: 'top'
+                                }}/>
                     </>)}
                 </>}
                          center={() => <>
@@ -163,27 +144,13 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
                                  <span>{selectedUsers.length} merkez üyesi seçildi.</span>
                              </p>)}
                          </>}
-                         end={() => <>
-
-                    <span className="p-input-icon-left">
-                            <i className="pi pi-search"/>
-                            <InputText size={"small"} value={globalFilterValue} onChange={onGlobalFilterChange}
-                                       placeholder="Merkez Üyelerinde Arama Yapın"/>
-                    </span>{globalFilterValue !== '' && (<Button size={"small"}
-                                                                 icon="pi pi-times" className="p-button-info ml-2"
-                                                                 onClick={() => onGlobalFilterChange('', true)}
-                                                                 tooltip={"Filtreyi Temizle"} tooltipOptions={{
-                             position: 'top'
-                         }}/>)}
-                         </>}/>
-            </>
-        );
+                />
+            </>);
     };
     const verifiedBodyTemplate = (rowData) => {
         return <Button className={"flex justify-center"}
                        tooltip={Boolean(rowData.active) === true ? "Aktif" : "DeAktif"} tooltipOptions={{
-            position: 'top',
-            mouseTrack: true
+            position: 'top', mouseTrack: true
         }} unstyled>
             <i className={classNames('pi ', {
                 'true-icon pi-check-circle text-green-400': Boolean(rowData.active),
@@ -195,10 +162,8 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
     const confirmPopupForUserDelete = (event, itemId) => {
         const deleteFunction = () => {
             fetch(route('super.central.destroy', itemId), {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf_token
+                method: 'DELETE', headers: {
+                    'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
                 }
             }).then(async response => {
                 let data = await response.json();
@@ -213,9 +178,7 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
             }).catch((error) => {
                 console.log(error)
                 toast.current.show({
-                    severity: 'error',
-                    summary: 'Hata',
-                    detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                    severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
                 });
             }).finally(() => {
                 setSelectedUsers(selectedUsers.filter(user => user.id !== itemId ? user : null).filter(Boolean));
@@ -240,10 +203,10 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
         setUpdateWorker(user);
         setUpdateModal(true);
     }
-    return (
-        <AuthenticatedLayout
+    return (<AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Merkez Üyeleri</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Merkez
+                Üyeleri</h2>}
         >
             <Head title="Merkez Üyeleri"/>
             <Tooltip target=".custom-target-icon"/>
@@ -282,20 +245,35 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <DataTable dragSelection value={users} removableSort paginator
                                    paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-                                   rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id" filters={filters}
+                                   rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id"
+                                   filters={{
+                                       name: {value: "", matchMode: "contains"},
+                                       email: {value: "", matchMode: "contains"},
+                                       phone: {value: "", matchMode: "contains"},
+                                       role_label: {value: "", matchMode: "contains"},
+                                   }}
                                    loading={false}
                                    selectionMode={null} selection={selectedUsers}
                                    onSelectionChange={(e) => setSelectedUsers(e.value)}
                                    globalFilterFields={['name', 'email', 'phone']}
                                    header={header}
+                                   filterDisplay="row"
                                    emptyMessage="Merkez Üyesi bulunamadı."
                                    currentPageReportTemplate="{first}. ile {last}. arası toplam {totalRecords} kayıttan">
                             <Column selectionMode="multiple" headerStyle={{width: '3rem'}}></Column>
                             {selectedColumns.includes('id') && <Column field="id" sortable header="#"/>}
-                            {selectedColumns.includes('name') && <Column field="name" sortable header="Üye Adı"/>}
-                            {selectedColumns.includes('email') && <Column field="email" sortable header="Email"/>}
-                            {selectedColumns.includes('phone') && <Column field="phone" sortable header="Telefon No"/>}
-                            {selectedColumns.includes('role') && <Column field="role_label" sortable header="Rolü"/>}
+                            {selectedColumns.includes('name') &&
+                                <Column field="name" filter filterPlaceholder="Üye Adına Göre Filtre" sortable
+                                        header="Üye Adı"/>}
+                            {selectedColumns.includes('email') &&
+                                <Column field="email" filter filterPlaceholder="Emaile Göre Filtre" sortable
+                                        header="Email"/>}
+                            {selectedColumns.includes('phone') &&
+                                <Column field="phone" filter filterPlaceholder="Telefona Göre Filtre" sortable
+                                        header="Telefon No"/>}
+                            {selectedColumns.includes('role') &&
+                                <Column field="role_label" filter filterPlaceholder="Role Göre Filtre" sortable
+                                        header="Rolü"/>}
                             {selectedColumns.includes('avatar') &&
                                 <Column field="image" header="Avatar" body={(user) => {
                                     return <Avatar image={user.avatar} shape="circle" size={"large"}/>
@@ -326,16 +304,23 @@ export default function Index({auth, usersAll, csrf_token,roles}) {
                                 </div>
                             }}/>}
                         </DataTable>
-                        <Dialog header="Yeni Merkez Üyesi Ekle" style={{ width: '50vw' }} breakpoints={{ '960px': '75vw', '641px': '100vw' }} onHide={() => setAddModal(false)} maximizable visible={addModal} footer={addModalFooter}>
-                            <Create addModal={addModal} csrf_token={csrf_token} toast={toast} onHide={() => setAddModal(false)} roles={roles} setUsers={setUsers} setAddModalFooter={setAddModalFooter}/>
+                        <Dialog header="Yeni Merkez Üyesi Ekle" style={{width: '50vw'}}
+                                breakpoints={{'960px': '75vw', '641px': '100vw'}} onHide={() => setAddModal(false)}
+                                maximizable visible={addModal} footer={addModalFooter}>
+                            <Create addModal={addModal} csrf_token={csrf_token} toast={toast}
+                                    onHide={() => setAddModal(false)} roles={roles} setUsers={setUsers}
+                                    setAddModalFooter={setAddModalFooter}/>
                         </Dialog>
-                        <Dialog header="Merkez Üyesini Düzenle" style={{ width: '50vw' }} breakpoints={{ '960px': '75vw', '641px': '100vw' }} onHide={() => setUpdateModal(false)} maximizable visible={updateModal} footer={updateModalFooter}>
-                            <Update updateModal={updateModal} user={updateWorker} csrf_token={csrf_token} toast={toast} roles={roles} onHide={() => setUpdateModal(false)} setUsers={setUsers} setUpdateModalFooter={setUpdateModalFooter}/>
+                        <Dialog header="Merkez Üyesini Düzenle" style={{width: '50vw'}}
+                                breakpoints={{'960px': '75vw', '641px': '100vw'}} onHide={() => setUpdateModal(false)}
+                                maximizable visible={updateModal} footer={updateModalFooter}>
+                            <Update updateModal={updateModal} user={updateWorker} csrf_token={csrf_token} toast={toast}
+                                    roles={roles} onHide={() => setUpdateModal(false)} setUsers={setUsers}
+                                    setUpdateModalFooter={setUpdateModalFooter}/>
                         </Dialog>
                     </div>
                 </div>
             </div>
 
-        </AuthenticatedLayout>
-    );
+        </AuthenticatedLayout>);
 }

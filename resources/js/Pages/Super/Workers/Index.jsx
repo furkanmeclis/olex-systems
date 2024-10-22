@@ -37,10 +37,8 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
     const getDealers = () => {
         setLoading(true)
         fetch(route('super.dealers.listAll'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrf_token
+            method: 'POST', headers: {
+                'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
             },
         }).then(r => r.json()).then(response => {
             setDealers(response.dealers);
@@ -54,18 +52,7 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
     useEffect(() => {
         getDealers();
     }, [])
-    const columns = [
-        'id',
-        'name',
-        'dealer_name',
-        'email',
-        'phone',
-        'avatar',
-        'active',
-        'updated_at',
-        'created_at',
-        'actions'
-    ];
+    const columns = ['id', 'name', 'dealer_name', 'email', 'phone', 'avatar', 'active', 'updated_at', 'created_at', 'actions'];
     const columnsTurkishNames = {
         'id': 'ID',
         'name': 'Çalışan Adı',
@@ -94,8 +81,7 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
         setGlobalFilterValue(value);
     };
     const renderHeader = () => {
-        return (
-            <>
+        return (<>
                 <Toolbar start={() => <>
                     <Button icon="pi pi-plus" size={"small"} severity={"success"} tooltip={"Yeni Çalışan Ekle"}
                             tooltipOptions={{
@@ -127,12 +113,9 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
                                         accept: () => {
                                             let url = route('super.workers.multipleDestroy');
                                             fetch(url, {
-                                                method: 'POST',
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                    'X-CSRF-TOKEN': csrf_token
-                                                },
-                                                body: JSON.stringify({
+                                                method: 'POST', headers: {
+                                                    'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
+                                                }, body: JSON.stringify({
                                                     workerIds: selectedWorkers.map(worker => worker.id),
                                                     dealerId: dealer.id
                                                 })
@@ -140,21 +123,15 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
                                                 let data = await response.json();
                                                 if (response.status === 404) {
                                                     toast.current.show({
-                                                        severity: 'error',
-                                                        summary: 'Hata',
-                                                        detail: data.message
+                                                        severity: 'error', summary: 'Hata', detail: data.message
                                                     });
                                                 } else if (response.status === 500) {
                                                     toast.current.show({
-                                                        severity: 'warning',
-                                                        summary: 'Hata',
-                                                        detail: data.message
+                                                        severity: 'warning', summary: 'Hata', detail: data.message
                                                     });
                                                 } else if (response.status === 200) {
                                                     toast.current.show({
-                                                        severity: 'success',
-                                                        summary: 'Başarılı',
-                                                        detail: data.message
+                                                        severity: 'success', summary: 'Başarılı', detail: data.message
                                                     });
                                                     setWorkers(workers.map(produc => {
                                                         if (!selectedWorkers.map(worker => worker.id).includes(produc.id)) {
@@ -188,30 +165,15 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
                          center={() => <>
                              <div className={"flex flex-col items-center justify-center"}>
                                  {selectedWorkers.length > 0 && (
-                                     <span>{selectedWorkers.length} çalışan seçildi.</span>
-                                 )}</div>
+                                     <span>{selectedWorkers.length} çalışan seçildi.</span>)}</div>
                          </>}
-                         end={() => <>
-
-                    <span className="p-input-icon-left">
-                            <i className="pi pi-search"/>
-                            <InputText size={"small"} value={globalFilterValue} onChange={onGlobalFilterChange}
-                                       placeholder="Çalışanlarda Arama Yapın"/>
-                    </span>{globalFilterValue !== '' && (<Button size={"small"}
-                                                                 icon="pi pi-times" className="p-button-info ml-2"
-                                                                 onClick={() => onGlobalFilterChange('', true)}
-                                                                 tooltip={"Filtreyi Temizle"} tooltipOptions={{
-                             position: 'top'
-                         }}/>)}
-                         </>}/>
-            </>
-        );
+                />
+            </>);
     };
     const verifiedBodyTemplate = (rowData) => {
         return <Button className={"flex justify-center"}
                        tooltip={Boolean(rowData.active) === true ? "Aktif" : "DeAktif"} tooltipOptions={{
-            position: 'top',
-            mouseTrack: true
+            position: 'top', mouseTrack: true
         }} unstyled>
             <i className={classNames('pi ', {
                 'true-icon pi-check-circle text-green-400': Boolean(rowData.active),
@@ -224,10 +186,8 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
     }) => {
         const deleteFunction = () => {
             fetch(route('super.workers.destroy', itemId), {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf_token
+                method: 'DELETE', headers: {
+                    'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
                 }
             }).then(async response => {
                 let data = await response.json();
@@ -243,9 +203,7 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
             }).catch((error) => {
                 console.log(error)
                 toast.current.show({
-                    severity: 'error',
-                    summary: 'Hata',
-                    detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                    severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
                 });
             }).finally(() => {
                 setSelectedWorkers(selectedWorkers.filter(dealer => dealer.id !== itemId ? dealer : null).filter(Boolean));
@@ -320,7 +278,14 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
                             </OverlayPanel>
                             <DataTable dragSelection value={workers} removableSort paginator
                                        paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-                                       rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id" filters={filters}
+                                       rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id"
+                                       filterDisplay={"row"}
+                                       filters={{
+                                           name: {value: "", matchMode: "contains"},
+                                           email: {value: "", matchMode: "contains"},
+                                           phone: {value: "", matchMode: "contains"},
+                                           "dealer.company.company_name": {value: "", matchMode: "contains"},
+                                       }}
                                        loading={false}
                                        selectionMode={null} selection={selectedWorkers}
                                        onSelectionChange={(e) => setSelectedWorkers(e.value)}
@@ -331,18 +296,23 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
                                 <Column selectionMode="multiple" headerStyle={{width: '3rem'}}></Column>
                                 {selectedColumns.includes('id') && <Column field="id" sortable header="#"/>}
                                 {selectedColumns.includes('name') &&
-                                    <Column field="name" sortable header="Çalışan Adı"/>}
+                                    <Column field="name" filter filterPlaceholder={"Ada Göre Filtreleyin"} sortable
+                                            header="Çalışan Adı"/>}
                                 {selectedColumns.includes('dealer_name') &&
-                                    <Column field="dealer.company.company_name" sortable header="Bayi Adı"
+                                    <Column field="dealer.company.company_name" filter
+                                            filterPlaceholder={"Bayi Adına Göre Filtreleyin"} sortable header="Bayi Adı"
                                             body={(rowData) => {
                                                 return <Button label={rowData.dealer.name} link size={"small"}
                                                                onClick={() => {
                                                                    router.visit(route('super.dealers.show', rowData.dealer.id));
                                                                }}/>
                                             }}/>}
-                                {selectedColumns.includes('email') && <Column field="email" sortable header="Email"/>}
+                                {selectedColumns.includes('email') &&
+                                    <Column field="email" filter filterPlaceholder={"Emaile Göre Filtreleyin"} sortable
+                                            header="Email"/>}
                                 {selectedColumns.includes('phone') &&
-                                    <Column field="phone" sortable header="Telefon No"/>}
+                                    <Column field="phone" filter filterPlaceholder={"Telefona Göre Filtreleyin"}
+                                            sortable header="Telefon No"/>}
                                 {selectedColumns.includes('avatar') &&
                                     <Column field="image" header="Avatar" body={(user) => {
                                         return <Avatar image={user.avatar} shape="circle" size={"large"}/>
@@ -479,22 +449,26 @@ export default function Workers({auth, workersAll, csrf_token, dealer}) {
                                         </div>
                                         <div className={"text-center mt-3"}>
                                             <ButtonGroup>
-                                                <Button label="Kapat" icon="pi pi-times" severity={"info"} size={"small"}
+                                                <Button label="Kapat" icon="pi pi-times" severity={"info"}
+                                                        size={"small"}
                                                         onClick={() => {
                                                             setViewModal(false);
                                                             setViewWorker({});
                                                         }}/>
-                                                <Button label="Hizmet Kayıtları" icon="pi pi-file" size={"small"} severity={"help"}
+                                                <Button label="Hizmet Kayıtları" icon="pi pi-file" size={"small"}
+                                                        severity={"help"}
                                                         onClick={() => {
                                                             // TODO: Hizmet Kayıtları
                                                         }}/>
-                                                <Button label="Düzenle" icon="pi pi-pencil" size={"small"} severity={"warning"}
+                                                <Button label="Düzenle" icon="pi pi-pencil" size={"small"}
+                                                        severity={"warning"}
                                                         onClick={(e) => {
                                                             setViewModal(false);
                                                             setViewWorker({});
                                                             updateWorkerPrepare(viewWorker);
                                                         }}/>
-                                                <Button label="Sil" icon="pi pi-trash" size={"small"} severity={"danger"}
+                                                <Button label="Sil" icon="pi pi-trash" size={"small"}
+                                                        severity={"danger"}
                                                         onClick={(event) => {
                                                             confirmPopupForDealerDelete(event, viewWorker.id, () => {
                                                                 setViewModal(false);

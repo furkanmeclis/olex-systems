@@ -8,13 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class StockRecords extends Model
 {
     use HasFactory;
+
     public function product()
     {
-        $product = $this->belongsTo(Products::class, 'product_id')->first();
-        if($this->order_id !== null){
-            $product->codes = ProductCode::where('product_id', $product->id)->where('order_id',$this->order_id)->orderBy('id', 'desc')->get();
-        }else{
-            $product->codes = (object) [];
+        $product = Products::find($this->product_id);
+        if (!$product) {
+            return null;
+        }
+        if ($this->order_id !== null) {
+            $product->codes = ProductCode::where('product_id', $product->id)->where('order_id', $this->order_id)->orderBy('id', 'desc')->get();
+        } else {
+            $product->codes = (object)[];
         }
         return $product;
     }

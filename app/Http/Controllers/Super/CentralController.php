@@ -38,13 +38,6 @@ class CentralController extends \App\Http\Controllers\Controller
             'roles' => $roles
         ]);
     }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): \Inertia\Response
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
