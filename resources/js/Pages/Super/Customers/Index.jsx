@@ -165,7 +165,7 @@ export default function Index({auth, customersAll, csrf_token, page = true, supe
                         }}/>
                     }}/>}
                 {selectedColumns.includes('company_address') &&
-                    <Column field="dealer.company.company_address" filter filterPlaceholder={""} sortable header="Bayi Adres"/>}
+                    <Column field="dealer.company.company_address" filter filterPlaceholder={"Bayi Adresine Göre"} sortable header="Bayi Adres"/>}
                 {selectedColumns.includes('address') && <Column field="address" filter filterPlaceholder={"Adrese Göre"} sortable header="Müşteri Adresi"/>}
                 {selectedColumns.includes('created_at') && <Column field="created_at" sortable header="Eklenme Tarihi"
                                                                    body={(rowData) => new Date(rowData.created_at).toLocaleString()}/>}

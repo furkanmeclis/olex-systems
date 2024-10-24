@@ -5,6 +5,7 @@ use App\Models\ProductCode;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -417,18 +418,15 @@ Route::get('manifest.json', function () {
 });
 Route::get('/service-details/{id}', [\App\Http\Controllers\Worker\ServicesController::class, 'pdfSourceDataService'])->name('worker.pdfSourceDataService');
 Route::get('/pdf', [\App\Http\Controllers\HomeController::class, 'pdfSourceDataService']);
-Route::get('/svg', function () {
-    $svg = new \App\Services\GenerateCarSvg();
-    $svg = $svg->fillCar([
-        "window_sunroof",
-        "window_on_cam",
+Route::get('/log-test', function () {
+    Log::channel('sms')->info([
+        "message" => "LOG TEST",
     ]);
-    return response($svg)->header('Content-Type', 'image/svg+xml');
+    return response()->json(['message' => 'LOG TEST22']);
 });
 Route::get('/warranty/{id}', [\App\Http\Controllers\WarrantyController::class, 'index'])->name('warranty.index');
 Route::get('/warranty/{id}/pdf', [\App\Http\Controllers\WarrantyController::class, 'pdf'])->name('warranty.pdf');
 Route::get('/customer/{hash}', [\App\Http\Controllers\CustomerController::class, 'index'])->name('customer.notify');
-
 Route::post('/customer/{hash}/store', [\App\Http\Controllers\CustomerController::class, 'update'])->name('customer.notifyUpdate');
 
 require __DIR__ . '/auth.php';

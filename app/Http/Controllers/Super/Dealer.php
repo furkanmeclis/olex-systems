@@ -8,6 +8,7 @@ use App\Models\Orders;
 use App\Models\Products;
 use App\Models\Services;
 use App\Models\User;
+use App\Services\VatanSmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
@@ -65,13 +66,17 @@ class Dealer extends \App\Http\Controllers\Controller
         $dealer->password = Hash::make($request->get('password'));
         $dealer->active = $request->get('active') == 'true' ? 1 : 0;
         if (request()->hasFile('image')) {
-            $fileName = Str::uuid().".".$request->file('image')->getClientOriginalExtension();
+            $fileName = Str::uuid() . "." . $request->file('image')->getClientOriginalExtension();
             $request->file('image')->move(public_path("uploads/dealer_avatars"), $fileName);
-            $dealer->avatar = url(("uploads/dealer_avatars/").$fileName);
+            $dealer->avatar = url(("uploads/dealer_avatars/") . $fileName);
         } else {
             $dealer->avatar = url("uploads/default.png");
         }
         if ($dealer->save()) {
+            $message = $dealer->name . " Olex Films ailesine hoşgeldiniz. Bayi yönetim ve garanti süreçleri ile alaklı en kısa sürede bilgilendirileceksiniz.";
+            $phone = $dealer->phone;
+            VatanSmsService::sendSingleSms($phone, $message);
+            VatanSmsService::sendSingleSms("905559677373", "Sayın Süleyman İpek, OLEX Films ağına bir bayi daha eklenmiştir. Yeni bayi bilgileri Bayi adı: " . $dealer->name . " Bayi mail adresi: " . $dealer->email . " Bayi telefon numarası: " . $dealer->phone);
             return response()->json(['message' => 'Bayi başarıyla eklendi.', 'status' => true, 'dealers' => $this->getAllDealers(), 'dealer_id' => $dealer->id]);
         } else {
             return response()->json(['message' => 'Bayi eklenirken bir hata oluştu.', 'status' => false]);
@@ -137,9 +142,9 @@ class Dealer extends \App\Http\Controllers\Controller
             $dealer->phone = $request->get('phone');
             $dealer->active = $request->get('active') == 'true' ? 1 : 0;
             if ($request->hasFile('image')) {
-                $fileName = Str::uuid().".".$request->file('image')->getClientOriginalExtension();
+                $fileName = Str::uuid() . "." . $request->file('image')->getClientOriginalExtension();
                 $request->file('image')->move(public_path("uploads/dealer_avatars"), $fileName);
-                $dealer->avatar = url(("uploads/dealer_avatars/").$fileName);
+                $dealer->avatar = url(("uploads/dealer_avatars/") . $fileName);
             }
             if ($request->get('reset_password') == 1) {
                 $dealer->password = Hash::make($request->get('password'));
@@ -167,9 +172,9 @@ class Dealer extends \App\Http\Controllers\Controller
                 if ($details->logo != 'logos/default.png' && $details->logo != null && $details->logo != "" && file_exists(public_path('uploads/dealer_avatars/' . $details->logo))) {
                     unlink(storage_path('app/public/' . $details->logo));
                 }
-                $fileName = Str::uuid().".".$request->file('logo')->getClientOriginalExtension();
+                $fileName = Str::uuid() . "." . $request->file('logo')->getClientOriginalExtension();
                 $request->file('logo')->move(public_path("uploads/dealer_logos"), $fileName);
-                $details->company_logo = url(("uploads/dealer_logos/").$fileName);
+                $details->company_logo = url(("uploads/dealer_logos/") . $fileName);
 
 
             } else {

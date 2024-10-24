@@ -146,7 +146,11 @@ function WorkerServicesPage({ servicesAll}) {
             </OverlayPanel>
             <DataTable value={services} removableSort paginator
                        paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-                       rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id" filters={filters}
+                       rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id"
+                       filterDisplay={"row"}
+                       filters={{
+                           
+                       }}
                        loading={loading}
                        globalFilterFields={['service_no', 'worker_name', 'car', 'customer_name', 'status']}
                        header={header}

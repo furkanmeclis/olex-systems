@@ -9,6 +9,7 @@ use App\Models\Products;
 use App\Models\ServiceProducts;
 use App\Models\Services;
 use App\Models\StockRecords;
+use App\Services\VatanSmsService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use DateInterval;
 use DateTime;
@@ -107,13 +108,15 @@ class ServicesController extends Controller
                             return response()->json(['message' => 'Hizmet oluşturulurken bir hata oluştu.', 'status' => false]);
                         }
                     }
+                    $dealer = $newService->dealer();
+                    $company = $dealer->company();
                     if ($customer->player_id != null) {
                         $token = $customer->player_id;
-                        $company = $newService->dealer()->company();
                         $notify = new \App\Notifications\FirebaseNotification("OLEX® Films, Aracınız Teslim Alındı 🛞", "Sayın $customer->name, $company->company_name şubemize bırakmış olduğunuz " . $carData["brand"] . " " . $carData["model"] . " " . $carData["year"] . " Marka Model araç teslim alınmış, uygulama için hazırlıkları yapılmaktadır.", $token, route("warranty.index", $newService->service_no));
                         $notify->sendPushNotification();
                     }
-
+                    VatanSmsService::sendSingleSms($customer->phone, "Sayın $customer->name, $company->company_name şubemize bırakmış olduğunuz " . $carData["brand"] . " " . $carData["model"] . " " . $carData["year"] . " Marka Model araç teslim alınmış, uygulama için hazırlıkları yapılmaktadır.");
+                    VatanSmsService::sendSingleSms($dealer->phone, "Sayın Yetkili, Bayinizde $customer->name isimli müşterinizin " . $carData["plate"] . " plakalı aracı teslim alınmıştır ve " . date("d.m.Y") . " tarihinde PPF/Cam Filmi için işleme alınmıştır.");
                     return response()->json(['message' => 'Hizmet başarıyla oluşturuldu.', 'status' => true]);
                 } else {
                     return response()->json(['message' => 'Hizmet oluşturulurken bir hata oluştu.', 'status' => false]);
@@ -170,7 +173,7 @@ class ServicesController extends Controller
                 }
             }
             if ($service->delete()) {
-                return response()->json(['message' => 'Hizmet başarıyla silindi.', 'status' => true,"services" => Services::getServices()]);
+                return response()->json(['message' => 'Hizmet başarıyla silindi.', 'status' => true, "services" => Services::getServices()]);
             } else {
                 return response()->json(['message' => 'Hizmet silinirken bir hata oluştu.', 'status' => false]);
             }
@@ -182,7 +185,7 @@ class ServicesController extends Controller
     /**
      * @throws \Exception
      */
-    public function pdfSourceDataService($idOrServiceNumber,$returnArray=false): \Illuminate\Http\JsonResponse|array
+    public function pdfSourceDataService($idOrServiceNumber, $returnArray = false): \Illuminate\Http\JsonResponse|array
     {
         $service = Services::where('service_no', $idOrServiceNumber)->orWhere('id', $idOrServiceNumber)->first();
         if ($service) {
@@ -211,21 +214,21 @@ class ServicesController extends Controller
                 "plate" => $service->car["plate"],
                 "service_no" => $service->service_no,
             ];
-            if($returnArray) {
+            if ($returnArray) {
                 return [
                     "data" => $data,
                     "status" => true
                 ];
-            }else{
+            } else {
                 return response()->json(['data' => $data, 'status' => true]);
             }
         } else {
-            if($returnArray) {
+            if ($returnArray) {
                 return [
                     "message" => "Hizmet bulunamadı.",
                     "status" => false
                 ];
-            }else{
+            } else {
                 return response()->json(['message' => 'Hizmet bulunamadı.', 'status' => false]);
             }
         }
@@ -241,9 +244,13 @@ class ServicesController extends Controller
             $service->status = 'completed';
             $service->status_history = $status_history;
             if ($service->save()) {
-                $token = $service->customer()->player_id;
+                $customer = $service->customer();
+                $dealer = $service->dealer();
+                $token = $customer->player_id;
                 $notify = new \App\Notifications\FirebaseNotification(env("APP_NAME"), "⏳ Garanti Süreciniz Başlatıldı !\nAracınızı güvence altına aldık. İlerleyen adımlar ve destek için bildirimleri açık tutmayı unutmayın!", $token, route("warranty.index", $service->service_no));
                 $notify->sendPushNotification();
+                VatanSmsService::sendSingleSms($customer->phone, "Sayın $customer->name, aracınızın garanti süreci başlatılmıştır. Bilgi ve Destek için bizlere ulaşabilirsiniz.");
+                VatanSmsService::sendSingleSms($dealer->phone, "Sayın Yetkili, $customer->name isimli müşterinizin aracının garanti süreci başlatılmıştır.");
                 return response()->json([
                     'message' => 'Hizmet başlatıldı.',
                     'status' => true,

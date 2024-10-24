@@ -21,6 +21,7 @@ class Orders extends Model
         ['value' => 'draft', 'label' => 'Taslak', 'severity' => 'help'],
         ['value' => 'pending','label' => 'Onaylandı','severity' => 'info'],
         ['value' => 'processing','label' => 'Hazırlanıyor','severity' => 'warning'],
+        ['value' => 'shipping', 'label' => 'Kargoda', 'severity' => 'warning'],
         ['value' => 'completed','label' => 'Tamamlandı','severity' => 'success'],
         ['value' => 'cancelled','label' => 'İptal Edildi','severity' => 'danger'],
         ['value' => 'refunded','label' => 'İade Edildi','severity' => 'danger'],

@@ -9,6 +9,7 @@ use App\Models\ProductCode;
 use App\Models\Products;
 use App\Models\StockRecords;
 use App\Models\User;
+use App\Services\VatanSmsService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -23,6 +24,7 @@ class OrdersController extends Controller
             ['value' => 'draft', 'label' => 'Taslak', 'severity' => 'help'],
             ['value' => 'pending', 'label' => 'Onaylandı', 'severity' => 'info'],
             ['value' => 'processing', 'label' => 'Hazırlanıyor', 'severity' => 'warning'],
+            ['value' => 'shipping', 'label' => 'Kargoda', 'severity' => 'warning'],
             ['value' => 'completed', 'label' => 'Tamamlandı', 'severity' => 'success'],
             ['value' => 'cancelled', 'label' => 'İptal Edildi', 'severity' => 'danger'],
             ['value' => 'refunded', 'label' => 'İade Edildi', 'severity' => 'danger'],
@@ -115,12 +117,17 @@ class OrdersController extends Controller
                             $unSavedItems[] = $product;
                         }
                     }
+                    VatanSmsService::sendSingleSms("905378872525", "Sayın Yetkili sistemde yeni bir sipariş oluşturuldu. Lütfen kontrol ediniz.");
+                    VatanSmsService::sendSingleSms($dealer->phone, "Sayın " . $dealer->name . " , siparişiniz merkeze ulaşmıştır. Bir hata olduğunu düşünüyorsanız lütfen merkeze ulaşın.");
                     if ($savedItems == count($products)) {
                         $orders = Orders::getAllData();
+
                         return response()->json(['message' => 'Sipariş oluşturuldu', 'status' => true, 'orders' => $orders]);
                     } else {
                         return response()->json(['message' => 'Sipariş Oluşturuldu.Bazı ürünler eklenemedi', 'status' => false, 'unSavedItems' => $unSavedItems]);
                     }
+
+
                 } else {
                     return response()->json(['message' => 'Bir sorun oluştu sipariş oluşturulamadı', 'status' => false]);
                 }
@@ -247,7 +254,7 @@ class OrdersController extends Controller
         }
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $id): \Illuminate\Http\JsonResponse
     {
         $order = Orders::find($id);
         if ($order) {
@@ -303,6 +310,7 @@ class OrdersController extends Controller
             return response()->json(['message' => 'Siparişler silinirken bir hata oluştu.'], 404);
         }
     }
+
     public function restore()
     {
         $recordIds = request()->get('recordIds');
@@ -310,7 +318,7 @@ class OrdersController extends Controller
         if (Orders::whereIn('id', $recordIds)->restore()) {
             Orders::whereIn('id', $recordIds)->update(['status' => 'draft']);
             StockRecords::whereIn('order_id', $recordIds)->update(['status' => 'draft', 'drafted_at' => now(), 'note' => 'Otomatik Güncelleme - Sipariş Geri Yüklendi - ' . date('d.m.Y H:i:s')]);
-            return response()->json(['message' => $recordsCount . ' adet sipariş başarıyla geri yüklendi','records' => Orders::getAllData()]);
+            return response()->json(['message' => $recordsCount . ' adet sipariş başarıyla geri yüklendi', 'records' => Orders::getAllData()]);
 
         } else {
             return response()->json(['message' => 'Siparişler geri yüklenirken bir hata oluştu.'], 404);
@@ -324,7 +332,7 @@ class OrdersController extends Controller
     public function getStockRecordsStatus($order): array
     {
         $updateArray = ["status" => ""];
-        if ($order->status == 'pending' || $order->status == 'processing' || $order->status == 'draft') {
+        if ($order->status == 'pending' || $order->status == 'processing' || $order->status == 'draft' || $order->status == 'shipping') {
             $updateArray["status"] = 'draft';
             $updateArray["drafted_at"] = now();
         } elseif ($order->status == 'completed') {
@@ -344,7 +352,7 @@ class OrdersController extends Controller
         if ($order) {
             $codes = $order->getProductCodes();
             $availableCodes = ProductCode::getAvailableCodes($order->id);
-            return response()->json(['message' => 'Ürün kodları listelendi', 'status' => true, 'codes' => $codes,'availableCodes' => $availableCodes]);
+            return response()->json(['message' => 'Ürün kodları listelendi', 'status' => true, 'codes' => $codes, 'availableCodes' => $availableCodes]);
 
         } else {
             return response()->json(['message' => 'Bu Id\'ye ait bir sipariş bulunamadı', 'status' => false]);
@@ -354,11 +362,11 @@ class OrdersController extends Controller
     public function updateProductCodes($id)
     {
         $order = Orders::find($id);
-        if($order){
-            $codes = explode(',',request()->get("codes"));
-            $beforeCodes = ProductCode::where('order_id',$order->id)->whereNotIn('code',$codes)->get();
+        if ($order) {
+            $codes = explode(',', request()->get("codes"));
+            $beforeCodes = ProductCode::where('order_id', $order->id)->whereNotIn('code', $codes)->get();
             foreach ($beforeCodes as $beforeCode) {
-                if(!in_array($beforeCode->code,$codes)) {
+                if (!in_array($beforeCode->code, $codes)) {
                     $beforeCode->order_id = null;
                     $beforeCode->dealer_id = null;
                     $beforeCode->location = 'central';
@@ -366,14 +374,14 @@ class OrdersController extends Controller
                 }
             }
 
-            ProductCode::whereIn('code',$codes)->get()->map(function($code) use ($order){
+            ProductCode::whereIn('code', $codes)->get()->map(function ($code) use ($order) {
                 $code->order_id = $order->id;
                 $code->dealer_id = $order->dealer_id;
                 $code->location = 'dealer';
                 $code->save();
             });
-            return response()->json(['message' => 'Ürün kodları güncellendi', 'status' => true,'records' => Orders::getAllData()]);
-        }else{
+            return response()->json(['message' => 'Ürün kodları güncellendi', 'status' => true, 'records' => Orders::getAllData()]);
+        } else {
             return response()->json(['message' => 'Bu Id\'ye ait bir sipariş bulunamadı', 'status' => false]);
         }
     }
