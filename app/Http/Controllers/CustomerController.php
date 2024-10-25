@@ -15,7 +15,8 @@ class CustomerController extends Controller
         request()->session()->put('manifest',$customerId);
         return Inertia::render('Customer/Index',[
             'customerB' => $customer,
-            'hash' => Crypt::encrypt($customerId)
+            'hash' => Crypt::encrypt($customerId),
+            'services' => $customer->getServices(),
         ]);
     }
     public function index2($customerId): \Inertia\Response
@@ -24,7 +25,7 @@ class CustomerController extends Controller
         request()->session()->put('manifest',$customerId);
         return Inertia::render('Customer/Index',[
             'customerB' => $customer,
-            'hash' => Crypt::encrypt($customerId)
+            'hash' => Crypt::encrypt($customerId),
         ]);
     }
 
@@ -72,4 +73,5 @@ class CustomerController extends Controller
             return response()->json(['message' => 'Müşteri Bulunamadı Lütfen URL İle Oynamayınız.', 'status' => false,'error'=>$e->getMessage()]);
         }
     }
+
 }

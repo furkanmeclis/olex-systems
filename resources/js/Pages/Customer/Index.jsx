@@ -3,20 +3,29 @@ import {FloatLabel} from 'primereact/floatlabel';
 import {InputText} from 'primereact/inputtext';
 import {SelectButton} from "primereact/selectbutton";
 import {Badge} from "primereact/badge";
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Button} from "primereact/button";
 import {getToken} from "firebase/messaging";
 import {messaging} from "@/firebase/index.js";
 import {Toast} from 'primereact/toast';
 import {Head} from "@inertiajs/react";
+import {Column} from "primereact/column";
+import {Tag} from "primereact/tag";
+import {confirmPopup} from "primereact/confirmpopup";
+import {DataTable} from "primereact/datatable";
+import CarBody from "@/Components/CarBody.jsx";
+import {OverlayPanel} from "primereact/overlaypanel";
 
-const Index = ({customerB, csrf_token, hash}) => {
+const Index = ({customerB, csrf_token, hash, services}) => {
     const [loading, setLoading] = useState(false);
+    const carBody = useRef(null);
+    const warrantyOp = useRef(null);
     const [customer, setCustomer] = useState(customerB);
     const toast = useRef(null);
     const [opened, setOpened] = useState(customer.player_id !== null);
     const {VITE_APP_VAPID_KEY} = import.meta.env;
-    const [serviceWorker,setServiceWorker] = useState(null);
+    const [serviceWorker, setServiceWorker] = useState(null);
+    const [selectedService, setSelectedService] = useState(null);
     useEffect(() => {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/messaging-sw.js')
@@ -28,7 +37,7 @@ const Index = ({customerB, csrf_token, hash}) => {
                     console.log('Service Worker kaydı başarısız:', error);
                 });
         }
-    },[])
+    }, [])
     const [contact, setContact] = useState(Object.entries(JSON.parse(customer.notification_settings)).map(([key, value]) => {
         if (value) {
             return key;
@@ -59,42 +68,32 @@ const Index = ({customerB, csrf_token, hash}) => {
 
         if (permission === "granted") {
             const token = await getToken(messaging, {
-                vapidKey: VITE_APP_VAPID_KEY,
-                serviceWorkerRegistration: serviceWorker
+                vapidKey: VITE_APP_VAPID_KEY, serviceWorkerRegistration: serviceWorker
             });
             setLoading(true)
             let formdata = new FormData();
             formdata.append('player_id', token);
             formdata.append('action', 'token');
             fetch(route('customer.notifyUpdate', hash), {
-                method: 'POST',
-                headers: {
+                method: 'POST', headers: {
                     'X-CSRF-TOKEN': csrf_token
-                },
-                body: formdata
+                }, body: formdata
 
             }).then(response => response.json()).then(data => {
                 if (data.status) {
                     toast.current.show({
-                        severity: 'success',
-                        summary: 'Başarılı',
-                        detail: data.message,
-                        life: 3000
+                        severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000
                     });
                     setOpened(true);
                     setCustomer(data.customer);
                 } else {
                     toast.current.show({
-                        severity: 'error',
-                        summary: 'Hata',
-                        detail: data.message
+                        severity: 'error', summary: 'Hata', detail: data.message
                     });
                 }
             }).catch((error) => {
                 toast.current.show({
-                    severity: 'error',
-                    summary: 'Hata',
-                    detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                    severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
                 });
             }).finally(() => {
                 setLoading(false);
@@ -102,24 +101,14 @@ const Index = ({customerB, csrf_token, hash}) => {
 
         } else if (permission === "denied") {
             toast.current.show({
-                severity: 'error',
-                summary: 'Hata',
-                detail: 'Bildirimler Engellendi',
-                life: 3000
+                severity: 'error', summary: 'Hata', detail: 'Bildirimler Engellendi', life: 3000
             });
             setContact(contact.filter((item) => item !== 'push'));
         }
     }
 
     const openBrowserNotifications = () => {
-        if ([
-            'iPad Simulator',
-            'iPhone Simulator',
-            'iPod Simulator',
-            'iPad',
-            'iPhone',
-            'iPod'
-        ].includes(navigator.platform)) {
+        if (['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform)) {
             if ('Notification' in window) {
                 setLoading(true)
                 requestPermission().then(r => console.log());
@@ -137,13 +126,18 @@ const Index = ({customerB, csrf_token, hash}) => {
         }
 
     }
-    return (
-        <div className={"p-4"}>
+    return (<div className={"p-4"}>
             <Head title={"Müşteri Bilgileri"}/>
             <Toast ref={toast}/>
+            <OverlayPanel ref={carBody} showCloseIcon closeOnEscape>
+                <CarBody editable={false} value={selectedService?.body} onChange={() => {
+                }}/>
+            </OverlayPanel>
+
             <div>
                 <img className={"mx-auto"} src={"/uploads/olex-logo-yatay.svg"} alt="OLEX® Films"/>
             </div>
+
             <Fieldset legend="İletişim Bilgileri" className={"mt-4"} toggleable>
                 <div className={"mt-4 gap-y-8 grid"}>
                     <FloatLabel>
@@ -158,7 +152,7 @@ const Index = ({customerB, csrf_token, hash}) => {
                 </FloatLabel>
                 </div>
             </Fieldset>
-            <Fieldset legend="İletişim Tercihleri" className={"mt-4"} toggleable>
+            <Fieldset legend="İletişim Tercihleri" className={"mt-4"} collapsed toggleable>
                 <div className={"gap-y-8 grid"}>
                     <SelectButton multiple value={contact} onChange={(e) => setContact(e.value)}
                                   itemTemplate={(option) => {
@@ -171,29 +165,23 @@ const Index = ({customerB, csrf_token, hash}) => {
                                       </i></div>
                                   }}
                                   optionLabel="value"
-                                  options={[
-                                      {icon: 'pi pi-envelope', value: 'email'},
-                                      {icon: 'pi pi-phone', value: 'sms'},
-                                      {icon: 'pi pi-bell', value: 'push'},
-                                  ]}/>
+                                  options={[{icon: 'pi pi-envelope', value: 'email'}, {
+                                      icon: 'pi pi-phone',
+                                      value: 'sms'
+                                  }, {icon: 'pi pi-bell', value: 'push'},]}/>
                     {unSaved && <div><Button label={"Tercihleri Kaydet"} icon={"pi pi-save"} onClick={() => {
                         let formdata = new FormData();
                         formdata.append('settings', JSON.stringify(contact));
                         formdata.append('action', 'settings');
                         fetch(route('customer.notifyUpdate', hash), {
-                            method: 'POST',
-                            headers: {
+                            method: 'POST', headers: {
                                 'X-CSRF-TOKEN': csrf_token
-                            },
-                            body: formdata
+                            }, body: formdata
 
                         }).then(response => response.json()).then(data => {
                             if (data.status) {
                                 toast.current.show({
-                                    severity: 'success',
-                                    summary: 'Başarılı',
-                                    detail: data.message,
-                                    life: 3000
+                                    severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000
                                 });
                                 setContact(Object.entries(JSON.parse(data.customer.notification_settings)).map(([key, value]) => {
                                     if (value) {
@@ -205,9 +193,7 @@ const Index = ({customerB, csrf_token, hash}) => {
                                 setCustomer(data.customer);
                             } else {
                                 toast.current.show({
-                                    severity: 'error',
-                                    summary: 'Hata',
-                                    detail: data.message
+                                    severity: 'error', summary: 'Hata', detail: data.message
                                 });
                             }
                         }).catch((error) => {
@@ -221,18 +207,39 @@ const Index = ({customerB, csrf_token, hash}) => {
                 </div>
             </Fieldset>
             {contact && contact.includes('push') &&
-                <Fieldset legend={"Mobil Bildirim Ayarları"} className={"mt-4"} toggleable>
+                <Fieldset legend={"Mobil Bildirim Ayarları"} className={"mt-4"} toggleable collapsed>
                     <div className={"gap-y-8 grid"}>
-                        {opened === false &&
-                            <div><Button label={"Tarayıcı Bildirimlerini Aç"} loading={loading} onClick={openBrowserNotifications}
-                                         icon={"pi pi-bell"} className={"p-button-success"}/></div>}
+                        {opened === false && <div><Button label={"Tarayıcı Bildirimlerini Aç"} loading={loading}
+                                                          onClick={openBrowserNotifications}
+                                                          icon={"pi pi-bell"} className={"p-button-success"}/></div>}
                         <p>
                             {opened ? "Tarayıcı Bildirimleriniz Açık Durumda" : "Tarayıcı Bildirimleri Kapalı Durumda"}
                         </p>
                     </div>
                 </Fieldset>}
+            <Fieldset legend={"Aldığım Hizmetler"} className={"mt-4"} toggleable collapsed>
+                <DataTable value={services} removableSort paginator
+                           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                           rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id"
+                           loading={loading}
+                           emptyMessage="Hizmet bulunamadı."
+                           currentPageReportTemplate="{first}. ile {last}. arası toplam {totalRecords} kayıttan">
+                    <Column field="service_no" sortable header="Hizmet Numarası"
+                            body={({service_no}) => <Button label={service_no}
+                                                            link onClick={() => {
+                                window.open(route("warranty.index", service_no), "_blank")
+                            }}/>}/>
 
-        </div>
-    );
+                    <Column field="car.brand" sortable header="Araç" body={(service) => {
+                        return <Button label={service.car.brand + "-" + service.car.model} size={"small"} link
+                                       onClick={(event) => {
+                                           setSelectedService(service);
+                                           carBody.current.toggle(event);
+
+                                       }}/>
+                    }}/>
+                </DataTable>
+            </Fieldset>
+        </div>);
 }
 export default Index;

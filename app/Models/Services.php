@@ -112,11 +112,11 @@ class Services extends Model
             ];
             $service->products = $service->getProducts();
             if ($service->status === "completed") {
-               $warranty = [];
-               foreach ($service->products as $product) {
-                   $warranty[] = $product->warranty;
-               }
-               $service->warranty = $warranty;
+                $warranty = [];
+                foreach ($service->products as $product) {
+                    $warranty[] = $product->warranty;
+                }
+                $service->warranty = $warranty;
             }
             $service->customer = Customers::find($service->customer_id);
             $service->worker = User::find($service->worker_id);
@@ -126,6 +126,31 @@ class Services extends Model
             return $service;
         });
         return $services;
+    }
+
+    public static function getCustomerServices($customerId)
+    {
+        return Services::where('customer_id', $customerId)->get()->map(function ($service) {
+            $statusSeverities = [
+                'pending' => 'help',
+                'progress' => 'info',
+                'completed' => 'success',
+                'cancelled' => 'danger'
+            ];
+            $statusLabels = [
+                'pending' => 'Taslak',
+                'progress' => 'Devam Ediyor',
+                'completed' => 'Tamamlandı',
+                'cancelled' => 'İptal Edildi'
+            ];
+
+            $service->worker = User::find($service->worker_id);
+            $service->dealer = User::find($service->dealer_id);
+            $service->status_label = $statusLabels[$service->status];
+            $service->status_severity = $statusSeverities[$service->status];
+            return $service;
+        });
+
     }
 
     public function dealer()
