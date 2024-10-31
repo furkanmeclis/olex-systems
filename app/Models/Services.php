@@ -162,4 +162,39 @@ class Services extends Model
     {
         return Customers::find($this->customer_id);
     }
+
+    public static function generateChart(): array
+    {
+        $services = Services::where('status', 'completed')->get();
+        $chartData = [];
+        $brandData = [];
+        foreach ($services as $service) {
+            $statusHistory = $service->status_history;
+            $completedDate = new \DateTime($statusHistory['completed']['created_at']);
+            $month = $completedDate->format('m');
+            $year = $completedDate->format('Y');
+            $key = $year . '-' . $month;
+            if (isset($chartData[$key])) {
+                $chartData[$key]++;
+            } else {
+                $chartData[$key] = 1;
+            }
+            $car = $service->car;
+            if (isset($brandData[$car['brand']])) {
+                $brandData[$car['brand']]++;
+            } else {
+                $brandData[$car['brand']] = 1;
+            }
+        }
+        return [
+            "chart" => [
+                "labels" => array_keys($chartData),
+                "data" => array_values($chartData)
+            ],
+            "brands" => [
+                "labels" => array_keys($brandData),
+                "data" => array_values($brandData)
+            ]
+        ];
+    }
 }

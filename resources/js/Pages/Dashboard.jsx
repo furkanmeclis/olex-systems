@@ -3,19 +3,112 @@ import {Head, router} from '@inertiajs/react';
 import {Card} from "primereact/card";
 import React from "react";
 import {Button} from "primereact/button";
+import {Toast} from "primereact/toast";
+import {Chart} from "primereact/chart";
+export default function Dashboard({auth, metrics,csrf_token}) {
+    const [statics,setStatics] = React.useState();
+    const toast = React.useRef(null);
+    const [chartData, setChartData] = React.useState({});
+    const [chartDataBrand, setChartDataBrand] = React.useState({});
+    const [chartOptions, setChartOptions] = React.useState({});
+    const getStatics = () => {
+        const documentStyle = getComputedStyle(document.documentElement);
+        fetch(route('super.staticsData'), {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrf_token
+            },
 
-export default function Dashboard({auth, metrics}) {
+        }).then(response => response.json()).then(data => {
+            setChartData({
+                labels: data.chart.chart.labels,
+                datasets: [
+                    {
+                        label: "Tamamlanan Hizmetler",
+                        backgroundColor: documentStyle.getPropertyValue('--blue-500'),
+                        borderColor: documentStyle.getPropertyValue('--blue-500'),
+                        data: data.chart.chart.data
+                    }
+                ]
+            });
+            setChartDataBrand({
+                labels: data.chart.brands.labels,
+                datasets: [
+                    {
+                        label: "Marka Dağılımı",
+                        backgroundColor: documentStyle.getPropertyValue('--red-500'),
+                        borderColor: documentStyle.getPropertyValue('--red-500'),
+                        data: data.chart.brands.data,
+                    }
+                ]
+            });
+        }).catch((error) => {
+            toast.current.show({
+                severity: 'error',
+                summary: 'Hata',
+                detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+            });
+        })
+    }
+    React.useEffect(() => {
+        getStatics();
+    }, []);
 
+    React.useEffect(() => {
+        const documentStyle = getComputedStyle(document.documentElement);
+
+        const textColor = documentStyle.getPropertyValue('--text-color');
+        const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+        const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+
+        const options = {
+            maintainAspectRatio: false,
+            aspectRatio: 0.8,
+            plugins: {
+                legend: {
+                    labels: {
+                        fontColor: textColor
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary,
+                        font: {
+                            weight: 500
+                        }
+                    },
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder,
+                        drawBorder: false
+                    }
+                }
+            }
+        };
+        setChartOptions(options);
+    }, []);
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Anasayfa</h2>}
         >
             <Head title="Anasayfa"/>
+            <Toast ref={toast}/>
             <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className={"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"}>
                         {(auth.user.role === "super") && <>
+
 
                             <Card title={"Bayiler"} subTitle={<>
                                 <i className={"pi pi-users"}></i> {metrics.dealers} Adet Bayi
@@ -142,6 +235,14 @@ export default function Dashboard({auth, metrics}) {
                             </Card>
                         </>}
                     </div>
+                    {auth.user.role === "super" && <div className={"mt-2"}>
+                        <Card title={"Hizmet Dağılımı"}>
+                            <Chart type="bar" data={chartData} options={chartOptions} />
+                        </Card>
+                        <Card title={"Hizmet Marka Dağılımı"} className={"mt-2"}>
+                            <Chart type="bar" data={chartDataBrand} options={chartOptions} />
+                        </Card>
+                    </div>}
                 </div>
             </div>
         </AuthenticatedLayout>

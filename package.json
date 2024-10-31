@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "@react-pdf/renderer": "^3.4.4",
+        "chart.js": "^4.4.6",
         "firebase": "^10.12.2",
         "formik": "^2.4.5",
         "html2canvas": "^1.4.1",
