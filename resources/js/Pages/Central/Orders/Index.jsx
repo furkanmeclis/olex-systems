@@ -441,7 +441,7 @@ export default function Index({
                                                                               label={rowData.products_count + " Adet"}
                                                                               size={"small"}/>} sortable
                             header="Ürün Adedi"/>}
-                {selectedColumns.includes('price') &&
+                {selectedColumns.includes('price') && auth.user.role === "super" &&
                     <Column field="price" header="Sipariş Tutarı"
                             body={(rowData) => {
                                 return Number(rowData.products.reduce((acc, item) => {
@@ -535,6 +535,7 @@ export default function Index({
                     footer={addModalFooter}>
                 <Create addModal={addModal} csrf_token={csrf_token} dealers={dealers} products={products}
                         toast={toast}
+                        auth={auth}
                         initialDealer={dealerOrderPage ? auth.user:null} dealerOrderPage={dealerOrderPage}
                         onHide={() => setAddModal(false)} setRecords={setRecords}
                         setAddModalFooter={setAddModalFooter}/>
@@ -556,19 +557,19 @@ export default function Index({
                                        src={product.image} alt={product.name}/>
                                 <span
                                     className="font-bold flex-1">{item.quantity} Adet - {product.name} (#{product.sku})</span>
-                                <span className="font-bold text-900">$ {item.price}</span>
+                                {auth.user.role === "super" && <span className="font-bold text-900">$ {item.price}</span>}
                             </div>
                             <Divider/>
                         </>
                     })}
-                    <div className="flex p-2 items-center gap-3 ">
+                    {auth.user.role === "super" && <div className="flex p-2 items-center gap-3 ">
                         <span className="font-bold flex-1">Toplam</span>
                         <span className="font-bold text-900">$ {
                             productsModalData.reduce((acc, item) => {
                                 return acc + (item.price);
                             }, 0)
                         }</span>
-                    </div>
+                    </div>}
                 </div>}
             </Dialog>
             {!dealerOrderPage && <Dialog header="Siparişi Düzenle" style={{width: '70vw'}}
@@ -578,6 +579,7 @@ export default function Index({
                 <Update updateModal={updateModal} salesmans={salesmans} statuses={statuses}
                         dealerOrderPage={dealerOrderPage}
                         csrf_token={csrf_token}
+                        auth={auth}
                         dealers={dealers} products={products} record={updateModalData} toast={toast}
                         onHide={() => setUpdateModal(false)} setRecords={setRecords}
                         setUpdateModalFooter={setUpdateModalFooter}/>

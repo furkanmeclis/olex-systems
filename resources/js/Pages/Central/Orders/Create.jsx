@@ -21,7 +21,8 @@ export default function Create({
                                    toast,
                                    setRecords,
                                    initialDealer = null,
-                                   dealerOrderPage
+                                   dealerOrderPage,
+                                   auth
                                }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [selectedDealer, setSelectedDealer] = useState(null);
@@ -29,26 +30,21 @@ export default function Create({
     const [note, setNote] = useState("");
     const [loading, setLoading] = useState(false);
     const [disabled, setDisabled] = useState(false);
-    const [items, setItems] = useState([
-        {
-            label: "Bayi Seçimi",
-        },
-        {
-            label: "Ürün Seçimi",
-        },
-        {
-            label: "Adet Girimi",
-        },
-        {
-            label: "Ek Bilgiler",
-        }
-    ]);
+    const [items, setItems] = useState([{
+        label: "Bayi Seçimi",
+    }, {
+        label: "Ürün Seçimi",
+    }, {
+        label: "Adet Girimi",
+    }, {
+        label: "Ek Bilgiler",
+    }]);
     useEffect(() => {
         if (initialDealer !== null || dealerOrderPage) {
             setSelectedDealer(initialDealer);
             setActiveIndex(1);
         }
-    }, [initialDealer,dealerOrderPage])
+    }, [initialDealer, dealerOrderPage])
     const nextStep = (action = false) => {
         if (activeIndex === 0) {
             if (selectedDealer === null || selectedDealer === undefined) {
@@ -87,18 +83,15 @@ export default function Create({
         formData.append("note", noteRef.current.value);
         let productData = selectedProducts.map((item) => {
             return {
-                product_id: item.id,
-                quantity: item.quantity
+                product_id: item.id, quantity: item.quantity
             }
         });
         formData.append("products", JSON.stringify(productData));
         setLoading(true);
         fetch(route('central.orders.store'), {
-            method: 'POST',
-            headers: {
+            method: 'POST', headers: {
                 'X-CSRF-TOKEN': csrf_token
-            },
-            body: formData
+            }, body: formData
         }).then(r => r.json()).then(data => {
             if (data.status) {
                 setRecords(data.orders);
@@ -109,9 +102,7 @@ export default function Create({
             }
         }).catch((err) => {
             toast.current.show({
-                severity: 'error',
-                summary: 'Hata',
-                detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
             });
         }).finally(() => {
             setLoading(false);
@@ -120,22 +111,17 @@ export default function Create({
     useEffect(() => {
         setAddModalFooter(() => {
             nextStep();
-            return (
-                <>
-                    <Button label="Vazgeç" icon="pi pi-times" size="small" link onClick={onHide} loading={loading}/>
-                    {(activeIndex !== 0 && !(activeIndex === 1 && dealerOrderPage === true)) && (
-                        <Button label="Geri" icon="pi pi-arrow-left" size="small" className="p-button-warning"
-                                onClick={() => setActiveIndex(activeIndex - 1)} loading={loading}/>
-                    )}
-                    {activeIndex === items.length - 1 ? (
-                        <Button label="Kaydet" icon="pi pi-save" onClick={handleSubmit} disabled={disabled} size="small"
-                                className="p-button-success" loading={loading}/>
-                    ) : (
-                        <Button label="İleri" icon="pi pi-arrow-right" disabled={disabled} size="small"
-                                className="p-button-success" onClick={() => nextStep(true)} loading={loading}/>
-                    )}
-                </>
-            );
+            return (<>
+                <Button label="Vazgeç" icon="pi pi-times" size="small" link onClick={onHide} loading={loading}/>
+                {(activeIndex !== 0 && !(activeIndex === 1 && dealerOrderPage === true)) && (
+                    <Button label="Geri" icon="pi pi-arrow-left" size="small" className="p-button-warning"
+                            onClick={() => setActiveIndex(activeIndex - 1)} loading={loading}/>)}
+                {activeIndex === items.length - 1 ? (
+                    <Button label="Kaydet" icon="pi pi-save" onClick={handleSubmit} disabled={disabled} size="small"
+                            className="p-button-success" loading={loading}/>) : (
+                    <Button label="İleri" icon="pi pi-arrow-right" disabled={disabled} size="small"
+                            className="p-button-success" onClick={() => nextStep(true)} loading={loading}/>)}
+            </>);
         });
     }, [addModal, activeIndex, selectedDealer, loading, disabled, selectedProducts]);
     const handleNumberChange = (event, item) => {
@@ -167,17 +153,13 @@ export default function Create({
                     <MultiSelect panelFooterTemplate={() => {
                         const length = selectedProducts ? selectedProducts.length : 0;
 
-                        return (
-                            <div className="py-2 px-3">
-                                <b>{length}</b> ürün seçili.
-                            </div>
-                        );
+                        return (<div className="py-2 px-3">
+                            <b>{length}</b> ürün seçili.
+                        </div>);
                     }} filter showClear itemTemplate={(option) => {
-                        return (
-                            <span>
-                                #{option.sku} - {option.name} {!dealerOrderPage && <>- {option.price} $</>}
-                            </span>
-                        )
+                        return (<span>
+                                #{option.sku} - {option.name} {!dealerOrderPage && auth.user.role === "super" && <>- {option.price} $</>}
+                            </span>)
                     }} value={selectedProducts} emptyFilterMessage={"Ürün Bulunamadı"} filterBy={"name,sku,price"}
                                  onChange={(e) => setSelectedProducts(e.value)} options={products} optionLabel="name"
                                  className="w-full"/>
@@ -189,23 +171,24 @@ export default function Create({
                     <Column field="id" header="#ID"></Column>
                     <Column field="name" header="Ürün Adı"></Column>
                     <Column field="sku" header="Ürün Stok kodu"></Column>
-                    {!dealerOrderPage && <Column field="price" header="Ürün Fiyatı"></Column>}
+                    {!dealerOrderPage &&auth.user.role === "super" && <Column field="price" header="Ürün Fiyatı"></Column>}
                     <Column header="Adet" align={"center"}
                             body={(rowData) => <InputNumber showButtons suffix={" Adet"} value={rowData.quantity}
                                                             onChange={e => handleNumberChange(e, rowData)}/>}></Column>
-                    {!dealerOrderPage &&<Column field={"total"} header="Tutar" body={(rowData) => <span>
+                    {!dealerOrderPage &&auth.user.role === "super" && <Column field={"total"} header="Tutar" body={(rowData) => <span>
                         {rowData.total} $
                     </span>}></Column>}
                 </DataTable>
                 <Divider/>
-                {!dealerOrderPage &&<div>
+                {!dealerOrderPage &&auth.user.role === "super" && <div>
                     <h3>Toplam Tutar: {selectedProducts.reduce((acc, item) => acc + item.total, 0)} $</h3>
                 </div>}
             </>}
             {activeIndex === 3 && <>
                 {/*    Only Order Note */}
                 <FloatLabel>
-                    <InputTextarea ref={noteRef} id="order_note" value={note} onChange={(e) => setNote(e.target.value)} rows={5}
+                    <InputTextarea ref={noteRef} id="order_note" value={note} onChange={(e) => setNote(e.target.value)}
+                                   rows={5}
                                    className={"w-full"}/>
                     <label htmlFor="order_note">Sipariş Notu</label>
                 </FloatLabel>

@@ -397,7 +397,7 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
                                         borderRadius: '1rem'
                                     }} alt={product.image} className="w-[6rem] shadow-2 rounded-lg"/>;
                                 }}/>}
-                            {selectedColumns.includes('price') &&
+                            {selectedColumns.includes('price') && auth.user.role === "super" &&
                                 <Column field="price" sortable header="Ürün Fiyatı" body={(product) => {
                                     return <span>{product.price} $</span>;
                                 }}/>}
@@ -421,14 +421,14 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
                                             tooltipOptions={{
                                                 position: 'top'
                                             }} severity={"success"}/>
-                                    <Button icon="pi pi-pencil" size={"small"} tooltip={"Ürünü Düzenle"}
+                                    <Button icon="pi pi-pencil" visible={auth.user.role === "super"} size={"small"} tooltip={"Ürünü Düzenle"}
                                             onClick={() => {
                                                 updateProductPrepare(product);
                                             }}
                                             tooltipOptions={{
                                                 position: 'top'
                                             }} severity={"warning"}/>
-                                    <Button icon="pi pi-times" tooltip={"Ürünü Sil"}
+                                    <Button icon="pi pi-times" visible={auth.user.role === "super"} tooltip={"Ürünü Sil"}
                                             tooltipOptions={{
                                                 position: 'top',
                                             }} size={"small"} onClick={(event) => {
@@ -483,10 +483,10 @@ export default function Index({auth, productsAll, categoriesAll, csrf_token}) {
                             </DataTable>
                         </Dialog>
                         <Dialog header="Yeni Ürün Ekle" style={{ width: '50vw' }} breakpoints={{ '960px': '75vw', '641px': '100vw' }} onHide={() => setAddModal(false)} maximizable visible={addModal} footer={addModalFooter}>
-                            <Create addModal={addModal} categories={categories} csrf_token={csrf_token} toast={toast} onHide={() => setAddModal(false)} setProducts={setProducts} setAddModalFooter={setAddModalFooter}/>
+                            <Create addModal={addModal} categories={categories} auth={auth} csrf_token={csrf_token} toast={toast} onHide={() => setAddModal(false)} setProducts={setProducts} setAddModalFooter={setAddModalFooter}/>
                         </Dialog>
                         <Dialog header="Ürünü Düzenle" style={{ width: '50vw' }} breakpoints={{ '960px': '75vw', '641px': '100vw' }} onHide={() => setUpdateModal(false)} maximizable visible={updateModal} footer={updateModalFooter}>
-                            <Update updateModal={updateModal} categories={categories} product={updateProduct} csrf_token={csrf_token} toast={toast} onHide={() => setUpdateModal(false)} setProducts={setProducts} setUpdateModalFooter={setUpdateModalFooter}/>
+                            <Update updateModal={updateModal} categories={categories} auth={auth} product={updateProduct} csrf_token={csrf_token} toast={toast} onHide={() => setUpdateModal(false)} setProducts={setProducts} setUpdateModalFooter={setUpdateModalFooter}/>
                         </Dialog>
                         <Dialog header="Ürün Kodları" style={{ width: '70vw' }} breakpoints={{ '960px': '75vw', '641px': '100vw' }} onHide={() => setProductCodesModal(false)} maximizable visible={productCodesModal} footer={productCodesFooter}>
                             <ProductCodes productCodesModal={productCodesModal} product={productCodes} csrf_token={csrf_token} toast={toast} onHide={() => setProductCodesModal(false)} setFooter={setProductCodesFooter}/>

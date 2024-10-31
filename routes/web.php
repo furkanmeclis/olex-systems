@@ -90,9 +90,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::prefix('/super')->name('super.')->group(function () {
+
         /*
          * SUPER ROLES ROUTES
          */
+
         Route::resource('/central-users', \App\Http\Controllers\Super\CentralController::class)->names([
             'index' => 'central.index',
             'create' => 'central.create',

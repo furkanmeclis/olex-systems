@@ -20,6 +20,7 @@ export default function Update({
                                    setRecords,
                                    statuses,
                                    salesmans,
+                                   auth
                                }) {
     const [selectedDealer, setSelectedDealer] = useState({
         id: record.dealer.id,
@@ -99,7 +100,7 @@ export default function Update({
         formData.append("status", activeStatus);
         formData.append("user_id", selectedOfficial.id);
         setLoading(true);
-        fetch(route('central.orders.update',record.id), {
+        fetch(route('central.orders.update', record.id), {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrf_token
@@ -133,7 +134,7 @@ export default function Update({
                 </>
             );
         });
-    }, [addModal, selectedDealer, loading, disabled,dirty]);
+    }, [addModal, selectedDealer, loading, disabled, dirty]);
     const handleNumberChange = (event, item) => {
         let value = event.value;
         setSelectedProducts(prevState => {
@@ -166,10 +167,11 @@ export default function Update({
                 }} filter showClear itemTemplate={(option) => {
                     return (
                         <span>
-                                #{option.sku} - {option.name} - {option.price} $
+                                #{option.sku} - {option.name} - {auth.user.role === "super" && <>- {option.price} $</>}
                             </span>
                     )
-                }} virtualScrollerOptions={{itemSize:38}} value={selectedProducts} emptyFilterMessage={"Ürün Bulunamadı"} filterBy={"name,sku,price"}
+                }} virtualScrollerOptions={{itemSize: 38}} value={selectedProducts}
+                             emptyFilterMessage={"Ürün Bulunamadı"} filterBy={"name,sku,price"}
                              onChange={(e) => setSelectedProducts(e.value)} options={products} optionLabel="name"
                              className="w-full"/>
                 <label htmlFor="ms-cities">Ürünleri Seçiniz</label>
@@ -180,15 +182,15 @@ export default function Update({
                 <Column field="id" header="#ID"></Column>
                 <Column field="name" header="Ürün Adı"></Column>
                 <Column field="sku" header="Ürün Stok kodu"></Column>
-                <Column field="price" header="Ürün Fiyatı"></Column>
+                {auth.user.role === "super" && <Column field="price" header="Ürün Fiyatı"></Column>}
                 <Column header="Adet" align={"center"}
                         body={(rowData) => <InputNumber showButtons suffix={" Adet"} value={rowData.quantity}
                                                         onChange={e => handleNumberChange(e, rowData)}/>}></Column>
-                <Column field={"total"} header="Tutar" body={(rowData) => <span>
+                {auth.user.role === "super" && <Column field={"total"} header="Tutar" body={(rowData) => <span>
                         {rowData.total} $
-                    </span>}></Column>
+                    </span>}></Column> }
             </DataTable>
-            {selectedProducts.length > 0 && <div className={"my-5"}>
+            {selectedProducts.length > 0 &&auth.user.role === "super" && <div className={"my-5"}>
                 <h3>Toplam Tutar: {selectedProducts.reduce((acc, item) => acc + item.total, 0)} $</h3>
             </div>}
             <FloatLabel className={"mb-10"}>
