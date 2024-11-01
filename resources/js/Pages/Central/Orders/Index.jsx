@@ -168,6 +168,8 @@ export default function Index({
         const [productCodesModal, setProductCodesModal] = useState(false);
         const [productCodes, setProductCodes] = useState([]);
         const [productCodesFooter, setProductCodesFooter] = useState(<></>);
+        const [selectedNotes, setSelectedNotes] = useState("");
+        const noteOp = useRef(null);
         const prepareShowCodes = (order) => {
             setProductCodesModal(true);
             setProductCodes(order);
@@ -379,6 +381,11 @@ export default function Index({
                     </div>
                 </div>
             </OverlayPanel>
+            <OverlayPanel ref={noteOp} showCloseIcon closeOnEscape>
+                <p>
+                    {selectedNotes}
+                </p>
+            </OverlayPanel>
             <DataTable editMode="cell" dragSelection value={records} removableSort paginator
                        paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
                        rowsPerPageOptions={[5, 10, 25, 50]} rows={10} filters={filters}
@@ -459,6 +466,15 @@ export default function Index({
                     <Column field="actions" header="İşlemler" body={(rowData) => {
                         return <>
                             <div className={"flex justify-center gap-x-2"}>
+                                <Button icon="pi pi-book" size={"small"} tooltip={"Sipariş Notu"}
+                                        visible={rowData.note !== ""}
+                                        onClick={(e) => {
+                                            setSelectedNotes(rowData.note);
+                                            noteOp.current.toggle(e);
+                                        }}
+                                        tooltipOptions={{
+                                            position: 'top'
+                                        }} severity={"help"}/>
                                 <Button icon="pi pi-qrcode" size={"small"} tooltip={"Ürün Kodları"}
                                         onClick={() => {
                                             prepareShowCodes(rowData);

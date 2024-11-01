@@ -49,6 +49,8 @@ export default function Index({
         const [trash, setTrash] = useState([]);
         const [trashMode, setTrashMode] = useState(false);
         const [recordsX, setRecordsX] = useState([]);
+        const [selectedNotes, setSelectedNotes] = useState("");
+        const noteOp = useRef(null);
         const columns = ['id', 'dealer', 'user', 'status', 'products_count', 'price', 'created_at', 'updated_at', 'actions',
 
         ];
@@ -305,6 +307,11 @@ export default function Index({
             <Tooltip target=".custom-target-icon"/>
             <ConfirmPopup/>
             <Toast ref={toast}/>
+            <OverlayPanel ref={noteOp} showCloseIcon closeOnEscape>
+                <p>
+                    {selectedNotes}
+                </p>
+            </OverlayPanel>
             <OverlayPanel ref={op}>
                 <div className="flex flex-col">
                     <div className="flex justify-between items-center">
@@ -427,6 +434,15 @@ export default function Index({
                     <Column field="actions" header="İşlemler" body={(rowData) => {
                         return <>
                             <div className={"flex justify-center gap-x-2"}>
+                                <Button icon="pi pi-book" size={"small"} tooltip={"Sipariş Notu"}
+                                        visible={rowData.note !== ""}
+                                        onClick={(e) => {
+                                            setSelectedNotes(rowData.note);
+                                            noteOp.current.toggle(e);
+                                        }}
+                                        tooltipOptions={{
+                                            position: 'top'
+                                        }} severity={"help"}/>
                                 <Button icon="pi pi-qrcode" size={"small"} tooltip={"Ürün Kodları"}
                                         onClick={() => {
                                             prepareShowCodes(rowData);
