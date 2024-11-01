@@ -168,6 +168,7 @@ class Services extends Model
         $services = Services::where('status', 'completed')->get();
         $chartData = [];
         $brandData = [];
+        $dealerData = [];
         foreach ($services as $service) {
             $statusHistory = $service->status_history;
             $completedDate = new \DateTime($statusHistory['completed']['created_at']);
@@ -185,6 +186,12 @@ class Services extends Model
             } else {
                 $brandData[$car['brand']] = 1;
             }
+            $dealerName = User::where('id', $service->dealer_id)->first("name")->name;
+            if (isset($dealerData[$dealerName])) {
+                $dealerData[$dealerName]++;
+            } else {
+                $dealerData[$dealerName] = 1;
+            }
         }
         return [
             "chart" => [
@@ -194,6 +201,10 @@ class Services extends Model
             "brands" => [
                 "labels" => array_keys($brandData),
                 "data" => array_values($brandData)
+            ],
+            "dealer" => [
+                "labels" => array_keys($dealerData),
+                "data" => array_values($dealerData)
             ]
         ];
     }

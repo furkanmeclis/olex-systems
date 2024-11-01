@@ -40,6 +40,7 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
         'updated_at',
         'created_at',
         'actions',
+        "note"
     ];
     const columnsTurkishNames = {
         'id': 'ID',
@@ -51,7 +52,8 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
         'car': 'Araç',
         'updated_at': 'Güncellenme Tarihi',
         'created_at': 'Eklenme Tarihi',
-        'actions': 'İşlemler'
+        'actions': 'İşlemler',
+        'note': 'Not'
     }
     const LocalStorageName = page === true ? "worker-services-table-columns" : "worker-services-table-columns-2";
     const [selectedColumns, setSelectedColumns] = useLocalStorage([
@@ -151,6 +153,7 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
             }
         })
     }
+    const noteOp = useRef(null);
     const TableContent = () => {
         return <>
             <Tooltip target=".custom-target-icon"/>
@@ -183,6 +186,11 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
                         </div>
                     </div>
                 </div>
+            </OverlayPanel>
+            <OverlayPanel ref={noteOp} showCloseIcon closeOnEscape>
+                <p>
+                    <span dangerouslySetInnerHTML={{__html:selectedService?.note}}></span>
+                </p>
             </OverlayPanel>
             <OverlayPanel ref={warrantyOp} showCloseIcon closeOnEscape>
                 {selectedService && selectedService.status === "completed" && <>
@@ -234,6 +242,14 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
                                            setSelectedService(service);
                                            carBody.current.toggle(event);
 
+                                       }}/>
+                    }}/>}
+                {selectedColumns.includes('note') &&
+                    <Column field="note" sortable header="Hizmet Notu" body={(service) => {
+                        return <Button label={"Notu Görüntüle"} size={"small"} link
+                                       onClick={(event) => {
+                                           setSelectedService(service);
+                                           noteOp.current.toggle(event);
                                        }}/>
                     }}/>}
                 {selectedColumns.includes('created_at') &&

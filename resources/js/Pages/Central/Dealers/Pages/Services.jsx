@@ -38,6 +38,7 @@ function WorkerServicesPage({ servicesAll}) {
         'updated_at',
         'created_at',
         'actions',
+        'note'
     ];
     const columnsTurkishNames = {
         'id': 'ID',
@@ -49,7 +50,8 @@ function WorkerServicesPage({ servicesAll}) {
         'car': 'Araç',
         'updated_at': 'Güncellenme Tarihi',
         'created_at': 'Eklenme Tarihi',
-        'actions': 'İşlemler'
+        'actions': 'İşlemler',
+        'note': 'Not'
     }
     const LocalStorageName = "central-services-table-columns-2-23";
     const [selectedColumns, setSelectedColumns] = useLocalStorage([
@@ -100,6 +102,8 @@ function WorkerServicesPage({ servicesAll}) {
     };
     const header = renderHeader();
     const [selectedService, setSelectedService] = useState(null);
+    const [noteVisible, setNoteVisible] = useState(false);
+    const noteOp = useRef(null);
     const TableContent = () => {
         return <>
             <Tooltip target=".custom-target-icon"/>
@@ -144,12 +148,17 @@ function WorkerServicesPage({ servicesAll}) {
                 <CarBody editable={false} value={selectedService?.body} onChange={() => {
                 }}/>
             </OverlayPanel>
+            <OverlayPanel ref={noteOp} showCloseIcon closeOnEscape>
+                <p>
+                    {selectedService?.note}
+                </p>
+            </OverlayPanel>
             <DataTable value={services} removableSort paginator
                        paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
                        rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id"
                        filterDisplay={"row"}
                        filters={{
-                           
+
                        }}
                        loading={loading}
                        globalFilterFields={['service_no', 'worker_name', 'car', 'customer_name', 'status']}
@@ -187,6 +196,14 @@ function WorkerServicesPage({ servicesAll}) {
                                            setSelectedService(service);
                                            carBody.current.toggle(event);
 
+                                       }}/>
+                    }}/>}
+                {selectedColumns.includes('note') &&
+                    <Column field="note" sortable header="Hizmet Notu" body={(service) => {
+                        return <Button label={"Notu Görüntüle"} size={"small"} link
+                                       onClick={(event) => {
+                                           setSelectedService(service);
+                                           noteOp.current.toggle(event);
                                        }}/>
                     }}/>}
                 {selectedColumns.includes('created_at') &&
