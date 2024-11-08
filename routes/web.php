@@ -17,75 +17,15 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
-Route::get("/import-products", function () {
-    $productsJson = file_get_contents(public_path('products.json'));
-    $products = json_decode($productsJson);
-    $createdProductNames = [];
-    foreach ($products as $product) {
-        if (!in_array($product->name, $createdProductNames)) {
-            $newProduct = new \App\Models\Products();
-            $newProduct->name = $product->product_name;
-            $newProduct->sku = $product->product_sku;
-            $newProduct->warranty = "1 Yıl";
-            $newProduct->price = 0;
-            $newProduct->category = $product->product_category;
-            $newProduct->image = "https://www.olexfilms.app/uploads/products_images/a482b0a9-c5f8-41e0-8550-9e14ef4c25f0.png";
-            $newProduct->description = $product->product_name;
-            if ($newProduct->save()) {
-                $createdProductNames[$product->product_name] = $newProduct->id;
-                $newCode = new \App\Models\ProductCode();
-                $newCode->product_id = $newProduct->id;
-                $newCode->code = $product->product_code;
-                $newCode->used = 0;
-                $newCode->save();
-            }
-        } else {
-            $product_id = $createdProductNames[$product->product_name];
-            $newCode = new \App\Models\ProductCode();
-            $newCode->product_id = $product_id;
-            $newCode->code = $product->product_code;
-            $newCode->used = 0;
-            $newCode->save();
-        }
-    }
-    return response()->json(['message' => 'Ürünler başarılı bir şekilde eklendi']);
-});
-
 Route::get('/dashboard', [\App\Http\Controllers\HomeController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/optimize:clear', function () {
-    Artisan::call('optimize:clear');
-});
-Route::get('/install:app:olex', function () {
-    Artisan::call('storage:link');
-    //Artisan::call('migrate:fresh');
-    //Artisan::call('db:seed');
-    return redirect()->route('dashboard')->with('success', 'Uygulama oluşturuldu');
-});
-Route::get('/customer-page/{mail}', function ($mail) {
-    $customer = \App\Models\Customers::where('email', $mail)->first();
+
+Route::get('/redirect/{id}', function ($mail) {
+    $customer = \App\Models\Customers::where('id', $mail)->first();
     $hash = Crypt::encrypt($customer->id);
     return redirect()->route('customer.notify', $hash);
 });
-Route::get('/db:seed', function () {
-    Artisan::call('db:seed');
-    return redirect()->route('dashboard')->with('success', 'Demo verileri başarılı bir şekilde eklendi.');
-});
+
 Route::middleware('auth')->group(function () {
-    Route::get('/view:clear', function () {
-        Artisan::call('view:clear');
-        Artisan::call('optimize:clear');
-        Artisan::call('config:clear');
-        Artisan::call('route:clear');
-        Artisan::call('cache:clear');
-        return;
-    });
-
-    Route::get('/migrate:fresh', function () {
-        Artisan::call('migrate:fresh');
-        //Artisan::call('db:seed');
-        return redirect()->route('dashboard')->with('success', 'Veritabanı sıfırlandı ve başarılı bir şekilde yeniden oluşturuldu.Demo verileri eklendi.');
-
-    });
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -291,6 +231,7 @@ Route::middleware('auth')->group(function () {
      * ----------------------------------------------
      */
     Route::prefix("/dealer")->name("dealer.")->group(function () {
+        Route::post('/statics-data', [\App\Http\Controllers\Dealer\DealerHomeController::class, 'staticsData'])->name('staticsData');
         Route::get('/', [\App\Http\Controllers\Dealer\DealerHomeController::class, 'index'])->name('index');
         Route::get("/settings", [\App\Http\Controllers\Dealer\DealerHomeController::class, 'settings'])->name('settings');
         Route::get("/workers", [\App\Http\Controllers\Dealer\DealerHomeController::class, 'workers'])->name('workers');
@@ -358,74 +299,9 @@ Route::middleware('auth')->group(function () {
 /*
  *  OUTWARD ROUTES
  */
-Route::get('manifest.json', function () {
-    $json = '{
-                "name": "OLEX Films®",
-                "short_name": "OLEX® Films",
-                "theme_color": "#003f26",
-                "background_color": "#003f26",
-                "display": "fullscreen",
-                "orientation": "portrait",
-                "scope": "/",
-                "start_url": "{start_url}",
-                "icons": [
-                    {
-                        "src": "/icons/logo-48x48.png",
-                        "sizes": "48x48",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "/icons/logo-72x72.png",
-                        "sizes": "72x72",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "/icons/logo-128x128.png",
-                        "sizes": "128x128",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "/icons/logo-144x144.png",
-                        "sizes": "144x144",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "/icons/logo-192x192.png",
-                        "sizes": "192x192",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "/icons/logo-512x512.png",
-                        "sizes": "512x512",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "/icons/logo-1024x1024.png",
-                        "sizes": "1024x1024",
-                        "type": "image/png"
-                    }
 
-                ]
-            }';
-    if (request()->session()->has('manifest')) {
-        $customerId = request()->session()->get('manifest');
-        $print = str_replace("{start_url}", '/customer/' . Crypt::encrypt($customerId), $json);
-        //request()->session()->forget('manifest');
-        return response($print)->header('Content-Type', 'application/json');
-    } else {
-        $print = str_replace("{start_url}", '/', $json);
-        request()->session()->forget('manifest');
-        return response($print)->header('Content-Type', 'application/json');
-    }
-});
 Route::get('/service-details/{id}', [\App\Http\Controllers\Worker\ServicesController::class, 'pdfSourceDataService'])->name('worker.pdfSourceDataService');
 Route::get('/pdf', [\App\Http\Controllers\HomeController::class, 'pdfSourceDataService']);
-Route::get('/log-test', function () {
-    Log::channel('sms')->info([
-        "message" => "LOG TEST",
-    ]);
-    return response()->json(['message' => 'LOG TEST22']);
-});
 Route::get('/warranty/{id}', [\App\Http\Controllers\WarrantyController::class, 'index'])->name('warranty.index');
 Route::get('/warranty/{id}/pdf', [\App\Http\Controllers\WarrantyController::class, 'pdf'])->name('warranty.pdf');
 Route::get('/customer/{hash}', [\App\Http\Controllers\CustomerController::class, 'index'])->name('customer.notify');

@@ -29,19 +29,7 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
     });
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [services, setServices] = useState(servicesAll);
-    const columns = [
-        'id',
-        'service_no',
-        'customer_name',
-        'worker_name',
-        "warranty",
-        'status',
-        'car',
-        'updated_at',
-        'created_at',
-        'actions',
-        "note"
-    ];
+    const columns = ['id', 'service_no', 'customer_name', 'worker_name', "warranty", 'status', 'car', 'updated_at', 'created_at', 'actions', "note"];
     const columnsTurkishNames = {
         'id': 'ID',
         'service_no': 'Hizmet Numarası',
@@ -56,16 +44,7 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
         'note': 'Not'
     }
     const LocalStorageName = page === true ? "worker-services-table-columns" : "worker-services-table-columns-2";
-    const [selectedColumns, setSelectedColumns] = useLocalStorage([
-        'id',
-        'service_no',
-        'customer_name',
-        'worker_name',
-        'status',
-        'car',
-        'created_at',
-        'actions'
-    ], LocalStorageName)
+    const [selectedColumns, setSelectedColumns] = useLocalStorage(['id', 'service_no', 'customer_name', 'worker_name', 'status', 'car', 'created_at', 'actions'], LocalStorageName)
     const onGlobalFilterChange = (e, action = false) => {
         const value = action ? e : e.target.value;
         let _filters = {...filters};
@@ -76,8 +55,7 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
         setGlobalFilterValue(value);
     };
     const renderHeader = () => {
-        return (
-            <>
+        return (<>
                 <Toolbar start={() => <>
                     {dealerPage === false && <Button icon="pi pi-plus" size={"small"} severity={"success"}
                                                      tooltip={"Yeni Hizmet Ekle"}
@@ -107,8 +85,7 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
                              position: 'top'
                          }}/>)}
                          </>}/>
-            </>
-        );
+            </>);
     };
     const header = renderHeader();
     const [selectedService, setSelectedService] = useState(null);
@@ -122,30 +99,23 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
             rejectLabel: "Hayır",
             accept: () => {
                 fetch(route('worker.services.startWarranty', service.service_no), {
-                    method: 'POST',
-                    headers: {
+                    method: 'POST', headers: {
                         'X-CSRF-TOKEN': csrf_token
                     },
                 }).then(response => response.json()).then(data => {
                     if (data.status) {
                         toast.current.show({
-                            severity: 'success',
-                            summary: 'Başarılı',
-                            detail: data.message,
+                            severity: 'success', summary: 'Başarılı', detail: data.message,
                         });
                         setServices(data.services);
                     } else {
                         toast.current.show({
-                            severity: 'error',
-                            summary: 'Hata',
-                            detail: data.message
+                            severity: 'error', summary: 'Hata', detail: data.message
                         });
                     }
                 }).catch((error) => {
                     toast.current.show({
-                        severity: 'error',
-                        summary: 'Hata',
-                        detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                        severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
                     });
                 }).finally(() => {
                     setLoading(false);
@@ -189,7 +159,7 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
             </OverlayPanel>
             <OverlayPanel ref={noteOp} showCloseIcon closeOnEscape>
                 <p>
-                    <span dangerouslySetInnerHTML={{__html:selectedService?.note}}></span>
+                    <span dangerouslySetInnerHTML={{__html: selectedService?.note}}></span>
                 </p>
             </OverlayPanel>
             <OverlayPanel ref={warrantyOp} showCloseIcon closeOnEscape>
@@ -252,9 +222,8 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
                                            noteOp.current.toggle(event);
                                        }}/>
                     }}/>}
-                {selectedColumns.includes('created_at') &&
-                    <Column field="created_at" sortable header="Eklenme Tarihi"
-                            body={(rowData) => new Date(rowData.created_at).toLocaleString()}/>}
+                {selectedColumns.includes('created_at') && <Column field="created_at" sortable header="Eklenme Tarihi"
+                                                                   body={(rowData) => new Date(rowData.created_at).toLocaleString()}/>}
                 {selectedColumns.includes('updated_at') &&
                     <Column field="updated_at" sortable header="Güncellenme Tarihi"
                             body={(rowData) => new Date(rowData.updated_at).toLocaleString()}/>}
@@ -282,10 +251,8 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
 
                                                 setLoading(true);
                                                 fetch(route('worker.services.destroy', service.id), {
-                                                    method: 'DELETE',
-                                                    headers: {
-                                                        'Content-Type': 'application/json',
-                                                        'X-CSRF-TOKEN': csrf_token
+                                                    method: 'DELETE', headers: {
+                                                        'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token
                                                     }
                                                 }).then(r => r.json()).then((data) => {
                                                     if (data.status) {
@@ -294,12 +261,10 @@ export default function Index({auth, servicesAll, csrf_token, page = true, deale
                                                             summary: 'Başarılı',
                                                             detail: data.message
                                                         });
-                                                        setServices(data.services);
+                                                        router.reload();
                                                     } else {
                                                         toast.current.show({
-                                                            severity: 'error',
-                                                            summary: 'Hata',
-                                                            detail: data.message
+                                                            severity: 'error', summary: 'Hata', detail: data.message
                                                         });
                                                     }
                                                 }).catch((error) => {

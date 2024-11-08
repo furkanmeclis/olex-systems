@@ -186,7 +186,7 @@ export default function Index({auth, customersAll, csrf_token, page = true}) {
                 {selectedColumns.includes('email') && <Column field="email" sortable header="Email"/>}
                 {selectedColumns.includes('phone') && <Column field="phone" sortable header="Telefon No"/>}
                 {selectedColumns.includes('worker_name') &&
-                    <Column field="worker.name" sortable header="Ekleyen Çalışan" />}
+                    <Column field="worker.name" sortable header="Ekleyen Çalışan"/>}
                 {selectedColumns.includes('address') && <Column field="address" sortable header="Müşteri Adresi"/>}
                 {selectedColumns.includes('created_at') &&
                     <Column field="created_at" sortable header="Eklenme Tarihi"
@@ -205,36 +205,12 @@ export default function Index({auth, customersAll, csrf_token, page = true}) {
                     </div>
                 }}/>}
             </DataTable>
-            <Dialog header="Müşteriyi Düzenle" style={{width: '50vw'}} breakpoints={{'960px': '75vw', '641px': '100vw'}}
-                    onHide={handleCloseModal} maximizable visible={updateModal} footer={<>
-                <Button label="Vazgeç" icon="pi pi-times" size={"small"} link onClick={handleCloseModal}
-                        loading={loadingX}/>
-                <Button label="Kaydet" icon="pi pi-save" size={"small"} className="p-button-success" loading={loadingX}
-                        onClick={() => {
-                            setFormSubmitted(true);
-                            formRef.current.click();
-                        }}/>
-            </>}>
-                <Update updateModal={updateModal} user={updateWorker} csrf_token={csrf_token} toast={toast}
-                        onHide={handleCloseModal} setUsers={setUsers} formRef={formRef}
-                        setFormSubmitted={setFormSubmitted}
-                        formSubmitted={formSubmitted} loading={loadingX} setLoading={setLoadingX} page={page}/>
-            </Dialog>
-            <Dialog header="Müşteri Ekle" style={{width: '50vw'}} breakpoints={{'960px': '75vw', '641px': '100vw'}}
-                    onHide={handleCloseModal} maximizable visible={createModal} footer={<>
-                <Button label="Vazgeç" icon="pi pi-times" size={"small"} link onClick={handleCloseModal}
-                        loading={loadingC}/>
-                <Button label="Kaydet" icon="pi pi-save" size={"small"} className="p-button-success" loading={loadingC}
-                        onClick={() => {
-                            setFormSubmittedCreate(true);
-                            formRefCreate.current.click();
-                        }}/>
-            </>}>
-                <Create createModal={createModal} csrf_token={csrf_token} toast={toast}
-                        onHide={handleCloseModal} setUsers={setUsers} formRef={formRefCreate}
-                        setFormSubmitted={setFormSubmittedCreate}
-                        formSubmitted={formSubmittedCreate} loading={loadingC} setLoading={setLoadingC} page={page}/>
-            </Dialog>
+            <Update visible={updateModal} toast={toast} user={updateWorker} csrf_token={csrf_token}
+                    setVisible={setUpdateModal} setUsers={setUsers}/>
+            <Create csrf_token={csrf_token} setUsers={setUsers}
+                    visible={createModal}
+                    setVisible={setCreateModal}
+            />
         </>
     }
     return page === true ? (<AuthenticatedLayout

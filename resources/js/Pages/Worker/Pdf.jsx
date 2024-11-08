@@ -255,23 +255,23 @@ const useServiceTemplate = (data = {}, options = {}) => {
                         <div className={"certificatesGrid"}>
                             <div className="certificate">
                                 <img
-                                    src="https://placehold.co/400x600/white/white"
+                                    src="/certificates/OLEX%20FILMS-1.png"
                                     alt="Sertifika"/>
                             </div>
                             <div className="certificate">
-                                <img src="https://placehold.co/400x600/white/white"
+                                <img src="/certificates/OLEX%20FILMS-2.png"
                                      alt="Sertfika"/>
                             </div>
                             <div className="certificate">
-                                <img src="https://placehold.co/400x600/white/white" alt="Sertifika"/>
+                                <img src="/certificates/OLEX%20FILMS-3.png" alt="Sertifika"/>
                             </div>
                             <div className="certificate">
                                 <img
-                                    src="https://placehold.co/400x600/white/white"
+                                    src="/certificates/OLEX%20FILMS-4.png"
                                     alt=""/>
                             </div>
                             <div className="certificate">
-                                <img src="https://placehold.co/400x600/white/white"
+                                <img src="/certificates/OLEX%20FILMS-5.png"
                                      alt=""/>
                             </div>
                             <div className="certificate">

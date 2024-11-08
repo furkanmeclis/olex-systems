@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -202,5 +203,23 @@ class VatanSmsService
         ])->post(self::$endpoint . '/cancel/future-sms', $params);
 
         return $response->json();
+    }
+
+    public static function shortenUrl($url): bool|string
+    {
+        $requestUrl = "https://is.gd/create.php?format=simple&url=" . urlencode($url);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $requestUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if (curl_errno($ch) || $httpCode != 200) {
+            curl_close($ch);
+            return false;
+        }
+
+        curl_close($ch);
+        return $response;
     }
 }

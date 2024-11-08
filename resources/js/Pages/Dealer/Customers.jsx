@@ -1,6 +1,5 @@
 import Authenticated from "@/Layouts/AuthenticatedLayout.jsx";
 import React from "react";
-import WorkerServicesPage from "@/Pages/Worker/Services/Index.jsx";
 import {Head} from "@inertiajs/react";
 import Index from "@/Pages/Super/Customers/Index.jsx";
 

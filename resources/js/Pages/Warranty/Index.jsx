@@ -124,7 +124,8 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
                                         <div className="flex justify-between items-center py-2 px-4">
                                             <div className="flex justify-between flex-col text-sm">
                                                 <span className="text-xs">Ürün:</span>
-                                                <span className={product?.multiple === true ? "text-xs":""}>{product.name}</span>
+                                                <span
+                                                    className={product?.multiple === true ? "text-xs" : ""}>{product.name}</span>
                                             </div>
                                         </div>
                                     </td>
@@ -133,7 +134,7 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
                                             <div className="flex justify-between flex-col text-sm">
                                                 <span className="text-xs">Garanti:</span>
                                                 <span
-                                                    className={product?.warrantyMultiple === true ? "text-xs":""}
+                                                    className={product?.warrantyMultiple === true ? "text-xs" : ""}
                                                     dangerouslySetInnerHTML={{__html: product.warranty.replace("X", '<i class="pi pi-exclamation-triangle text-red-600"></i>')}}></span>
 
                                             </div>
@@ -171,7 +172,8 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
                 </div>
                 <div className={"w-full flex justify-center items-center"}>
                     <button onClick={() => {
-                        window.open(route('warranty.pdf', serviceNumber), '_blank');
+                         window.open(route('warranty.pdf', serviceNumber), '_blank');
+                        //setVisible(true);
                     }}
                             className={"py-2 px-6 bg-white rounded-lg text-black font-avaganti tracking-tight hover:font-bold delay-100 ring-0 outline-0 focus:outline-none focus:ring-2 focus:ring-green-300 focus:font-bold"}>
                         Dijital Sertifikayı Görüntüle
@@ -193,29 +195,29 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
     });
     return (<>
 
-            <Head title="Garanti Sorgulama"/>
-            <div className={"flex justify-center items-center"}>
-                <div className={"sm:hidden w-full"}>
-                    <Content mobile/>
-                </div>
-                <div className={"hidden sm:block my-4"}>
-                    <DeviceFrameset device={"iPhone X"}>
-                        <Content/>
-                    </DeviceFrameset>
-                </div>
+        <Head title="Garanti Sorgulama"/>
+        <div className={"flex justify-center items-center"}>
+            <div className={"sm:hidden w-full"}>
+                <Content mobile/>
             </div>
-            <Dialog header="Dijital Sertifika" visible={visible} footer={() => {
-                return <div className={"mt-4"}>
-                    <Button label="Yazdır" onClick={handlePrint} className={"mr-2"}/>
-                </div>
-            }} style={{width: '50vw'}} breakpoints={{'960px': '75vw', '641px': '100vw'}} onHide={() => {
-                if (!visible) return;
-                setVisible(false);
-            }}>
-                <div className={""}>
-                    <ServiceTemplate/>
-                </div>
-            </Dialog>
-        </>);
+            <div className={"hidden sm:block my-4"}>
+                <DeviceFrameset device={"iPhone X"}>
+                    <Content/>
+                </DeviceFrameset>
+            </div>
+        </div>
+        <Dialog header="Dijital Sertifika" visible={visible} footer={() => {
+            return <div className={"mt-4"}>
+                <Button label="Yazdır" onClick={handlePrint} className={"mr-2"}/>
+            </div>
+        }} style={{width: '50vw'}} breakpoints={{'960px': '75vw', '641px': '100vw'}} onHide={() => {
+            if (!visible) return;
+            setVisible(false);
+        }}>
+            <div className={""}>
+                <ServiceTemplate/>
+            </div>
+        </Dialog>
+    </>);
 }
 export default WarrantyIndex;

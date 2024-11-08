@@ -122,11 +122,18 @@ class DealerHomeController extends \App\Http\Controllers\Controller
         }
     }
 
-    public function orders()
+    public function orders(): \Inertia\Response
     {
         return Inertia::render('Dealer/Orders', [
-            "orders" => Orders::getAllData(false, auth()->user()->id),
+            "ordersAll" => Orders::getAllData(false, auth()->user()->id),
             "status" => Orders::$statuses,
+        ]);
+    }
+
+    public function staticsData()
+    {
+        return response()->json([
+            "chart" => Services::generateChartAdmin(),
         ]);
     }
 }

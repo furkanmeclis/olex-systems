@@ -15,10 +15,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
     const [chartDataBrand, setChartDataBrand] = React.useState({});
     const [chartDataDealer, setChartDataDealer] = React.useState({});
     const [chartOptions, setChartOptions] = React.useState({});
+    const [chartDataWorker,setChartDataWorker] = React.useState({});
     const getStatics = () => {
         setLoading(true)
         const documentStyle = getComputedStyle(document.documentElement);
-        fetch(route('super.staticsData'), {
+        fetch(route(`${auth.user.role === "super" ? "super" : "dealer"}.staticsData`), {
             method: 'POST', headers: {
                 'X-CSRF-TOKEN': csrf_token
             },
@@ -29,7 +30,8 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                     label: "Tamamlanan Hizmetler",
                     backgroundColor: documentStyle.getPropertyValue('--blue-500'),
                     borderColor: documentStyle.getPropertyValue('--blue-500'),
-                    data: data.chart.chart.data
+                    data: data.chart.chart.data,
+                    borderRadius: 10
                 }]
             });
             setChartDataBrand({
@@ -38,17 +40,33 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                     backgroundColor: documentStyle.getPropertyValue('--primary-500'),
                     borderColor: documentStyle.getPropertyValue('--primary-500'),
                     data: data.chart.brands.data,
+                    borderRadius: 10
                 }]
             });
-            setChartDataDealer({
-                labels: data.chart.dealer.labels, datasets: [{
-                    label: "Hizmet Bayi Dağılımı",
-                    backgroundColor: documentStyle.getPropertyValue('--green-500'),
-                    borderColor: documentStyle.getPropertyValue('--green-500'),
-                    data: data.chart.dealer.data,
-                }]
-            });
+            if(auth.user.role === "super"){
+                setChartDataDealer({
+                    labels: data.chart.dealer.labels, datasets: [{
+                        label: "Hizmet Bayi Dağılımı",
+                        backgroundColor: documentStyle.getPropertyValue('--green-500'),
+                        borderColor: documentStyle.getPropertyValue('--green-500'),
+                        data: data.chart.dealer.data,
+                        borderRadius: 10
+                    }]
+                });
+            }
+            if(auth.user.role === "admin"){
+                setChartDataWorker({
+                    labels: data.chart.worker.labels, datasets: [{
+                        label: "Çalışan Hizmet Dağılımı",
+                        backgroundColor: documentStyle.getPropertyValue('--green-500'),
+                        borderColor: documentStyle.getPropertyValue('--green-500'),
+                        data: data.chart.worker.data,
+                        borderRadius: 10
+                    }]
+                });
+            }
         }).catch((error) => {
+            console.error('Error:', error);
             toast.current.show({
                 severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
             });
@@ -62,11 +80,9 @@ export default function Dashboard({auth, metrics, csrf_token}) {
 
     React.useEffect(() => {
         const documentStyle = getComputedStyle(document.documentElement);
-
         const textColor = documentStyle.getPropertyValue('--text-color');
         const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
-
         const options = {
             maintainAspectRatio: false, aspectRatio: 0.8, plugins: {
                 legend: {
@@ -84,8 +100,10 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         display: false, drawBorder: false
                     }
                 }, y: {
+                    min:0,
                     ticks: {
-                        color: textColorSecondary
+                        color: textColorSecondary,
+
                     }, grid: {
                         color: surfaceBorder, drawBorder: false
                     }
@@ -231,23 +249,34 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         </Card>
                     </>}
                 </div>
-                {auth.user.role === "super" && <div className={"mt-2"}>
-                    <BlockUI blocked={loading} template={<i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }}></i>}>
+                <div className={"mt-2"}>
+                    <BlockUI blocked={loading}
+                             template={<i className="pi pi-spin pi-spinner"
+                                          style={{fontSize: '3rem'}}></i>}>
                         <Card title={"Hizmet Dağılımı"}>
-                            <Chart type="line" data={chartData} options={chartOptions}/>
+                            <Chart type="bar" data={chartData} options={chartOptions}/>
                         </Card>
                     </BlockUI>
-                    <BlockUI blocked={loading} template={<i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }}></i>}>
+                    {auth.user.role === "super" && <BlockUI blocked={loading}
+                                                            template={<i className="pi pi-spin pi-spinner"
+                                                                         style={{fontSize: '3rem'}}></i>}>
                         <Card title={"Hizmet Bayi Dağılımı"} className={"mt-2"}>
                             <Chart type="bar" data={chartDataDealer} options={chartOptions}/>
                         </Card>
-                    </BlockUI>
-                    <BlockUI blocked={loading} template={<i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }}></i>}>
+                    </BlockUI>}
+                    <BlockUI blocked={loading}
+                             template={<i className="pi pi-spin pi-spinner" style={{fontSize: '3rem'}}></i>}>
                         <Card title={"Hizmet Marka Dağılımı"} className={"mt-2"}>
                             <Chart type="bar" data={chartDataBrand} options={chartOptions}/>
                         </Card>
                     </BlockUI>
-                </div>}
+                    {auth.user.role === "admin" && <BlockUI blocked={loading}
+                                                            template={<i className="pi pi-spin pi-spinner" style={{fontSize: '3rem'}}></i>}>
+                        <Card title={"Çalışan Performans Grafiği"} className={"mt-2"}>
+                            <Chart type="bar" data={chartDataWorker} options={chartOptions}/>
+                        </Card>
+                    </BlockUI>}
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>);

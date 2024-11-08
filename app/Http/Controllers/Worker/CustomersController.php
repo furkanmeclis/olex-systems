@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Worker;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customers;
+use App\Services\VatanSmsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class CustomersController extends Controller
@@ -14,7 +16,7 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Worker/Customers/Index',[
+        return Inertia::render('Worker/Customers/Index', [
             'customersAll' => Customers::getCustomersForDealer()
         ]);
     }
@@ -43,10 +45,10 @@ class CustomersController extends Controller
             "email" => false,
             "push" => false,
         ];
-        $notificationSettings = json_decode($request->get('notification_settings'),true);
-        if($notificationSettings) {
+        $notificationSettings = json_decode($request->get('notification_settings'), true);
+        if ($notificationSettings) {
             foreach ($notificationSettings as $key) {
-                if(array_key_exists($key,$default)) $default[$key] = true;
+                if (array_key_exists($key, $default)) $default[$key] = true;
             }
         }
         $customer->notification_settings = json_encode($default);
@@ -54,8 +56,10 @@ class CustomersController extends Controller
         $customer->dealer_id = $dealer_id;
         $customer->worker_id = auth()->user()->id;
         if ($customer->save()) {
+            $message = "Sayın " . $customer->name . ", aracınız OLEX Garanti Sistemi’ne kaydedilmiştir. Uygulama süreci boyunca bilgilendirme SMS’leri alacaksınız. İşlem aşamalarını takipte kalın. Teşekkürler!.Panel Linkiniz https://olexfilms.app/redirect/" . $customer->id;
+            VatanSmsService::sendSingleSms($customer->phone, $message);
             \Illuminate\Support\Facades\Mail::to($customer->email)->send(new \App\Mail\SubscribeWebPushMail($customer));
-            return response()->json(['message' => 'Müşteri başarıyla eklendi.', 'status' => true, 'customers' => Customers::getCustomersForDealer()]);
+            return response()->json(['message' => 'Müşteri başarıyla eklendi.', "short" => $shortLink, 'status' => true, 'customers' => Customers::getCustomersForDealer()]);
         } else {
             return response()->json(['message' => 'Müşteri eklenirken bir hata oluştu.', 'status' => false]);
         }
@@ -95,10 +99,10 @@ class CustomersController extends Controller
             $customer->phone = $request->get('phone');
             $customer->address = $request->get('address');
             $customer->player_id = $request->get('player_id');
-            $notificationSettings = json_decode($request->get('notification_settings'),true);
-            if($notificationSettings) {
+            $notificationSettings = json_decode($request->get('notification_settings'), true);
+            if ($notificationSettings) {
                 foreach ($notificationSettings as $key) {
-                    if(array_key_exists($key,$default)) $default[$key] = true;
+                    if (array_key_exists($key, $default)) $default[$key] = true;
                 }
             }
             $customer->notification_settings = json_encode($default);

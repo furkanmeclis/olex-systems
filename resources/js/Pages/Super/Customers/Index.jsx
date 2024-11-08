@@ -17,7 +17,7 @@ import {Toast} from 'primereact/toast';
 import {OverlayPanel} from 'primereact/overlaypanel';
 import {Checkbox} from 'primereact/checkbox';
 import Create from "@/Pages/Super/Central/Create.jsx";
-import Update from "@/Pages/Super/Customers/Update.jsx";
+import Update from "@/Pages/Super/Customers/Update2.jsx";
 import {Avatar} from "primereact/avatar";
 import {useLocalStorage} from "primereact/hooks"
 
@@ -183,22 +183,8 @@ export default function Index({auth, customersAll, csrf_token, page = true, supe
                     </div>
                 }}/>}
             </DataTable>
-            <Dialog header="Müşteriyi Düzenle" style={{width: '50vw'}} breakpoints={{'960px': '75vw', '641px': '100vw'}}
-                    onHide={handleCloseModal} maximizable visible={updateModal} footer={<>
-                <Button label="Vazgeç" icon="pi pi-times" size={"small"} link onClick={handleCloseModal}
-                        loading={loadingX}/>
-                <Button label="Kaydet" icon="pi pi-save" size={"small"} className="p-button-success" loading={loadingX}
-                        onClick={() => {
-                            setFormSubmitted(true);
-                            formRef.current.click();
-                        }}/>
-            </>}>
-                <Update updateModal={updateModal} superPage={superPage} user={updateWorker} csrf_token={csrf_token}
-                        toast={toast}
-                        onHide={handleCloseModal} setUsers={setUsers} formRef={formRef}
-                        setFormSubmitted={setFormSubmitted}
-                        formSubmitted={formSubmitted} loading={loadingX} setLoading={setLoadingX} page={page}/>
-            </Dialog>
+            <Update visible={updateModal} toast={toast} superPage={superPage} user={updateWorker} csrf_token={csrf_token}
+                    setVisible={setUpdateModal} setUsers={setUsers}/>
         </>
     }
     return page === true ? (<AuthenticatedLayout
