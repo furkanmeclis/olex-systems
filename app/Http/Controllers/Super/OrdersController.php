@@ -122,7 +122,7 @@ class OrdersController extends Controller
                             $unSavedItems[] = $product;
                         }
                     }
-                    VatanSmsService::sendSingleSms("905378872525", "Sayın Yetkili sistemde yeni bir sipariş oluşturuldu. Lütfen kontrol ediniz.");
+                    VatanSmsService::sendSingleSms("905514064835", "Sayın Yetkili sistemde yeni bir sipariş oluşturuldu. Lütfen kontrol ediniz.");
                     VatanSmsService::sendSingleSms($dealer->phone, "Sayın " . $dealer->name . " , siparişiniz merkeze ulaşmıştır. Bir hata olduğunu düşünüyorsanız lütfen merkeze ulaşın.");
                     if ($savedItems == count($products)) {
                         if (auth()->user()->role == 'admin') {
