@@ -34,10 +34,11 @@ export default function ({auth, csrf_token, metrics}) {
                         <Button label="Müşteriler" icon="pi pi-users" className="p-button-raised p-button-rounded mr-3"
                                 onClick={() => {
                                     router.visit(route('worker.customers.index'));
-                                }}/><Button label="Müşteri Ekle" icon="pi pi-plus" className="p-button-raised p-button-rounded"
-                                onClick={() => {
-                                    setCreateModal(true);
-                                }}/>
+                                }}/><Button label="Müşteri Ekle" icon="pi pi-plus"
+                                            className="p-button-raised p-button-rounded"
+                                            onClick={() => {
+                                                setCreateModal(true);
+                                            }}/>
                     </Card>
                     <Card title={"Hizmetler"} subTitle={<>
                         <i className={"pi pi-file"}></i> {metrics.services} Adet Hizmet Kaydı
@@ -45,10 +46,11 @@ export default function ({auth, csrf_token, metrics}) {
                         <Button label="Hizmetler" icon="pi pi-file" className="p-button-raised p-button-rounded mr-3"
                                 onClick={() => {
                                     router.visit(route('worker.services.index'));
-                                }}/><Button label="Hizmet Ekle" icon="pi pi-plus" className="p-button-raised p-button-rounded"
-                                onClick={() => {
-                                    router.visit(route('worker.services.create'));
-                                }}/>
+                                }}/><Button label="Hizmet Ekle" icon="pi pi-plus"
+                                            className="p-button-raised p-button-rounded"
+                                            onClick={() => {
+                                                router.visit(route('worker.services.create'));
+                                            }}/>
                     </Card>
                 </div>
                 <Dialog header="Müşteri Ekle" style={{width: '50vw'}} breakpoints={{'960px': '75vw', '641px': '100vw'}}
@@ -62,12 +64,11 @@ export default function ({auth, csrf_token, metrics}) {
                                 formRefCreate.current.click();
                             }}/>
                 </>}>
-                    <Create createModal={createModal} csrf_token={csrf_token} toast={toast}
-                            onHide={handleCloseModal} setUsers={() => {
-                    }} formRef={formRefCreate}
-                            setFormSubmitted={setFormSubmittedCreate}
-                            workerHome
-                            formSubmitted={formSubmittedCreate} loading={loading} setLoading={setLoading}/>
+                    <Create csrf_token={csrf_token} setUsers={() => {
+                    }}
+                            visible={createModal}
+                            setVisible={setCreateModal}
+                    />
                 </Dialog>
             </div>
         </div>
