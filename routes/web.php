@@ -24,7 +24,11 @@ Route::get('/redirect/{id}', function ($mail) {
     $hash = Crypt::encrypt($customer->id);
     return redirect()->route('customer.notify', $hash);
 });
-
+Route::get('/clean',function(){
+    Artisan::call("cache:clear");
+    Artisan::call("config:clear");
+    return response()->json("Cleared");
+});
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
