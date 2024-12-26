@@ -189,6 +189,7 @@ class Services extends Model
         $chartData = [];
         $brandData = [];
         $dealerData = [];
+        $workerServiceData = [];
         foreach ($services as $service) {
             $statusHistory = $service->status_history;
             $completedDate = new \DateTime($statusHistory['completed']['created_at']);
@@ -212,7 +213,50 @@ class Services extends Model
             } else {
                 $dealerData[$dealerName] = 1;
             }
+            if (isset($workerServiceData[$service->worker_id])) {
+                $workerServiceData[$service->worker_id]++;
+            } else {
+                $workerServiceData[$service->worker_id] = 1;
+            }
         }
+        $workerData = [];
+        foreach ($workerServiceData as $workerId => $count) {
+            $worker = User::where('id', $workerId)->first("name");
+            $workerData[$worker->name] = $count;
+        }
+        $serviceProducts = ServiceProducts::all();
+        $productData = [];
+        foreach ($serviceProducts as $product) {
+            if (isset($productData[$product->product_id])) {
+                $productData[$product->product_id]++;
+            } else {
+                $productData[$product->product_id] = 1;
+            }
+        }
+        $returnProductData = [];
+        foreach ($productData as $productId => $count) {
+            $product = Products::where('id', $productId)->first("name");
+            $returnProductData[$product->name] = $count;
+        }
+        $customersDealerData = [];
+        $customers = Customers::all();
+        foreach ($customers as $customer) {
+            if (isset($customersDealerData[$customer->dealer_id])) {
+                $customersDealerData[$customer->dealer_id]++;
+            } else {
+                $customersDealerData[$customer->dealer_id] = 1;
+            }
+        }
+        $dealerCustomerData = [];
+        foreach ($customersDealerData as $dealerId => $count) {
+            $dealer = User::where('id', $dealerId)->first("name");
+            $dealerCustomerData[$dealer->name] = $count;
+        }
+        arsort($brandData);
+        arsort($dealerData);
+        arsort($returnProductData);
+        arsort($dealerCustomerData);
+        arsort($workerData);
         return [
             "chart" => [
                 "labels" => array_keys($chartData),
@@ -225,6 +269,18 @@ class Services extends Model
             "dealer" => [
                 "labels" => array_keys($dealerData),
                 "data" => array_values($dealerData)
+            ],
+            "products" => [
+                "labels" => array_keys($returnProductData),
+                "data" => array_values($returnProductData)
+            ],
+            "dealerCustomer" => [
+                "labels" => array_keys($dealerCustomerData),
+                "data" => array_values($dealerCustomerData)
+            ],
+            "serviceWorker" => [
+                "labels" => array_keys($workerData),
+                "data" => array_values($workerData)
             ]
         ];
     }

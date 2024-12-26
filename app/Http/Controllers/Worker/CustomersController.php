@@ -35,6 +35,9 @@ class CustomersController extends Controller
     public function store(Request $request)
     {
 
+        if(Customers::where('email', $request->get('email'))->exists()){
+            return response()->json(['message' => 'Bu Mail Adresi İle Kayıtlı Müşteri Mevcut.', 'status' => false]);
+        }
         $customer = new Customers();
         $customer->name = $request->get('name');
         $customer->email = $request->get('email');
@@ -59,7 +62,7 @@ class CustomersController extends Controller
             $message = "Sayın " . $customer->name . ", aracınız OLEX Garanti Sistemi’ne kaydedilmiştir. Uygulama süreci boyunca bilgilendirme SMS’leri alacaksınız. İşlem aşamalarını takipte kalın. Teşekkürler!.Panel Linkiniz https://olexfilms.app/redirect/" . $customer->id;
             VatanSmsService::sendSingleSms($customer->phone, $message);
             \Illuminate\Support\Facades\Mail::to($customer->email)->send(new \App\Mail\SubscribeWebPushMail($customer));
-            return response()->json(['message' => 'Müşteri başarıyla eklendi.', "short" => $shortLink, 'status' => true, 'customers' => Customers::getCustomersForDealer()]);
+            return response()->json(['message' => 'Müşteri başarıyla eklendi.','status' => true, 'customers' => Customers::getCustomersForDealer()]);
         } else {
             return response()->json(['message' => 'Müşteri eklenirken bir hata oluştu.', 'status' => false]);
         }

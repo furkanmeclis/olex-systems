@@ -108,7 +108,7 @@ class ProductController extends Controller
             $product->category = $request->get('category');
             $product->price = $request->get('price');
             $product->warranty = $request->get('warranty') . " Yıl";
-            $product->description = $request->get('description');
+            $product->description = $request->get('description') || "";
             $product->active = $request->get('active') == 'true' ? 1 : 0;
             if ($request->hasFile('image')) {
                 $fileName = Str::uuid().".".$request->file('image')->getClientOriginalExtension();

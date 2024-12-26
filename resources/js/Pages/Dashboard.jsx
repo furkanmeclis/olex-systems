@@ -16,6 +16,10 @@ export default function Dashboard({auth, metrics, csrf_token}) {
     const [chartDataDealer, setChartDataDealer] = React.useState({});
     const [chartOptions, setChartOptions] = React.useState({});
     const [chartDataWorker,setChartDataWorker] = React.useState({});
+    const [productsChartOptions, setProductsChartOptions] = React.useState({});
+    const [productsChartData, setProductsChartData] = React.useState({});
+    const [dealerCustomerData, setDealerCustomerData] = React.useState({});
+    const [chartDataServiceWorker, setChartDataServiceWorker] = React.useState({});
     const getStatics = () => {
         setLoading(true)
         const documentStyle = getComputedStyle(document.documentElement);
@@ -29,7 +33,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                 labels: data.chart.chart.labels, datasets: [{
                     label: "Tamamlanan Hizmetler",
                     backgroundColor: documentStyle.getPropertyValue('--blue-500'),
-                    borderColor: documentStyle.getPropertyValue('--blue-500'),
+                    borderColor: documentStyle.getPropertyValue('--blue-600'),
                     data: data.chart.chart.data,
                     borderRadius: 10
                 }]
@@ -38,7 +42,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                 labels: data.chart.brands.labels, datasets: [{
                     label: "Marka Dağılımı",
                     backgroundColor: documentStyle.getPropertyValue('--primary-500'),
-                    borderColor: documentStyle.getPropertyValue('--primary-500'),
+                    borderColor: documentStyle.getPropertyValue('--primary-600'),
                     data: data.chart.brands.data,
                     borderRadius: 10
                 }]
@@ -48,10 +52,37 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                     labels: data.chart.dealer.labels, datasets: [{
                         label: "Hizmet Bayi Dağılımı",
                         backgroundColor: documentStyle.getPropertyValue('--green-500'),
-                        borderColor: documentStyle.getPropertyValue('--green-500'),
+                        borderColor: documentStyle.getPropertyValue('--green-600'),
                         data: data.chart.dealer.data,
                         borderRadius: 10
                     }]
+                });
+                setProductsChartData({
+                    labels: data.chart.products.labels, datasets: [{
+                        label: "Ürün Dağılımı",
+                        backgroundColor: documentStyle.getPropertyValue('--yellow-500'),
+                        borderColor: documentStyle.getPropertyValue('--yellow-600'),
+                        data: data.chart.products.data,
+                        borderRadius: 10
+                    }]
+                })
+                setDealerCustomerData({
+                    labels: data.chart.dealerCustomer.labels, datasets: [{
+                        label: "Bayi Müşteri Dağılımı",
+                        backgroundColor: documentStyle.getPropertyValue('--red-500'),
+                        borderColor: documentStyle.getPropertyValue('--red-600'),
+                        data: data.chart.dealerCustomer.data,
+                        borderRadius: 10
+                    }]
+                })
+                setChartDataServiceWorker({
+                    labels: data.chart.serviceWorker.labels, datasets: [{
+                        label: "Çalışan Hizmet Dağılımı",
+                        backgroundColor: documentStyle.getPropertyValue('--green-500'),
+                        borderColor: documentStyle.getPropertyValue('--green-600'),
+                        data: data.chart.serviceWorker.data,
+                        borderRadius: 10
+                }]
                 });
             }
             if(auth.user.role === "admin"){
@@ -59,7 +90,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                     labels: data.chart.worker.labels, datasets: [{
                         label: "Çalışan Hizmet Dağılımı",
                         backgroundColor: documentStyle.getPropertyValue('--green-500'),
-                        borderColor: documentStyle.getPropertyValue('--green-500'),
+                        borderColor: documentStyle.getPropertyValue('--green-600'),
                         data: data.chart.worker.data,
                         borderRadius: 10
                     }]
@@ -111,6 +142,42 @@ export default function Dashboard({auth, metrics, csrf_token}) {
             }
         };
         setChartOptions(options);
+        setProductsChartOptions({
+            indexAxis: 'y',
+            maintainAspectRatio: false,
+            aspectRatio: 0.8,
+            plugins: {
+                legend: {
+                    labels: {
+                        fontColor: textColor
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    min:0,
+                    ticks: {
+                        color: textColorSecondary,
+                        font: {
+                            weight: 500
+                        }
+                    },
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder,
+                        drawBorder: false
+                    }
+                }
+            }
+        })
     }, []);
     return (<AuthenticatedLayout
         user={auth.user}
@@ -253,21 +320,35 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                     <BlockUI blocked={loading}
                              template={<i className="pi pi-spin pi-spinner"
                                           style={{fontSize: '3rem'}}></i>}>
-                        <Card title={"Hizmet Dağılımı"}>
+                        {auth.user.role === "super" && <BlockUI blocked={loading}
+                                                                template={<i className="pi pi-spin pi-spinner"
+                                                                             style={{fontSize: '3rem'}}></i>}>
+                            <Card title={"Ürün Kullanım Grafiği"} >
+                                <Chart type="bar" data={productsChartData} options={productsChartOptions}/>
+                            </Card>
+                        </BlockUI>}
+                        <Card title={"Hizmet Dağılımı"} className={"mt-2"}>
                             <Chart type="bar" data={chartData} options={chartOptions}/>
                         </Card>
                     </BlockUI>
+
                     {auth.user.role === "super" && <BlockUI blocked={loading}
                                                             template={<i className="pi pi-spin pi-spinner"
                                                                          style={{fontSize: '3rem'}}></i>}>
                         <Card title={"Hizmet Bayi Dağılımı"} className={"mt-2"}>
-                            <Chart type="bar" data={chartDataDealer} options={chartOptions}/>
+                            <Chart type="bar" data={chartDataDealer} options={productsChartOptions}/>
+                        </Card>
+                        <Card title={"Çalışan Hizmet Dağılımı"} className={"mt-2"}>
+                        <Chart type="bar" data={chartDataServiceWorker} options={productsChartOptions}/>
+                    </Card>
+                        <Card title={"Bayi Müşteri Dağılımı"} className={"mt-2"}>
+                            <Chart type="bar" data={dealerCustomerData} options={productsChartOptions}/>
                         </Card>
                     </BlockUI>}
                     <BlockUI blocked={loading}
                              template={<i className="pi pi-spin pi-spinner" style={{fontSize: '3rem'}}></i>}>
                         <Card title={"Hizmet Marka Dağılımı"} className={"mt-2"}>
-                            <Chart type="bar" data={chartDataBrand} options={chartOptions}/>
+                            <Chart type="bar" data={chartDataBrand} options={productsChartOptions}/>
                         </Card>
                     </BlockUI>
                     {auth.user.role === "admin" && <BlockUI blocked={loading}
