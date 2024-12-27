@@ -7,6 +7,8 @@ import {useRef, useState} from "react";
 import {Toast} from "primereact/toast";
 import {InputOtp} from "primereact/inputotp";
 
+import OtpInput from 'react-otp-input';
+
 export default function Welcome({auth, csrf_token}) {
     const toast = useRef(null);
     const [phone, setPhone] = useState('');
@@ -16,7 +18,6 @@ export default function Welcome({auth, csrf_token}) {
     const [otp, setOtp] = useState('');
     const [customerId, setCustomerId] = useState('');
     const [resend, setResend] = useState(false);
-    const customInput = ({events, props}) => <input {...events} {...props} type="text" className="custom-otp-input"/>;
     const resetStatus = () => {
         setTimeout(() => {
             setResend(true);
@@ -185,8 +186,24 @@ export default function Welcome({auth, csrf_token}) {
                                                          mask="0(599) 999-9999"/>}
                                 {isSended && <div className={"w-full flex justify-center mb-3"}>
 
-                                    <InputOtp value={otp} onChange={(e) => setOtp(e.value)}
-                                              length={6}/>
+                                    <OtpInput
+                                        value={otp}
+                                        onChange={setOtp}
+                                        numInputs={6}
+                                        inputType={"tel"}
+                                        mode={"number"}
+                                        inputStyle={{
+                                            width: "2em"
+                                        }}
+                                        renderSeparator={<span>&nbsp;</span>}
+                                        renderInput={(props) => (
+                                            <input
+                                                {...props}
+                                                autoComplete={"one-time-code"}
+                                                className="w-12 h-12 text-center text-lg font-medium border rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)]"
+                                            />
+                                        )}
+                                    />
                                 </div>}
 
                                 <div className={"flex justify-center"}>
