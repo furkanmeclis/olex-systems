@@ -81,7 +81,7 @@ class CustomerController extends Controller
     {
         $normalizedPhone = VatanSmsService::formatPhoneNumber(request()->get('phone'));
         if ($normalizedPhone != null) {
-            $customers = Customers::where('id', ">", 0)->get(['id', 'phone']);
+            $customers = Customers::where('id', ">", 0)->get(['id', 'phone', 'name']);
             $customer = null;
             foreach ($customers as $c) {
                 if (VatanSmsService::formatPhoneNumber($c->phone) == $normalizedPhone) {
@@ -93,9 +93,8 @@ class CustomerController extends Controller
                 return response()->json(['message' => 'Müşteri Bulunamadı', 'status' => false]);
             }
             $otp = rand(100000, 999999);
-            $sms = "Merhaba, Tek Kullanımlık Şifreniz: " . $otp . " Geçerlilik Süresi 5 Dakikadır. Lütfen Kimseyle Paylaşmayınız.";
+            $sms = "Merhaba " . $customer->name . ", Tek Kullanımlık Şifreniz: " . $otp . " Geçerlilik Süresi 5 Dakikadır.";
             VatanSmsService::sendSingleSms($customer->phone, $sms);
-            // cache the otp
             $otpCacheKey = "otp_" . $customer->id;
             cache([$otpCacheKey => $otp], now()->addMinutes(5));
             return response()->json(['message' => 'Tek Kullanımlık Şifre Gönderildi', 'status' => true,
