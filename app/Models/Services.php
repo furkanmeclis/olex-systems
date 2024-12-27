@@ -238,6 +238,27 @@ class Services extends Model
             $product = Products::where('id', $productId)->first("name");
             $returnProductData[$product->name] = $count;
         }
+        $productStocks = [];
+        foreach (ProductCode::whereIn("product_id",Products::where("category","PPF")->get("id")->pluck("id")->toArray())->get(["product_id","used"]) as $code) {
+            if($code->used == 0){
+                if(isset($productStocks[$code->product_id]["unused"])){
+                    $productStocks[$code->product_id]["unused"]++;
+                }else{
+                    $productStocks[$code->product_id]["unused"] = 1;
+                }
+            }else{
+                if(isset($productStocks[$code->product_id]["used"])){
+                    $productStocks[$code->product_id]["used"]++;
+                }else{
+                    $productStocks[$code->product_id]["used"] = 1;
+                }
+            }
+        }
+        $productStockData = [];
+        foreach ($productStocks as $productId => $stock) {
+            $product = Products::where('id', $productId)->first("name");
+            $productStockData[$product->name] = $stock;
+        }
         $customersDealerData = [];
         $customers = Customers::all();
         foreach ($customers as $customer) {
@@ -252,6 +273,7 @@ class Services extends Model
             $dealer = User::where('id', $dealerId)->first("name");
             $dealerCustomerData[$dealer->name] = $count;
         }
+
         arsort($brandData);
         arsort($dealerData);
         arsort($returnProductData);
@@ -281,6 +303,10 @@ class Services extends Model
             "serviceWorker" => [
                 "labels" => array_keys($workerData),
                 "data" => array_values($workerData)
+            ],
+            "productStock" => [
+                "labels" => array_keys($productStockData),
+                "data" => array_values($productStockData)
             ]
         ];
     }

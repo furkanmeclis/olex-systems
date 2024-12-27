@@ -20,6 +20,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
     const [productsChartData, setProductsChartData] = React.useState({});
     const [dealerCustomerData, setDealerCustomerData] = React.useState({});
     const [chartDataServiceWorker, setChartDataServiceWorker] = React.useState({});
+    const [chartProductStockData, setChartProductStockData] = React.useState({});
     const getStatics = () => {
         setLoading(true)
         const documentStyle = getComputedStyle(document.documentElement);
@@ -84,6 +85,20 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         borderRadius: 10
                 }]
                 });
+                setChartProductStockData({
+                    labels: data.chart.productStock.labels,
+                    datasets: [{
+                        label: "Kullanılmayan",
+                        backgroundColor: documentStyle.getPropertyValue('--blue-500'),
+                        borderColor: documentStyle.getPropertyValue('--blue-600'),
+                        data: data.chart.productStock.data.map(item => item.unused),
+                    },{
+                        label: "Kullanılan",
+                        backgroundColor: documentStyle.getPropertyValue('--green-500'),
+                        borderColor: documentStyle.getPropertyValue('--green-600'),
+                        data: data.chart.productStock.data.map(item => item.used)
+                    }]
+                })
             }
             if(auth.user.role === "admin"){
                 setChartDataWorker({
@@ -323,9 +338,12 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         {auth.user.role === "super" && <BlockUI blocked={loading}
                                                                 template={<i className="pi pi-spin pi-spinner"
                                                                              style={{fontSize: '3rem'}}></i>}>
-                            <Card title={"Ürün Kullanım Grafiği"} >
+                            <Card title={"Ürün Kullanım Grafiği"}  >
                                 <Chart type="bar" data={productsChartData} options={productsChartOptions}/>
                             </Card>
+                            <Card title={"Ürün Stok Grafiği"} className={"mt-2"}>
+                            <Chart type="bar" data={chartProductStockData} options={productsChartOptions}/>
+                        </Card>
                         </BlockUI>}
                         <Card title={"Hizmet Dağılımı"} className={"mt-2"}>
                             <Chart type="bar" data={chartData} options={chartOptions}/>
@@ -336,7 +354,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                                             template={<i className="pi pi-spin pi-spinner"
                                                                          style={{fontSize: '3rem'}}></i>}>
                         <Card title={"Hizmet Bayi Dağılımı"} className={"mt-2"}>
-                            <Chart type="bar" data={chartDataDealer} options={productsChartOptions}/>
+                            <Chart type="bar" data={chartDataDealer} options={chartOptions}/>
                         </Card>
                         <Card title={"Çalışan Hizmet Dağılımı"} className={"mt-2"}>
                         <Chart type="bar" data={chartDataServiceWorker} options={productsChartOptions}/>

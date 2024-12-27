@@ -76,7 +76,14 @@ export default function Authenticated({user, header, children}) {
         href: route('super.customers.index'),
         active: route().current('super.customers*'),
         roles: ['super']
-    }, //Central Routes
+    },{
+        name: 'Bildirim & SMS',
+        href: route('super.notifySms.index'),
+        active: route().current('super.notifySms*'),
+        roles: ['super']
+    },
+
+        //Central Routes
         {
             name: 'Bayiler',
             href: route('central.dealers.index'),
