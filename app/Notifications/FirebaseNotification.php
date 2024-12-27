@@ -6,6 +6,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Log;
+use Kreait\Firebase\Exception\FirebaseException;
+use Kreait\Firebase\Exception\MessagingException;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 
@@ -18,7 +21,7 @@ class FirebaseNotification extends Notification
     private $token;
     private $url;
 
-    public function __construct($title, $body, $token,$url = null)
+    public function __construct($title, $body, $token, $url = null)
     {
         $this->title = $title;
         $this->body = $body;
@@ -39,10 +42,10 @@ class FirebaseNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function sendPushNotification(): void
+    public function sendPushNotification(): bool
     {
         $firebase = (new Factory)
-            ->withServiceAccount(__DIR__.'/../../resources/config/firebase_credentials.json');
+            ->withServiceAccount(__DIR__ . '/../../resources/config/firebase_credentials.json');
 
         $messaging = $firebase->createMessaging();
 
@@ -50,16 +53,49 @@ class FirebaseNotification extends Notification
             'notification' => [
                 'title' => $this->title,
                 'body' => $this->body,
-                'image' => env("APP_URL").'/icons/logo-1024x1024.png',
+                'image' => env("APP_URL") . '/icons/logo-1024x1024.png',
             ],
             'data' => [
-                'icon' => env("APP_URL").'/icons/logo-1024x1024.png',
-                'url' => $this->url ?? env("APP_URL").'/',
+                'icon' => env("APP_URL") . '/icons/logo-1024x1024.png',
+                'url' => $this->url ?? env("APP_URL") . '/',
             ],
             'token' => $this->token,
         ]);
 
-        $messaging->send($message);
+        try {
+            $messaging->send($message);
+            return true;
+        } catch (MessagingException|FirebaseException $e) {
+            return false;
+        }
+    }
+
+    public function sendPushNotificationBatch(): bool
+    {
+        $firebase = (new Factory)
+            ->withServiceAccount(__DIR__ . '/../../resources/config/firebase_credentials.json');
+
+        $messaging = $firebase->createMessaging();
+
+        $message = CloudMessage::fromArray([
+            'notification' => [
+                'title' => $this->title,
+                'body' => $this->body,
+                'image' => env("APP_URL") . '/icons/logo-1024x1024.png',
+            ],
+            'data' => [
+                'icon' => env("APP_URL") . '/icons/logo-1024x1024.png',
+                'url' => $this->url ?? env("APP_URL") . '/',
+            ],
+        ]);
+
+        try {
+            $messaging->sendMulticast($message, $this->token);
+            return true;
+        } catch (MessagingException|FirebaseException $e) {
+            Log::error($e->getMessage());
+            return false;
+        }
     }
 
     /**

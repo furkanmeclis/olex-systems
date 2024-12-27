@@ -24,7 +24,7 @@ Route::get('/redirect/{id}', function ($mail) {
     $hash = Crypt::encrypt($customer->id);
     return redirect()->route('customer.notify', $hash);
 });
-Route::get('/clean',function(){
+Route::get('/clean', function () {
     Artisan::call("cache:clear");
     Artisan::call("config:clear");
     return response()->json("Cleared");
@@ -36,7 +36,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('/super')->name('super.')->group(function () {
         Route::prefix("/notify-sms")->name('notifySms.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Super\NotifySmsController::class, 'index'])->name('index');
-
+            Route::post('/send-sms', [\App\Http\Controllers\Super\NotifySmsController::class, 'sendSMS'])->name('sendSMS');
+            Route::post("/send-notification", [\App\Http\Controllers\Super\NotifySmsController::class, 'sendNotification'])->name('sendNotification');
         });
         /*
          * SUPER ROLES ROUTES
