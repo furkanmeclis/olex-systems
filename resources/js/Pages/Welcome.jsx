@@ -183,7 +183,7 @@ export default function Welcome({auth, csrf_token}) {
                                 {!isSended && <InputMask className={"w-full mb-3"} value={phone}
                                                          placeholder={"Telefon Numarası"}
                                                          onChange={(e) => setPhone(e.target.value)}
-                                                         mask="0(599) 999-9999"/>}
+                                                         mask="0(999) 999-9999"/>}
                                 {isSended && <div className={"w-full flex justify-center mb-3"}>
 
                                     <OtpInput
