@@ -15,4 +15,3 @@ yarn-error.log
 .env
 /resources/config/firebase_credentials.json
 /public/uploads
-/vendor
