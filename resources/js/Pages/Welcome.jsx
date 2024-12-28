@@ -1,16 +1,11 @@
-import {Link, Head, router} from '@inertiajs/react';
-import ApplicationLogo from "@/Components/ApplicationLogo.jsx";
-import svgImage from "@/assets/bg.svg"
-import {Button} from "primereact/button";
-import {InputMask} from "primereact/inputmask";
-import {useRef, useState} from "react";
-import {Toast} from "primereact/toast";
-import {InputOtp} from "primereact/inputotp";
-import {motion} from "framer-motion";
-
+import { Link, Head, router } from '@inertiajs/react';
+import { motion } from 'framer-motion';
+import { useState, useRef } from 'react';
+import { Toast } from 'primereact/toast';
+import { InputMask } from 'primereact/inputmask';
 import OtpInput from 'react-otp-input';
 
-export default function Welcome({auth, csrf_token}) {
+export default function Welcome({ auth, csrf_token }) {
     const toast = useRef(null);
     const [phone, setPhone] = useState('');
     const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +14,7 @@ export default function Welcome({auth, csrf_token}) {
     const [otp, setOtp] = useState('');
     const [customerId, setCustomerId] = useState('');
     const [resend, setResend] = useState(false);
+
     const resetStatus = () => {
         setTimeout(() => {
             setResend(true);
@@ -29,6 +25,7 @@ export default function Welcome({auth, csrf_token}) {
             setCustomerId('');
         }, (1000 * 60 * 5));
     }
+
     const otpLogin = (event, custom = false) => {
         setResend(false);
         setLoading(true);
@@ -71,6 +68,7 @@ export default function Welcome({auth, csrf_token}) {
             setLoading(false);
         });
     }
+
     const otpVerify = () => {
         setLoading(true);
         let formData = new FormData();
@@ -104,191 +102,320 @@ export default function Welcome({auth, csrf_token}) {
         });
     }
 
-    const fadeIn = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { 
-            opacity: 1, 
-            y: 0,
-            transition: { duration: 0.6 }
+    const features = [
+        {
+            icon: 'pi pi-shield',
+            title: 'Araç Koruma Filmi (PPF)',
+            description: 'Aracınızı çizilmelere, taş çarpmalarına ve dış etkenlere karşı koruyun.'
+        },
+        {
+            icon: 'pi pi-sun',
+            title: 'Cam Filmi',
+            description: 'UV ışınlarına karşı koruma ve maksimum konfor için profesyonel cam filmi uygulaması.'
+        },
+        {
+            icon: 'pi pi-palette',
+            title: 'Seramik Kaplama',
+            description: 'Uzun ömürlü parlaklık ve koruma için nano seramik kaplama hizmeti.'
         }
-    };
+    ];
 
-    const staggerContainer = {
+    const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
             transition: {
+                delayChildren: 0.3,
                 staggerChildren: 0.2
             }
         }
     };
 
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1
+        }
+    };
+
     return (
         <>
-            <Head title="OLEX Films"/>
-            <Toast ref={toast}/>
-            <motion.div 
-                initial="hidden"
-                animate="visible"
-                className="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50"
-            >
-                <motion.img
-                    initial={{ x: -100, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    id="background"
-                    className="absolute -left-20 top-0 max-w-[877px]"
-                    src={svgImage}
-                />
-                <div className="relative min-h-screen flex flex-col items-center justify-center selection:bg-[#006400] selection:text-white">
-                    <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
-                        {!isOpen && (
-                            <motion.header 
-                                variants={fadeIn}
-                                className="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3"
+            <Head title="Hoş Geldiniz" />
+            <Toast ref={toast} />
+            <div className="min-h-screen bg-gradient-to-br from-[#001a00] via-[#002200] to-[#000a00]">
+                {/* Header */}
+                <header className="fixed top-0 left-0 right-0 z-50 bg-[#001100]/90 backdrop-blur-lg border-b border-green-900/50">
+                    <nav className="container mx-auto px-6 py-4">
+                        <div className="flex items-center justify-between">
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.5 }}
                             >
-                                <motion.div 
-                                    className="flex lg:justify-center lg:col-start-2"
-                                    whileHover={{ scale: 1.05 }}
-                                    transition={{ type: "spring", stiffness: 300 }}
-                                >
-                                    <ApplicationLogo className="w-24 h-24"/>
-                                </motion.div>
+                                <img 
+                                    src="https://olexfilms.app/uploads/olex-logo-yatay.svg" 
+                                    alt="Olex Films Logo" 
+                                    className="h-8 md:h-10"
+                                />
+                            </motion.div>
 
-                                <nav className="-mx-3 flex flex-1 justify-end">
-                                    {auth.user ? (
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.5 }}
+                                className="flex items-center gap-4"
+                            >
+                                {auth.user ? (
+                                    <Link
+                                        href={route('dashboard')}
+                                        className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-all duration-300"
+                                    >
+                                        Dashboard
+                                    </Link>
+                                ) : (
+                                    <>
                                         <Link
-                                            href={route('dashboard')}
-                                            className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                                            href={route('login')}
+                                            className="relative inline-flex items-center justify-center px-6 py-2 text-base font-medium text-white transition-all duration-300 ease-in-out bg-gradient-to-r from-[#1a1a1a] to-[#333333] rounded-lg hover:from-[#333333] hover:to-[#1a1a1a] border border-[#E6B800]/30 hover:border-[#E6B800] shadow-lg hover:shadow-[#E6B800]/20 group"
                                         >
-                                            Yönetim Paneli
+                                            <span className="relative flex items-center">
+                                                <i className="pi pi-lock mr-2 text-[#E6B800] group-hover:animate-pulse" />
+                                                Yetkili Girişi
+                                            </span>
                                         </Link>
-                                    ) : (
-                                        <>
-                                            <Link
-                                                href={route('login')}
-                                                className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                            >
-                                                Giriş Yap
-                                            </Link>
-                                        </>
-                                    )}
-                                </nav>
-                            </motion.header>
-                        )}
+                                    </>
+                                )}
+                            </motion.div>
+                        </div>
+                    </nav>
+                </header>
 
-                        {!isOpen && (
-                            <motion.header 
-                                variants={fadeIn}
-                                className="w-full flex items-center justify-center gap-2 py-10"
+                {/* OTP Modal */}
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-[#001100] border border-green-900/50 rounded-2xl p-8 w-full max-w-md relative"
+                        >
+                            <button
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    setResend(false);
+                                    setOtp('');
+                                    setCustomerId('');
+                                    setIsSended(false);
+                                    setPhone('');
+                                }}
+                                className="absolute top-4 right-4 text-green-300 hover:text-white transition-colors"
                             >
-                                <motion.div 
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="flex lg:justify-center lg:col-start-2"
-                                >
-                                    <Button label={"Müşteri Girişi"} icon={"pi pi-user"}
-                                        text
-                                        onClick={() => {
-                                            setIsOpen(true)
-                                            setResend(false);
-                                            setOtp('');
-                                            setCustomerId('');
-                                            setIsSended(false);
-                                            setPhone('');
-                                        }}
-                                    />
-                                </motion.div>
-                            </motion.header>
-                        )}
+                                <i className="pi pi-times text-xl" />
+                            </button>
 
-                        {isOpen && (
-                            <motion.div 
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ duration: 0.3 }}
-                                className="w-full flex items-center justify-center"
-                            >
-                                <motion.div 
-                                    variants={staggerContainer}
-                                    initial="hidden"
-                                    animate="visible"
-                                    className={"lg:w-[60%] w-[90%] bg-black rounded p-4 relative"}
-                                >
-                                    <motion.div 
-                                        variants={fadeIn}
-                                        className="absolute top-[-55px] left-0"
-                                    >
-                                        <Button icon={"pi pi-arrow-left"}
-                                            raised
-                                            text
-                                            rounded
-                                            onClick={() => setIsOpen(false)}
+                            <div className="text-center mb-8">
+                                <h3 className="text-2xl font-bold text-white mb-2">
+                                    {isSended ? "Doğrulama Kodu" : "Müşteri Girişi"}
+                                </h3>
+                                <p className="text-green-300/80">
+                                    {isSended ? "Lütfen telefonunuza gönderilen kodu giriniz" : "Telefon numaranız ile giriş yapın"}
+                                </p>
+                            </div>
+
+                            {!isSended ? (
+                                <div className="space-y-4">
+                                    <div className="relative">
+                                        <InputMask
+                                            value={phone}
+                                            onChange={(e) => setPhone(e.target.value)}
+                                            mask="0(999) 999-9999"
+                                            placeholder="Telefon Numarası"
+                                            className="w-full bg-[#002200] border border-green-900 text-white rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
                                         />
-                                    </motion.div>
-                                    
-                                    <motion.div 
-                                        variants={fadeIn}
-                                        className={"flex justify-center"}
-                                    >
-                                        <span className="inline-block text-2xl font-bold bg-gradient-to-r from-[var(--primary-600)] via-[var(--primary-400)] to-[var(--primary-600)] bg-clip-text text-transparent mb-3">
-                                            {isSended ? "Doğrulama Kodunu Giriniz" : " OLEX Films Müşteri Girişi"}
-                                        </span>
-                                    </motion.div>
-                                    
-                                    <div className={"flex justify-center my-3"}>
-                                        {resend && <Button label={"Tekrar Gönder"} icon={"pi pi-refresh"}
-                                                           className={"ml-2"}
-                                                           text
-                                                           onClick={(e) => otpLogin(e, true)}/>}
+                                        <i className="pi pi-phone absolute right-4 top-1/2 -translate-y-1/2 text-green-500" />
                                     </div>
-                                    {!isSended && <InputMask className={"w-full mb-3"} value={phone}
-                                                             placeholder={"Telefon Numarası"}
-                                                             onChange={(e) => setPhone(e.target.value)}
-                                                             mask="0(999) 999-9999"/>}
-                                    {isSended && <div className={"w-full flex justify-center mb-3"}>
-
+                                    <button
+                                        onClick={otpLogin}
+                                        disabled={loading}
+                                        className="w-full bg-green-600 text-white rounded-lg py-3 font-medium hover:bg-green-500 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-[#001100] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {loading ? (
+                                            <i className="pi pi-spinner animate-spin mr-2" />
+                                        ) : (
+                                            <i className="pi pi-sign-in mr-2" />
+                                        )}
+                                        {loading ? "Gönderiliyor..." : "Giriş Yap"}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="flex justify-center">
                                         <OtpInput
                                             value={otp}
                                             onChange={setOtp}
                                             numInputs={6}
-                                            inputType={"tel"}
-                                            mode={"number"}
                                             inputStyle={{
                                                 width: "2em"
                                             }}
-                                            renderSeparator={<span>&nbsp;</span>}
+                                            inputType="tel"
                                             renderInput={(props) => (
                                                 <input
                                                     {...props}
-                                                    autoComplete={"one-time-code"}
-                                                    className="w-12 h-12 text-center text-lg font-medium border rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)]"
+                                                    className="w-12 h-12 text-center text-lg font-medium bg-[#002200] border border-green-900 text-[#E6B800] rounded-lg mx-1 focus:ring-2 focus:ring-[#E6B800] focus:border-[#E6B800] outline-none placeholder-[#E6B800]/50"
                                                 />
                                             )}
                                         />
-                                    </div>}
-
-                                    <div className={"flex justify-center"}>
-                                        {!isSended && <Button label={"Giriş Yap"} loading={loading} size={"small"}
-                                                              icon={"pi pi-sign-in"}
-                                                              onClick={otpLogin}/>}
-                                        {isSended &&
-                                            <Button label={"Doğrula"} loading={loading} size={"small"} icon={"pi pi-check"}
-                                                    onClick={otpVerify}/>}
                                     </div>
-                                </motion.div>
-                            </motion.div>
-                        )}
 
-                        <motion.footer 
-                            variants={fadeIn}
-                            className="py-16 text-center text-sm text-black dark:text-white/70"
+                                    <div className="space-y-4">
+                                        <button
+                                            onClick={otpVerify}
+                                            disabled={loading || otp.length !== 6}
+                                            className="w-full bg-green-600 text-white rounded-lg py-3 font-medium hover:bg-green-500 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-[#001100] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {loading ? (
+                                                <i className="pi pi-spinner animate-spin mr-2" />
+                                            ) : (
+                                                <i className="pi pi-check mr-2" />
+                                            )}
+                                            {loading ? "Doğrulanıyor..." : "Doğrula"}
+                                        </button>
+
+                                        {resend && (
+                                            <button
+                                                onClick={(e) => otpLogin(e, true)}
+                                                className="w-full bg-transparent border border-green-600 text-green-400 rounded-lg py-3 font-medium hover:bg-green-900/30 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-[#001100] transition-all duration-300"
+                                            >
+                                                <i className="pi pi-refresh mr-2" />
+                                                Tekrar Gönder
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+
+                {/* Hero Section */}
+                <section className="pt-32 pb-20 px-6">
+                    <div className="container mx-auto">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            className="text-center max-w-3xl mx-auto"
                         >
-                            OLEX Films &copy; {new Date().getFullYear()} All Rights Reserved.
-                        </motion.footer>
+                            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                                Aracınız İçin Profesyonel
+                                <span className="bg-gradient-to-r from-[#E6B800] via-[#FFD700] to-[#E6B800] bg-clip-text text-transparent"> Koruma Çözümleri</span>
+                            </h1>
+                            <p className="text-green-300 text-lg md:text-xl mb-12">
+                                Olex Films ile aracınızı en iyi şekilde koruyun. PPF ve cam filmi hizmetlerimizle tanışın.
+                            </p>
+                            <motion.div
+                                className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                            >
+                                <button
+                                    onClick={() => setIsOpen(true)}
+                                    className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-300 ease-in-out bg-gradient-to-r from-green-600 via-green-500 to-green-600 rounded-xl hover:from-green-500 hover:via-green-400 hover:to-green-500 shadow-lg hover:shadow-green-500/50 scale-100 hover:scale-105"
+                                >
+                                    <span className="relative">
+                                        <i className="pi pi-user mr-2" />
+                                        Müşteri Girişi
+                                    </span>
+                                    <span className="absolute -top-2 -right-2 w-4 h-4 bg-[#E6B800] rounded-full animate-ping"></span>
+                                </button>
+                            
+                            </motion.div>
+                        </motion.div>
                     </div>
-                </div>
-            </motion.div>
+                </section>
+
+                {/* Contact Section */}
+                <section id="contact" className="py-20 px-6">
+                    <div className="container mx-auto">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            viewport={{ once: true }}
+                            className="max-w-xl mx-auto text-center"
+                        >
+                            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">İleti��ime Geçin</h2>
+                            <p className="text-green-300 mb-12">
+                                Profesyonel hizmetlerimiz hakkında detaylı bilgi almak için bize ulaşın.
+                            </p>
+                            <div className="bg-[#001100]/50 backdrop-blur-sm rounded-2xl p-8 border border-green-900/50">
+                                <div className="space-y-8">
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-semibold text-white mb-4">Telefon Numaraları</h3>
+                                        <div className="flex items-center gap-4 text-green-300 justify-center">
+                                            <i className="pi pi-phone text-xl"></i>
+                                            <span>TR: +90 (507) 173 35 35</span>
+                                        </div>
+                                        <div className="flex items-center gap-4 text-green-300 justify-center">
+                                            <i className="pi pi-phone text-xl"></i>
+                                            <span>US: +1 (410) 844 5381</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-semibold text-white mb-4">Mail Adresleri</h3>
+                                        <div className="flex items-center gap-4 text-green-300 justify-center">
+                                            <i className="pi pi-envelope text-xl"></i>
+                                            <span>info@olexfillms.com</span>
+                                        </div>
+                                        <div className="flex items-center gap-4 text-green-300 justify-center">
+                                            <i className="pi pi-envelope text-xl"></i>
+                                            <span>bayilik@olexfilms.com</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-semibold text-white mb-4">Adres</h3>
+                                        <div className="flex items-center gap-4 text-green-300 justify-center">
+                                            <i className="pi pi-map-marker text-xl"></i>
+                                            <span>Şenlikköy Mh. Florya Cd. No:14 Bakırköy / İstanbul</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                </section>
+
+                {/* Footer */}
+                <footer className="bg-[#000a00] border-t border-green-900/50 py-8">
+                    <div className="container mx-auto px-6">
+                        <div className="flex flex-col md:flex-row justify-between items-center">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.5 }}
+                            >
+                                <img 
+                                    src="https://olexfilms.app/uploads/olex-logo-yatay.svg" 
+                                    alt="Olex Films Logo" 
+                                    className="h-8"
+                                />
+                            </motion.div>
+                            <div className="mt-4 md:mt-0 text-green-300 text-sm">
+                                &copy; {new Date().getFullYear()} Olex Films. Tüm hakları saklıdır.
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
         </>
     );
 }
