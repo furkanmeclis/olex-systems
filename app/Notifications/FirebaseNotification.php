@@ -72,11 +72,14 @@ class FirebaseNotification extends Notification
 
     public function sendPushNotificationBatch(): bool
     {
+
         $firebase = (new Factory)
             ->withServiceAccount(__DIR__ . '/../../resources/config/firebase_credentials.json');
 
         $messaging = $firebase->createMessaging();
-
+        if (is_array($this->token)) {
+            $messaging->subscribeToTopic('all', $this->token);
+        }
         $message = CloudMessage::fromArray([
             'notification' => [
                 'title' => $this->title,
@@ -87,10 +90,11 @@ class FirebaseNotification extends Notification
                 'icon' => env("APP_URL") . '/icons/logo-1024x1024.png',
                 'url' => $this->url ?? env("APP_URL") . '/',
             ],
+            'topic' => 'all',
         ]);
 
         try {
-            $messaging->sendMulticast($message, $this->token);
+            $messaging->send($message, $this->token);
             return true;
         } catch (MessagingException|FirebaseException $e) {
             Log::error($e->getMessage());

@@ -70,12 +70,14 @@ class NotifySmsController
         if ($notification->sendPushNotificationBatch()) {
             return response()->json([
                 'status' => true,
-                'message' => "Bildirimler Başarıyla Gönderildi"
+                'message' => "Bildirimler Başarıyla Gönderildi",
+                "tokens" => $tokensArray
             ]);
         } else {
             return response()->json([
                 'status' => true,
-                'message' => "Bildirimler Gönderildi Bazı Cihazlara Ulaşılamadı"
+                'message' => "Bildirimler Gönderildi Bazı Cihazlara Ulaşılamadı",
+                "tokens" => $tokensArray
             ]);
         }
     }
