@@ -10,11 +10,14 @@ use Inertia\Inertia;
 
 class CustomerController extends Controller
 {
-    public function index($hash): \Inertia\Response
+    public function index($hash): \Illuminate\Http\RedirectResponse|\Inertia\Response
     {
         $customerId = Crypt::decrypt($hash);
         $customer = Customers::find($customerId);
         request()->session()->put('manifest', $customerId);
+        if (!$customer) {
+            return redirect()->route('home');
+        }
         return Inertia::render('Customer/Index', [
             'customerB' => $customer,
             'hash' => Crypt::encrypt($customerId),
