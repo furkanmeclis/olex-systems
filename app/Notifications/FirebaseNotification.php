@@ -77,10 +77,8 @@ class FirebaseNotification extends Notification
             ->withServiceAccount(__DIR__ . '/../../resources/config/firebase_credentials.json');
 
         $messaging = $firebase->createMessaging();
-        if (is_array($this->token)) {
-            $messaging->subscribeToTopic('all', $this->token);
-        }
-        $message = CloudMessage::fromArray([
+        $messages = [];
+        $message = [
             'notification' => [
                 'title' => $this->title,
                 'body' => $this->body,
@@ -90,11 +88,19 @@ class FirebaseNotification extends Notification
                 'icon' => env("APP_URL") . '/icons/logo-1024x1024.png',
                 'url' => $this->url ?? env("APP_URL") . '/',
             ],
-            'topic' => 'all',
-        ]);
-
+            'token' => ""
+        ];
+        if (is_array($this->token)) {
+            foreach ($this->token as $token) {
+                $_message = $message;
+                $_message['token'] = $token;
+                $messages[] = CloudMessage::fromArray($_message);
+            }
+        } else {
+            return false;
+        }
         try {
-            $messaging->send($message, $this->token);
+            $messaging->sendAll($message);
             return true;
         } catch (MessagingException|FirebaseException $e) {
             Log::error($e->getMessage());
