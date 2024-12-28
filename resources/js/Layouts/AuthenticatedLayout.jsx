@@ -6,11 +6,14 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import {Link, usePage} from '@inertiajs/react';
 import {Tag} from 'primereact/tag';
 import {Toast} from "primereact/toast";
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Authenticated({user, header, children}) {
     const toast = useRef(null);
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const {flash} = usePage().props;
+
     useEffect(() => {
         if (flash.success !== null) {
             toast.current.show({severity: 'success', summary: 'İşlem Başarılı', detail: flash.success});
@@ -19,268 +22,307 @@ export default function Authenticated({user, header, children}) {
             toast.current.show({severity: 'error', summary: 'Hata', detail: flash.error});
         }
     }, [flash]);
+
     const badgeRole = () => {
         switch (user.role) {
             case 'super':
-                return <>
-                    <Tag severity="danger" value="Super"/>
-                </>;
+                return <Tag severity="danger" value="Super"/>;
             case 'admin':
-                return <>
-                    <Tag severity="warning" value="Admin"/>
-                </>
+                return <Tag severity="warning" value="Admin"/>;
             case 'worker':
-                return <>
-                    <Tag severity="success" value="Worker"/>
-                </>
+                return <Tag severity="success" value="Worker"/>;
             default:
-                return <>
-                    <Tag severity="help" value="Central"/>
-                </>
+                return <Tag severity="help" value="Central"/>;
         }
     }
+
     const routes = [{
         name: 'Anasayfa',
         href: route('dashboard'),
         active: route().current('dashboard'),
-        roles: ['super', 'central', 'central_salesman', 'central_contact', 'central_worker', 'admin']
+        roles: ['super', 'central', 'central_salesman', 'central_contact', 'central_worker', 'admin'],
+        icon: 'pi pi-home'
     }, {
         name: 'Merkez Çalışanları',
         href: route('super.central.index'),
         active: route().current('super.central*'),
-        roles: ['super']
+        roles: ['super'],
+        icon: 'pi pi-users'
     }, {
-        name: 'Bayiler', href: route('super.dealers.index'), active: route().current('super.dealers*'), roles: ['super']
+        name: 'Bayiler',
+        href: route('super.dealers.index'),
+        active: route().current('super.dealers*'),
+        roles: ['super'],
+        icon: 'pi pi-building'
     }, {
         name: 'Çalışanlar',
         href: route('super.workers.index'),
         active: route().current('super.workers*'),
-        roles: ['super']
+        roles: ['super'],
+        icon: 'pi pi-user'
     }, {
         name: 'Ürünler',
         href: route('super.products.index'),
         active: route().current('super.products*'),
-        roles: ['super']
+        roles: ['super'],
+        icon: 'pi pi-box'
     }, {
         name: 'Siparişler',
         href: route('super.orders.index'),
         active: route().current('super.orders*'),
-        roles: ['super']
+        roles: ['super'],
+        icon: 'pi pi-shopping-cart'
     }, {
         name: 'Stok Yönetimi',
         href: route('super.stock-management.index'),
         active: route().current('super.stock-management*'),
-        roles: ['super']
+        roles: ['super'],
+        icon: 'pi pi-database'
     }, {
         name: 'Müşteriler',
         href: route('super.customers.index'),
         active: route().current('super.customers*'),
-        roles: ['super']
-    },{
+        roles: ['super'],
+        icon: 'pi pi-users'
+    }, {
         name: 'Bildirim & SMS',
         href: route('super.notifySms.index'),
         active: route().current('super.notifySms*'),
-        roles: ['super']
+        roles: ['super'],
+        icon: 'pi pi-bell'
     },
+    // Central Routes
+    {
+        name: 'Bayiler',
+        href: route('central.dealers.index'),
+        active: route().current('central.dealers*'),
+        roles: ['central', 'central_salesman', 'central_contact'],
+        icon: 'pi pi-building'
+    }, {
+        name: 'Çalışanlar',
+        href: route('central.workers.index'),
+        active: route().current('central.workers*'),
+        roles: ['central', 'central_salesman', 'central_contact'],
+        icon: 'pi pi-users'
+    }, {
+        name: 'Ürünler',
+        href: route('central.products.index'),
+        active: route().current('central.products*'),
+        roles: ['central', 'central_salesman', 'central_contact', 'central_worker'],
+        icon: 'pi pi-box'
+    }, {
+        name: 'Siparişler',
+        href: route('central.orders.index'),
+        active: route().current('central.orders*'),
+        roles: ['central', 'central_salesman', 'central_contact', 'central_worker'],
+        icon: 'pi pi-shopping-cart'
+    }, {
+        name: 'Stok Yönetimi',
+        href: route('central.stock-management.index'),
+        active: route().current('central.stock-management*'),
+        roles: ['central', 'central_salesman', 'central_contact', 'central_worker'],
+        icon: 'pi pi-database'
+    }, {
+        name: 'Müşteriler',
+        href: route('central.customers.index'),
+        active: route().current('central.customers*'),
+        roles: ['central', 'central_salesman', 'central_contact'],
+        icon: 'pi pi-users'
+    },
+    // Dealer Routes
+    {
+        name: "Siparişler",
+        href: route('dealer.orders'),
+        active: route().current('dealer.orders'),
+        roles: ['admin'],
+        icon: 'pi pi-shopping-cart'
+    }, {
+        name: 'Hizmetler',
+        href: route('dealer.services'),
+        active: route().current('dealer.services'),
+        roles: ['admin'],
+        icon: 'pi pi-wrench'
+    }, {
+        name: 'Müşteriler',
+        href: route('dealer.customers'),
+        active: route().current('dealer.customers'),
+        roles: ['admin'],
+        icon: 'pi pi-users'
+    }, {
+        name: 'Çalışanlar',
+        href: route('dealer.workers.index'),
+        active: route().current('dealer.workers*'),
+        roles: ['admin'],
+        icon: 'pi pi-user'
+    }, {
+        name: 'Stok Kayıtları',
+        href: route('dealer.stockRecords'),
+        active: route().current('dealer.stockRecords'),
+        roles: ['admin'],
+        icon: 'pi pi-database'
+    }, {
+        name: 'Bayi Ayarları',
+        href: route('dealer.settings'),
+        active: route().current('dealer.settings'),
+        roles: ['admin'],
+        icon: 'pi pi-cog'
+    },
+    // Worker Routes
+    {
+        name: 'Anasayfa',
+        href: route('worker.index'),
+        active: route().current('worker.index'),
+        roles: ['worker'],
+        icon: 'pi pi-home'
+    }, {
+        name: 'Müşteriler',
+        href: route('worker.customers.index'),
+        active: route().current('worker.customers*'),
+        roles: ['worker'],
+        icon: 'pi pi-users'
+    }, {
+        name: 'Hizmetler',
+        href: route('worker.services.index'),
+        active: route().current('worker.services*'),
+        roles: ['worker'],
+        icon: 'pi pi-wrench'
+    }];
 
-        //Central Routes
-        {
-            name: 'Bayiler',
-            href: route('central.dealers.index'),
-            active: route().current('central.dealers*'),
-            roles: ['central', 'central_salesman', 'central_contact']
-        }, {
-            name: 'Çalışanlar',
-            href: route('central.workers.index'),
-            active: route().current('central.workers*'),
-            roles: ['central', 'central_salesman', 'central_contact']
-        }, {
-            name: 'Ürünler',
-            href: route('central.products.index'),
-            active: route().current('central.products*'),
-            roles: ['central', 'central_salesman', 'central_contact', 'central_worker']
-        }, {
-            name: 'Siparişler',
-            href: route('central.orders.index'),
-            active: route().current('central.orders*'),
-            roles: ['central', 'central_salesman', 'central_contact', 'central_worker']
-        }, {
-            name: 'Stok Yönetimi',
-            href: route('central.stock-management.index'),
-            active: route().current('central.stock-management*'),
-            roles: ['central', 'central_salesman', 'central_contact', 'central_worker']
-        }, {
-            name: 'Müşteriler',
-            href: route('central.customers.index'),
-            active: route().current('central.customers*'),
-            roles: ['central', 'central_salesman', 'central_contact']
-        }, //Dealer Routes
-        {
-            name: "Siparişler", href: route('dealer.orders'), active: route().current('dealer.orders'), roles: ['admin']
-        }, {
-            name: 'Hizmetler',
-            href: route('dealer.services'),
-            active: route().current('dealer.services'),
-            roles: ['admin']
-        }, {
-            name: 'Müşteriler',
-            href: route('dealer.customers'),
-            active: route().current('dealer.customers'),
-            roles: ['admin']
-        }, {
-            name: 'Çalışanlar',
-            href: route('dealer.workers.index'),
-            active: route().current('dealer.workers*'),
-            roles: ['admin']
-        }, {
-            name: 'Stok Kayıtları',
-            href: route('dealer.stockRecords'),
-            active: route().current('dealer.stockRecords'),
-            roles: ['admin']
-        }, {
-            name: 'Bayi Ayarları',
-            href: route('dealer.settings'),
-            active: route().current('dealer.settings'),
-            roles: ['admin']
-        }, //Worker Routes
-        {
-            name: 'Anasayfa', href: route('worker.index'), active: route().current('worker.index'), roles: ['worker']
-        }, {
-            name: 'Müşteriler',
-            href: route('worker.customers.index'),
-            active: route().current('worker.customers*'),
-            roles: ['worker']
-        }, {
-            name: 'Hizmetler',
-            href: route('worker.services.index'),
-            active: route().current('worker.services*'),
-            roles: ['worker']
-        },];
-    return (<div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-[#001100] to-[#002200]">
             <Toast ref={toast}/>
-            <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex">
-                            <div className="shrink-0 flex items-center">
-                                <Link href={route("dashboard")}>
-                                    <ApplicationLogo
-                                        className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200"/>
+            
+            {/* Mobile Header - Sticky */}
+            <div className="lg:hidden">
+                <div className="fixed top-0 left-0 right-0 z-50 bg-[#001800]/95 backdrop-blur-xl border-b border-green-900/30">
+                    <div className="flex items-center justify-between px-4 py-3">
+                        <button
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className="p-2 rounded-lg text-green-400 hover:text-white transition-colors flex items-center gap-2"
+                        >
+                            <i className={`pi ${isSidebarOpen ? 'pi-times' : 'pi-bars'} text-xl`}></i>
+                        </button>
+                        <img 
+                            src="/uploads/olex-logo-yatay.svg" 
+                            alt="Olex Films Logo" 
+                            className="h-8 w-auto"
+                        />
+                        <div className="w-10"></div> {/* Dengeleme için boş div */}
+                    </div>
+                </div>
+                <div className="h-14"></div> {/* Header'ın yüksekliği kadar boşluk */}
+            </div>
+
+            {/* Sidebar */}
+            <AnimatePresence>
+                {(isSidebarOpen || window.innerWidth >= 1024) && (
+                    <motion.div
+                        initial={{ x: -300, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: -300, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                        className="fixed top-0 left-0 h-full w-72 bg-[#001800]/95 backdrop-blur-xl border-r border-green-900/30 z-40 overflow-y-auto lg:translate-x-0"
+                    >
+                        <div className="p-6">
+                            <Link href={route("dashboard")} className="block mb-8">
+                                <img 
+                                    src="/uploads/olex-logo-yatay.svg" 
+                                    alt="Olex Films Logo" 
+                                    className="h-12 w-auto mx-auto"
+                                />
+                            </Link>
+
+                            {/* User Info */}
+                            <div className="mb-8 p-4 rounded-xl bg-[#002200]/50 border border-green-900/30">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#004d00] to-[#E6B800] flex items-center justify-center text-white font-bold">
+                                        {user.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <div className="text-white font-medium">{user.name}</div>
+                                    </div>
+                                </div>
+                                <div className="text-gray-400 text-sm truncate">{user.email}</div>
+                                <div className="text-green-400 text-sm">{badgeRole()}</div>
+                            </div>
+
+                            {/* Navigation */}
+                            <nav className="space-y-1">
+                                {routes.map(({name, href, active, roles, icon}, index) => {
+                                    if (roles.includes(user.role) || roles.includes("*")) {
+                                        return (
+                                            <Link
+                                                key={index}
+                                                href={href}
+                                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                                                    active
+                                                        ? 'bg-gradient-to-r from-[#004d00] to-[#E6B800] text-white'
+                                                        : 'text-gray-400 hover:bg-[#002200] hover:text-white'
+                                                }`}
+                                            >
+                                                <i className={`${icon} text-lg`}></i>
+                                                <span>{name}</span>
+                                                {active && (
+                                                    <motion.div
+                                                        layoutId="activeIndicator"
+                                                        className="w-1.5 h-1.5 rounded-full bg-white ml-auto"
+                                                    />
+                                                )}
+                                            </Link>
+                                        );
+                                    }
+                                    return null;
+                                })}
+                            </nav>
+
+                            {/* Footer Actions */}
+                            <div className="mt-8 space-y-2">
+                                <Link
+                                    href={route('profile.edit')}
+                                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-[#002200] hover:text-white transition-all duration-200"
+                                >
+                                    <i className="pi pi-user text-lg"></i>
+                                    <span>Profil</span>
+                                </Link>
+                                <Link
+                                    href={route('logout')}
+                                    method="post"
+                                    as="button"
+                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-[#002200] hover:text-white transition-all duration-200"
+                                >
+                                    <i className="pi pi-sign-out text-lg"></i>
+                                    <span>Çıkış Yap</span>
                                 </Link>
                             </div>
-
-                            <div className="hidden space-x-2 sm:-my-px sm:ms-10 sm:flex">
-                                {routes.map(({name, href, active, roles}, index) => {
-                                    if (roles.includes(user.role) || roles.includes("*")) {
-                                        return (<NavLink key={index} href={href} active={active}>
-                                            {name}
-                                        </NavLink>)
-                                    } else {
-                                        return null;
-                                    }
-                                })}
-                            </div>
                         </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-                        <div className="hidden sm:flex sm:items-center sm:ms-6">
-                            <div className="ms-3 relative">
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150"
-                                            >
-                                               <span>
-                                                    {badgeRole()} {user.name}
-                                               </span>
-
-                                                <svg
-                                                    className="ms-2 -me-0.5 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </Dropdown.Trigger>
-
-                                    <Dropdown.Content>
-                                        <Dropdown.Link href={route('profile.edit')}>Profil</Dropdown.Link>
-                                        <Dropdown.Link href={route('logout')} method="post" as="button">
-                                            Çıkış Yap
-                                        </Dropdown.Link>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </div>
+            {/* Main Content */}
+            <main className="lg:pl-72 min-h-screen">
+                {header && (
+                    <header className="bg-[#001800]/50 backdrop-blur-sm border-b border-green-900/30 shadow-lg">
+                        <div className=" mx-auto py-6 px-4">
+                            {header}
                         </div>
-
-                        <div className="-me-2 flex items-center sm:hidden">
-                            <button
-                                onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
-                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out"
-                            >
-                                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                    <path
-                                        className={!showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        className={showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                    </header>
+                )}
+                <div className=" mx-auto py-6">
+                    {children}
                 </div>
+            </main>
 
-                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
-                    <div className="pt-2 pb-3 space-y-1">
-                        {routes.map(({name, href, active, roles}, index) => {
-                            if (roles.includes(user.role) || roles.includes("*")) {
-                                return (<ResponsiveNavLink key={index} href={href} active={active}>
-                                    {name}
-                                </ResponsiveNavLink>)
-                            } else {
-                                return null;
-                            }
-                        })}
-                    </div>
-
-                    <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-                        <div className="px-4">
-                            <div
-                                className="font-medium text-base text-gray-800 dark:text-gray-200">{badgeRole()} {user.name}</div>
-                            <div className="font-medium text-sm text-gray-500">{user.email}</div>
-                        </div>
-
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>Profil</ResponsiveNavLink>
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Çıkış Yap
-                            </ResponsiveNavLink>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            {header && (<header className="bg-white dark:bg-gray-800 shadow">
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
-                </header>)}
-
-            <main>{children}</main>
-        </div>);
+            {/* Mobile Sidebar Overlay */}
+            {isSidebarOpen && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden"
+                />
+            )}
+        </div>
+    );
 }
