@@ -100,7 +100,7 @@ class FirebaseNotification extends Notification
             return false;
         }
         try {
-            $messaging->sendAll($message);
+            $messaging->sendAll($messages);
             return true;
         } catch (MessagingException|FirebaseException $e) {
             Log::error($e->getMessage());
