@@ -72,9 +72,9 @@ Route::get('manifest.json', function () {
         return response($print)->header('Content-Type', 'application/json');
     }
 });
-Route::middleware('guest')->group(function () {
-    Route::post("/customer-otp-login", [\App\Http\Controllers\CustomerController::class, 'customerOtpLogin'])->name('customer-otp-login');
+Route::post("/customer-otp-login", [\App\Http\Controllers\CustomerController::class, 'customerOtpLogin'])->name('customer-otp-login');
     Route::post("/customer-otp-verify", [\App\Http\Controllers\CustomerController::class, 'customerOtpVerify'])->name('customer-otp-verify');
+    Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
