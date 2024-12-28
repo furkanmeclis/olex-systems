@@ -54,7 +54,7 @@ export default function ResetPassword({ token, email }) {
                         
                         <div className="space-y-1">
                             <p className="text-green-300 font-medium">Araç Koruma Filmi (PPF)</p>
-                            <p className="text-green-300/80 text-sm">Cam Filmi & Seramik Kaplama</p>
+                            <p className="text-green-300/80 text-sm">Cam Filmi</p>
                         </div>
                     </motion.div>
 

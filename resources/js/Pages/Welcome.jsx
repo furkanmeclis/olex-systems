@@ -171,7 +171,7 @@ export default function Welcome({ auth, csrf_token }) {
                                         href={route('dashboard')}
                                         className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-all duration-300"
                                     >
-                                        Dashboard
+                                        <i className="pi pi-home mr-2" /> Yönetim Paneli
                                     </Link>
                                 ) : (
                                     <>
@@ -233,6 +233,7 @@ export default function Welcome({ auth, csrf_token }) {
                                     <div className="relative">
                                         <InputMask
                                             value={phone}
+                                        
                                             onChange={(e) => setPhone(e.target.value)}
                                             mask="0(999) 999-9999"
                                             placeholder="Telefon Numarası"
@@ -351,7 +352,7 @@ export default function Welcome({ auth, csrf_token }) {
                             viewport={{ once: true }}
                             className="max-w-xl mx-auto text-center"
                         >
-                            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">İleti��ime Geçin</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">İletişime Geçin</h2>
                             <p className="text-green-300 mb-12">
                                 Profesyonel hizmetlerimiz hakkında detaylı bilgi almak için bize ulaşın.
                             </p>
