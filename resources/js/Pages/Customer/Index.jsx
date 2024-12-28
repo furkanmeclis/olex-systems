@@ -166,7 +166,7 @@ const Index = ({customerB, csrf_token, hash, services}) => {
 
             <div className="max-w-4xl mx-auto px-4 py-8">
                 <div className="flex justify-center mb-12">
-                    <img className="h-16" src="/uploads/olex-logo-yatay.svg" alt="OLEX® Films"/>
+                    <img className="h-16" src="/uploads/olex-logo-yatay.svg" alt="OLEX&#174; Films"/>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
