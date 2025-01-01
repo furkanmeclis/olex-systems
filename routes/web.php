@@ -24,6 +24,10 @@ Route::get('/redirect/{id}', function ($mail) {
     $hash = Crypt::encrypt($customer->id);
     return redirect()->route('customer.notify', $hash);
 });
+Route::get('/migrate', function () {
+    Artisan::call("migrate");
+    return response()->json("Migrated");
+});
 Route::get('/clean', function () {
     Artisan::call("cache:clear");
     Artisan::call("config:clear");
