@@ -105,6 +105,7 @@ Route::middleware('auth')->group(function () {
         ]);
         Route::post('/orders/{id}/list-product-codes', [\App\Http\Controllers\Super\OrdersController::class, 'listProductCodes'])->name('orders.listProductCodes');
         Route::put('/orders/{id}/update-product-codes', [\App\Http\Controllers\Super\OrdersController::class, 'updateProductCodes'])->name('orders.updateProductCodes');
+        Route::put('/orders/{id}/update-tracking-code', [\App\Http\Controllers\Super\OrdersController::class, 'updateTrackingCode'])->name('orders.updateTrackingCode');
         Route::post('/orders/trash-list-all', [\App\Http\Controllers\Super\OrdersController::class, 'trashAll'])->name('orders.trashAll');
         Route::put('/orders/{id}/status-update', [App\Http\Controllers\Super\OrdersController::class, 'updateStatus'])->name('orders.statusUpdate');
         Route::post('/products/multiple-destroy', [\App\Http\Controllers\Super\OrdersController::class, 'multipleDestroy'])->name('orders.multipleDestroy');
@@ -197,6 +198,7 @@ Route::middleware('auth')->group(function () {
             'update' => 'orders.update',
             'destroy' => 'orders.destroy',
         ]);
+        Route::put('/orders/{id}/tracking-code', [\App\Http\Controllers\Central\OrdersController::class, 'updateTrackingCode'])->name('orders.updateTrackingCode');
         Route::post('/orders/{id}/list-product-codes', [\App\Http\Controllers\Central\OrdersController::class, 'listProductCodes'])->name('orders.listProductCodes');
         Route::put('/orders/{id}/update-product-codes', [\App\Http\Controllers\Central\OrdersController::class, 'updateProductCodes'])->name('orders.updateProductCodes');
         Route::post('/orders/trash-list-all', [\App\Http\Controllers\Central\OrdersController::class, 'trashAll'])->name('orders.trashAll');

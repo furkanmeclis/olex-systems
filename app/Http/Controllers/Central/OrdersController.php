@@ -185,6 +185,10 @@ class OrdersController extends Controller
                     if ($order->user_id != request()->user_id) {
                         $order->user_id = request()->user_id;
                     }
+                    if ($request->status === 'shipping') {
+                        $order->tracking_code = $request->tracking_code;
+                        $order->tracking_url = $request->tracking_url;
+                    }
                     if ($order->save()) {
                         $savedItems = 0;
                         $unSavedItems = [];
@@ -386,5 +390,33 @@ class OrdersController extends Controller
         } else {
             return response()->json(['message' => 'Bu Id\'ye ait bir sipariş bulunamadı', 'status' => false]);
         }
+    }
+
+    public function updateTrackingCode(Request $request, $id)
+    {
+        $order = Orders::findOrFail($id);
+        
+        if ($order->status !== 'shipping') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sipariş kargoda durumunda değil.'
+            ]);
+        }
+
+        $order->tracking_code = $request->tracking_code;
+        $order->tracking_url = $request->tracking_url;
+        
+        if ($order->save()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Kargo takip bilgileri güncellendi.',
+                'records' => Orders::getAllData()
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Kargo takip bilgileri güncellenirken bir hata oluştu.'
+        ]);
     }
 }

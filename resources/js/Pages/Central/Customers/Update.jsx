@@ -5,6 +5,8 @@ import * as Yup from "yup";
 import {Message} from "primereact/message";
 import {SelectButton} from 'primereact/selectbutton';
 import {Badge} from "primereact/badge";
+import {InputMask} from "primereact/inputmask";
+import {motion} from "framer-motion";
 
 export default function Update({
                                    csrf_token,
@@ -20,6 +22,7 @@ export default function Update({
 
     const {values, handleSubmit, handleChange, dirty, setFieldValue, errors, setErrors} = useFormik({
         initialValues: {
+            type: user.type || 'individual',
             name: user.name,
             email: user.email,
             phone: user.phone,
@@ -33,58 +36,97 @@ export default function Update({
                 } else {
                     return null;
                 }
-            }).filter((item) => item !== null)
+            }).filter((item) => item !== null),
+            vatName: user.vat_name || '',
+            vatNumber: user.vat_number || '',
+            vatOffice: user.vat_office || ''
         },
         validationSchema: Yup.object().shape({
-            name: Yup.string().required('Merkez Üyesi Adı Zorunludur.'),
-            email: Yup.string().email('Geçerli Bir E-Posta Adresi Giriniz.').required('E-Posta Adresi Zorunludur.'),
-            phone: Yup.string().required('Telefon Numarası Zorunludur.'),
-
+            type: Yup.string().required('Müşteri tipi seçimi zorunludur'),
+            name: Yup.string().required('Müşteri/Firma Adı zorunludur'),
+            email: Yup.string().email('Geçerli bir e-posta adresi giriniz').required('E-posta adresi zorunludur'),
+            phone: Yup.string().required('Telefon numarası zorunludur'),
+            address: Yup.string().required('Adres zorunludur'),
+            vatName: Yup.string().when('type', {
+                is: 'company',
+                then: () => Yup.string().required('Vergi adı zorunludur'),
+                otherwise: () => Yup.string()
+            }),
+            vatNumber: Yup.string().when('type', {
+                is: 'company',
+                then: () => Yup.string().required('Vergi numarası zorunludur'),
+                otherwise: () => Yup.string()
+            }),
+            vatOffice: Yup.string().when('type', {
+                is: 'company',
+                then: () => Yup.string().required('Vergi dairesi zorunludur'),
+                otherwise: () => Yup.string()
+            })
         }),
         onSubmit: values => {
             setLoading(true);
             let formData = new FormData();
-            formData.append('name', values.name);
-            formData.append('email', values.email);
-            formData.append('phone', values.phone);
-            formData.append('notification_settings', JSON.stringify(values.contact));
-            formData.append('address', values.address);
-            formData.append('player_id', values.player_id);
+            Object.keys(values).forEach(key => {
+                if (key === 'contact') {
+                    formData.append('notification_settings', JSON.stringify(values[key]));
+                } else {
+                    formData.append(key, values[key]);
+                }
+            });
             formData.append('_method', 'PUT');
-            fetch(route(`central.customers.update`, user.id), {
+
+            fetch(route('central.customers.update', user.id), {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': csrf_token
                 },
                 body: formData
-
-            }).then(response => response.json()).then(data => {
-                if (data.status) {
-                    toast.current.show({
-                        severity: 'success',
-                        summary: 'Başarılı',
-                        detail: data.message
-                    });
-                    setUsers(data.customers);
-                    onHide();
-                } else {
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        toast.current.show({
+                            severity: 'success',
+                            summary: 'Başarılı',
+                            detail: data.message
+                        });
+                        setUsers(data.customers);
+                        onHide();
+                    } else {
+                        toast.current.show({
+                            severity: 'error',
+                            summary: 'Hata',
+                            detail: data.message
+                        });
+                    }
+                })
+                .catch(() => {
                     toast.current.show({
                         severity: 'error',
                         summary: 'Hata',
-                        detail: data.message
+                        detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
                     });
-                }
-            }).catch((error) => {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Hata',
-                    detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                })
+                .finally(() => {
+                    setLoading(false);
                 });
-            }).finally(() => {
-                setLoading(false);
-            })
         }
-    })
+    });
+
+    const isCompany = useMemo(() => values.type === 'company', [values.type]);
+
+    const customerTypes = [
+        {
+            icon: 'pi pi-user',
+            value: 'individual',
+            label: 'Bireysel'
+        },
+        {
+            icon: 'pi pi-building',
+            value: 'company',
+            label: 'Kurumsal'
+        }
+    ];
 
     return (<BlockUI blocked={loading} template={<i className="pi pi-spin pi-spinner" style={{fontSize: '3rem'}}></i>}>
         <form className="p-fluid" onSubmit={handleSubmit}>
@@ -95,46 +137,138 @@ export default function Update({
                             <Message severity="warn" key={key} text={value}/>))}
                     </>}
                 </div>
-                <div className={"col-span-2"}>
-                    <label htmlFor="name" className="font-bold">
-                        Müşteri Adı <span className={"font-semibold text-red-400"}>*</span>
-                    </label>
-                    <InputText id="name" name={"name"} onChange={handleChange} value={values.name || ''} autoFocus/>
 
+                <div className="col-span-2">
+                    <label className="font-bold mb-2 block">
+                        Müşteri Tipi
+                    </label>
+                    <SelectButton
+                        value={values.type}
+                        onChange={(e) => setFieldValue('type', e.value)}
+                        options={customerTypes}
+                        itemTemplate={(option) => (
+                            <motion.div
+                                whileHover={{scale: 1.02}}
+                                whileTap={{scale: 0.98}}
+                                className="flex items-center gap-2 px-4 py-2"
+                            >
+                                <i className={option.icon}/>
+                                <span>{option.label}</span>
+                            </motion.div>
+                        )}
+                        className="w-full"
+                    />
                 </div>
 
+                <div className={"col-span-2"}>
+                    <label htmlFor="name" className="font-bold">
+                        {isCompany ? 'Firma Adı' : 'Müşteri Adı'} <span className={"font-semibold text-red-400"}>*</span>
+                    </label>
+                    <InputText id="name" name={"name"} onChange={handleChange} value={values.name || ''} autoFocus/>
+                </div>
             </div>
+
             <div className={"mb-3"}>
                 <label htmlFor="email" className="font-bold">
-                    Müşteri E-Posta Adresi <span className={"font-semibold text-red-400"}>*</span>
+                    E-posta Adresi <span className={"font-semibold text-red-400"}>*</span>
                 </label>
                 <InputText id="email" type={"email"} name={"email"} onChange={handleChange} value={values.email || ''}/>
             </div>
+
             <div className={"mb-3"}>
                 <label htmlFor="phone" className="font-bold">
-                    Müşteri Telefon No <span className={"font-semibold text-red-400"}>*</span>
+                    Telefon Numarası <span className={"font-semibold text-red-400"}>*</span>
                 </label>
-                <InputText id="phone" type={"tel"} name={"phone"} onChange={handleChange} value={values.phone || ''}/>
+                <InputMask
+                    id="phone"
+                    name="phone"
+                    value={values.phone}
+                    onChange={handleChange}
+                    mask="(999) 999-9999"
+                    placeholder="(5XX) XXX-XXXX"
+                    className={errors.phone ? 'p-invalid w-full' : 'w-full'}
+                />
             </div>
+
             <div className={"mb-3"}>
                 <label htmlFor="address" className="font-bold">
-                    Müşteri Adresi <span className={"font-semibold text-red-400"}>*</span>
+                    Adres <span className={"font-semibold text-red-400"}>*</span>
                 </label>
                 <InputText id="address" type={"text"} name={"address"} onChange={handleChange}
                            value={values.address || ''}/>
             </div>
+
+            {isCompany && (
+                <motion.div
+                    initial={{opacity: 0, y: 20}}
+                    animate={{opacity: 1, y: 0}}
+                    exit={{opacity: 0, y: 20}}
+                    className="flex flex-col gap-4"
+                >
+                    <div className="field">
+                        <label htmlFor="vatName" className="font-bold block mb-2">
+                            Vergi Adı
+                            <span className="text-red-500">*</span>
+                        </label>
+                        <InputText
+                            id="vatName"
+                            value={values.vatName}
+                            onChange={handleChange}
+                            className={errors.vatName ? 'p-invalid w-full' : 'w-full'}
+                        />
+                        {errors.vatName && (
+                            <small className="p-error">{errors.vatName}</small>
+                        )}
+                    </div>
+
+                    <div className="field">
+                        <label htmlFor="vatNumber" className="font-bold block mb-2">
+                            Vergi Numarası
+                            <span className="text-red-500">*</span>
+                        </label>
+                        <InputText
+                            id="vatNumber"
+                            value={values.vatNumber}
+                            onChange={handleChange}
+                            className={errors.vatNumber ? 'p-invalid w-full' : 'w-full'}
+                        />
+                        {errors.vatNumber && (
+                            <small className="p-error">{errors.vatNumber}</small>
+                        )}
+                    </div>
+
+                    <div className="field">
+                        <label htmlFor="vatOffice" className="font-bold block mb-2">
+                            Vergi Dairesi
+                            <span className="text-red-500">*</span>
+                        </label>
+                        <InputText
+                            id="vatOffice"
+                            value={values.vatOffice}
+                            onChange={handleChange}
+                            className={errors.vatOffice ? 'p-invalid w-full' : 'w-full'}
+                        />
+                        {errors.vatOffice && (
+                            <small className="p-error">{errors.vatOffice}</small>
+                        )}
+                    </div>
+                </motion.div>
+            )}
+
             <div className={"mb-3"}>
                 <label htmlFor="player_id" className="font-bold">
-                    Müşteri Device Id
+                    Device ID
                 </label>
                 <InputText id="player_id" type={"text"} name={"player_id"} onChange={handleChange}
                            value={values.player_id || ''}/>
             </div>
+
             <div className={"mb-3"}>
-                <label htmlFor="address" className="font-bold">
+                <label className="font-bold block mb-2">
                     İletişim Tercihleri
                 </label>
-                <SelectButton multiple value={values.contact} onChange={(e) => setFieldValue('contact', e.value)}
+                <SelectButton multiple value={values.contact}
+                              onChange={(e) => setFieldValue('contact', e.value)}
                               itemTemplate={(option) => {
                                   let isSelected = values.contact && values.contact.includes(option.value);
                                   return <div className={"w-full text-center"}><i
@@ -147,7 +281,7 @@ export default function Update({
                               options={[
                                   {icon: 'pi pi-envelope', value: 'email'},
                                   {icon: 'pi pi-send', value: 'sms'},
-                                  {icon: 'pi pi-bell', value: 'push'},
+                                  {icon: 'pi pi-bell', value: 'push'}
                               ]}/>
             </div>
             <button type={"submit"} style={{display: "none"}} ref={formRef}></button>

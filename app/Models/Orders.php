@@ -15,6 +15,8 @@ class Orders extends Model
         'dealer_id',
         'user_id',
         'status',
+        'tracking_code',
+        'tracking_url'
     ];
 
     public static array $statuses =  [

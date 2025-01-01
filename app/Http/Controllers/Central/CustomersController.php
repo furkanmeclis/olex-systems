@@ -7,6 +7,8 @@ use App\Models\Customers;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CustomersController extends Controller
 {
@@ -30,37 +32,80 @@ class CustomersController extends Controller
         ]);
     }
 
-    public function update($id)
+    public function update(Request $request, $id)
     {
-        $customer = Customers::find($id);
-        $request = request();
-        if ($customer) {
-            $default = [
-                "sms" => false,
-                "email" => false,
-                "push" => false,
-            ];
-            $customer->name = $request->get('name');
-            $customer->email = $request->get('email');
-            $customer->phone = $request->get('phone');
-            $customer->address = $request->get('address');
-            $customer->player_id = $request->get('player_id');
-            $notificationSettings = json_decode($request->get('notification_settings'),true);
-            if($notificationSettings) {
-                foreach ($notificationSettings as $key) {
-                    if(array_key_exists($key,$default)) $default[$key] = true;
-                }
-            }
-            $customer->notification_settings = json_encode($default);
+        $customer = Customer::find($id);
+        if (!$customer) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Müşteri bulunamadı'
+            ]);
+        }
 
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|in:individual,company',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:customers,email,' . $id,
+            'phone' => 'required|string|max:255|unique:customers,phone,' . $id,
+            'address' => 'required|string',
+            'player_id' => 'nullable|string',
+            'notification_settings' => 'nullable|json',
+            'vatName' => 'required_if:type,company|string|max:255|nullable',
+            'vatNumber' => 'required_if:type,company|string|max:255|nullable',
+            'vatOffice' => 'required_if:type,company|string|max:255|nullable',
+        ], [
+            'type.required' => 'Müşteri tipi seçimi zorunludur',
+            'type.in' => 'Geçersiz müşteri tipi',
+            'name.required' => 'Müşteri/Firma adı zorunludur',
+            'email.required' => 'E-posta adresi zorunludur',
+            'email.email' => 'Geçerli bir e-posta adresi giriniz',
+            'email.unique' => 'Bu e-posta adresi zaten kullanımda',
+            'phone.required' => 'Telefon numarası zorunludur',
+            'phone.unique' => 'Bu telefon numarası zaten kullanımda',
+            'address.required' => 'Adres zorunludur',
+            'vatName.required_if' => 'Vergi adı zorunludur',
+            'vatNumber.required_if' => 'Vergi numarası zorunludur',
+            'vatOffice.required_if' => 'Vergi dairesi zorunludur',
+        ]);
 
-            if ($customer->save()) {
-                return response()->json(['message' => 'Müşteri başarıyla güncellendi.', 'status' => true, 'customers' => $this->getAllCustomers()]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        try {
+            $customer->type = $request->type;
+            $customer->name = $request->name;
+            $customer->email = $request->email;
+            $customer->phone = $request->phone;
+            $customer->address = $request->address;
+            $customer->player_id = $request->player_id;
+            $customer->notification_settings = $request->notification_settings;
+            
+            if ($request->type === 'company') {
+                $customer->vat_name = $request->vatName;
+                $customer->vat_number = $request->vatNumber;
+                $customer->vat_office = $request->vatOffice;
             } else {
-                return response()->json(['message' => 'Müşteri güncellenirken bir hata oluştu.', 'status' => false]);
+                $customer->vat_name = null;
+                $customer->vat_number = null;
+                $customer->vat_office = null;
             }
-        } else {
-            return response()->json(['message' => 'Bu Id\'ye sahip bir Müşteri bulunamadı.'], 404);
+
+            $customer->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Müşteri başarıyla güncellendi',
+                'customers' => Customer::all()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Müşteri güncellenirken bir hata oluştu'
+            ]);
         }
     }
 }

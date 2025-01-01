@@ -36,7 +36,6 @@ export default function Index({
         const op = useRef(null);
         const [filters, setFilters] = useState({
             global: {value: null, matchMode: FilterMatchMode.CONTAINS},
-
         });
         const [loading, setLoading] = useState(false);
         const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -47,17 +46,21 @@ export default function Index({
         const [trash, setTrash] = useState([]);
         const [trashMode, setTrashMode] = useState(false);
         const [recordsX, setRecordsX] = useState([]);
+        const [selectedNotes, setSelectedNotes] = useState("");
+        const [trackingModal, setTrackingModal] = useState(false);
+        const [selectedOrder, setSelectedOrder] = useState(null);
+        const noteOp = useRef(null);
         const columns = [
-            'id',
-            'dealer',
-            'user',
-            'status',
-            'products_count',
-            'price',
-            'created_at',
-            'updated_at',
-            'actions',
-
+            { field: 'id', header: 'ID', default: true },
+            { field: 'dealer', header: 'Bayi', default: true },
+            { field: 'user', header: 'Yetkili', default: true },
+            { field: 'status', header: 'Durumu', default: true },
+            { field: 'products_count', header: 'Ürün Adedi', default: true },
+            { field: 'price', header: 'Sipariş Tutarı', default: true },
+            { field: 'tracking_code', header: 'Kargo Takip Kodu', default: true },
+            { field: 'created_at', header: 'Eklenme Tarihi', default: false },
+            { field: 'updated_at', header: 'Güncellenme Tarihi', default: false },
+            { field: 'actions', header: 'İşlemler', default: true }
         ];
         const [selectedColumns, setSelectedColumns] = useState(localStorage.getItem('selectedColumnsForOrdersTable') ? JSON.parse(localStorage.getItem('selectedColumnsForOrdersTable')) : columns);
         const columnsTurkishNames = {
@@ -168,8 +171,6 @@ export default function Index({
         const [productCodesModal, setProductCodesModal] = useState(false);
         const [productCodes, setProductCodes] = useState([]);
         const [productCodesFooter, setProductCodesFooter] = useState(<></>);
-        const [selectedNotes, setSelectedNotes] = useState("");
-        const noteOp = useRef(null);
         const prepareShowCodes = (order) => {
             setProductCodesModal(true);
             setProductCodes(order);
@@ -346,6 +347,139 @@ export default function Index({
                 setLoading(false);
             });
         }
+        const SetTrackingCodeElement = ({record, toast, csrf_token, setRecords, isModal = false}) => {
+            const [trackingCode, setTrackingCode] = useState(record.tracking_code || "");
+            const [trackingUrl, setTrackingUrl] = useState(record.tracking_url || "");
+            const [loading, setLoading] = useState(false);
+
+            const saveTrackingCode = () => {
+                if (trackingCode === "") {
+                    toast.current.show({
+                        severity: 'warn',
+                        summary: 'Hata',
+                        detail: "Kargo Takip Kodu Boş Olamaz."
+                    });
+                    return;
+                }
+                if (trackingCode === record.tracking_code && trackingUrl === record.tracking_url) {
+                    toast.current.show({
+                        severity: 'info',
+                        summary: 'Bilgi',
+                        detail: "Kargo Takip Bilgileri Güncellenmedi. Değişiklik Yok."
+                    });
+                    return;
+                }
+                setLoading(true);
+                let formData = new FormData();
+                formData.append('tracking_code', trackingCode);
+                formData.append('tracking_url', trackingUrl);
+                formData.append('_method', 'PUT');
+                fetch(route('central.orders.updateTrackingCode', record.id), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token,
+                    },
+                    body: formData
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    if (data.status) {
+                        toast.current.show({
+                            severity: 'success',
+                            summary: 'Başarılı',
+                            detail: data.message
+                        });
+                        setRecords(data.records);
+                    } else {
+                        toast.current.show({
+                            severity: 'error',
+                            summary: 'Hata',
+                            detail: data.message
+                        });
+                    }
+                }).catch((error) => {
+                    toast.current.show({
+                        severity: 'error',
+                        summary: 'Hata',
+                        detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                    });
+                }).finally(() => {
+                    setLoading(false);
+                })
+            }
+
+            if (isModal) {
+                return (
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="trackingCode" className="font-medium">
+                                Kargo Takip Kodu
+                            </label>
+                            <InputText
+                                id="trackingCode"
+                                value={trackingCode}
+                                onChange={(e) => setTrackingCode(e.target.value)}
+                                placeholder="Kargo takip kodunu giriniz"
+                                disabled={loading}
+                                className="w-full"
+                            />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="trackingUrl" className="font-medium">
+                                Kargo Takip URL (Opsiyonel)
+                            </label>
+                            <InputText
+                                id="trackingUrl"
+                                value={trackingUrl}
+                                onChange={(e) => setTrackingUrl(e.target.value)}
+                                placeholder="Kargo takip URL'sini giriniz"
+                                disabled={loading}
+                                className="w-full"
+                            />
+                        </div>
+                        <div className="flex justify-end gap-2 mt-4">
+                            <Button 
+                                label="Kaydet"
+                                icon="pi pi-check"
+                                onClick={saveTrackingCode}
+                                severity="success"
+                                size="small"
+                                loading={loading}
+                            />
+                            <Button 
+                                label="Vazgeç" 
+                                icon="pi pi-times" 
+                                onClick={() => {
+                                    setSelectedOrder(null);
+                                    setTrackingModal(false);
+                                }}
+                                severity="secondary"
+                                size="small"
+                                disabled={loading}
+                            />
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="flex items-center gap-2">
+                    <Button
+                        icon="pi pi-truck"
+                        text
+                        severity="secondary"
+                        onClick={() => {
+                            setSelectedOrder(record);
+                            setTrackingModal(true);
+                        }}
+                        tooltip="Kargo Takip Bilgilerini Gir"
+                        tooltipOptions={{ position: 'top' }}
+                        className="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+                    />
+                    <span className="text-gray-400 text-sm">Kargo takip bilgisi girilmemiş</span>
+                </div>
+            );
+        }
         return <>
             <Head title="Siparişler"/>
             <Tooltip target=".custom-target-icon"/>
@@ -456,6 +590,51 @@ export default function Index({
                                 }, 0)).toFixed(2) + " $"
                             }}
                             sortable/>}
+                            {selectedColumns.includes('tracking_code') && (
+                    <Column field="tracking_code" header="Kargo Takip" sortable
+                            body={(rowData) => {
+                                if (rowData.status === 'shipping') {
+                                    if (rowData.tracking_code) {
+                                        return (
+                                            <div className="flex items-center gap-2">
+                                                {rowData.tracking_url ? (
+                                                    <a 
+                                                        href={rowData.tracking_url} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-500 hover:text-blue-700 flex items-center gap-1"
+                                                    >
+                                                        <i className="pi pi-external-link" />
+                                                        {rowData.tracking_code}
+                                                    </a>
+                                                ) : (
+                                                    <span>{rowData.tracking_code}</span>
+                                                )}
+                                                <Button 
+                                                    icon="pi pi-pencil" 
+                                                    text 
+                                                    severity="secondary"
+                                                    size="small"
+                                                    onClick={() => {
+                                                        setSelectedOrder(rowData);
+                                                        setTrackingModal(true);
+                                                    }}
+                                                />
+                                            </div>
+                                        );
+                                    } else {
+                                        return <SetTrackingCodeElement 
+                                            record={rowData} 
+                                            toast={toast} 
+                                            csrf_token={csrf_token}
+                                            setRecords={setRecords}
+                                        />;
+                                    }
+                                }
+                                return <span className="text-gray-500">-</span>;
+                            }}
+                    />
+                )}
                 {selectedColumns.includes('created_at') &&
                     <Column field="created_at" sortable header="Eklenme Tarihi"
                             body={(rowData) => new Date(rowData.created_at).toLocaleString()}/>}
@@ -544,6 +723,7 @@ export default function Index({
                             </div>
                         </>
                     }}/>}
+                
             </DataTable>
             <Dialog header="Yeni Sipariş Ekle" style={{width: '70vw'}}
                     breakpoints={{'960px': '75vw', '641px': '100vw'}}
@@ -607,6 +787,30 @@ export default function Index({
                 <ProductCodes productCodesModal={productCodesModal} order={productCodes}
                               setRecords={setRecords} csrf_token={csrf_token} toast={toast}
                               onHide={() => setProductCodesModal(false)} setFooter={setProductCodesFooter}/>
+            </Dialog>
+            <Dialog 
+                header="Kargo Takip Bilgileri" 
+                visible={trackingModal} 
+                style={{width: '30vw'}}
+                breakpoints={{'960px': '75vw', '641px': '100vw'}}
+                onHide={() => {
+                    setTrackingModal(false);
+                    setSelectedOrder(null);
+                }}
+            >
+                {selectedOrder && (
+                    <SetTrackingCodeElement 
+                        record={selectedOrder} 
+                        toast={toast} 
+                        csrf_token={csrf_token}
+                        setRecords={(newRecords) => {
+                            setRecords(newRecords);
+                            setTrackingModal(false);
+                            setSelectedOrder(null);
+                        }}
+                        isModal={true}
+                    />
+                )}
             </Dialog>
         </>
     }

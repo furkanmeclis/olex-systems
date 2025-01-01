@@ -9,6 +9,23 @@ class Customers extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'dealer_id',
+        'worker_id',
+        'name',
+        'email',
+        'phone',
+        'player_id',
+        'address',
+        'notification_settings',
+        'birthday',
+        'gender',
+        'type',
+        'vat_name',
+        'vat_number',
+        'vat_office'
+    ];
+
     public static function getCustomersForDealer()
     {
         $dealer_id = null;

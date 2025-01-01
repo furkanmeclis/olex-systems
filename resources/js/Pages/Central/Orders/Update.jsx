@@ -7,6 +7,8 @@ import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
 import {InputNumber} from 'primereact/inputnumber';
 import {InputTextarea} from 'primereact/inputtextarea';
+import {InputText} from 'primereact/inputtext';
+import {Divider} from 'primereact/divider';
 
 export default function Update({
                                    dealers,
@@ -32,6 +34,8 @@ export default function Update({
         id: record.user_id,
         label: record.user_label
     });
+    const [trackingCode, setTrackingCode] = useState(record.tracking_code || "");
+    const [trackingUrl, setTrackingUrl] = useState(record.tracking_url || "");
     const recordProducts = record.products.map((item) => {
         let product = item.product;
         return {
@@ -69,6 +73,8 @@ export default function Update({
             note !== record.note ||
             activeStatus !== record.status ||
             selectedOfficial.id !== record.user_id ||
+            trackingCode !== record.tracking_code ||
+            trackingUrl !== record.tracking_url ||
             diff
         ) {
             setDirty(true);
@@ -83,12 +89,20 @@ export default function Update({
             }
         }
         setDisabled(!dirty);
-    }, [selectedDealer, selectedProducts, note, activeStatus, selectedOfficial, record]);
+    }, [selectedDealer, selectedProducts, note, activeStatus, selectedOfficial, trackingCode, trackingUrl, record]);
 
     const handleSubmit = () => {
         let formData = new FormData();
         formData.append("dealer_id", selectedDealer.id);
         formData.append("note", note);
+        formData.append("status", activeStatus);
+        formData.append("user_id", selectedOfficial.id);
+        
+        if (activeStatus === 'shipping') {
+            formData.append("tracking_code", trackingCode);
+            formData.append("tracking_url", trackingUrl);
+        }
+
         let productData = selectedProducts.map((item) => {
             return {
                 product_id: item.id,
@@ -214,6 +228,34 @@ export default function Update({
                           className="w-full"/>
                 <label htmlFor="dd-city">Satış Yetkilisi</label>
             </FloatLabel>
+            {activeStatus === 'shipping' && (
+                <>
+                    <FloatLabel className="w-full mb-10">
+                            <InputText
+                                value={trackingCode}
+                                onChange={(e) => {
+                                    setTrackingCode(e.target.value);
+                                    setDirty(true);
+                                }}
+                                placeholder="Kargo takip kodunu giriniz"
+                                className="w-full"
+                            />
+                            <label>Kargo Takip Kodu</label>
+                        </FloatLabel>
+                        <FloatLabel className="w-full mb-10">
+                            <InputText
+                                value={trackingUrl}
+                                onChange={(e) => {
+                                    setTrackingUrl(e.target.value);
+                                    setDirty(true);
+                                }}
+                                placeholder="Kargo takip URL'sini giriniz"
+                                className="w-full"
+                            />
+                            <label>Kargo Takip URL (Opsiyonel)</label>
+                        </FloatLabel>
+                </>
+            )}
         </div>
     </>
 }
