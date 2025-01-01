@@ -122,7 +122,8 @@ class CustomersController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Müşteri güncellenirken bir hata oluştu'
+                'message' => 'Müşteri güncellenirken bir hata oluştu',
+                'error' => $e->getMessage()
             ]);
         }
     }
