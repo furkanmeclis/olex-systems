@@ -1,6 +1,6 @@
 import './bootstrap';
 import '../css/app.css';
-import "primereact/resources/themes/lara-dark-teal/theme.css";
+import "primereact/resources/themes/lara-dark-green/theme.css";
 import 'primeicons/primeicons.css';
 import {createRoot} from 'react-dom/client';
 import {createInertiaApp} from '@inertiajs/react';

@@ -374,4 +374,52 @@ class Services extends Model
             ]
         ];
     }
+
+    public static function generateChartCentral(): array
+    {
+        // Bayi siparişleri istatistikleri
+        $dealerOrders = [];
+        $orders = Orders::all();
+        foreach ($orders as $order) {
+            if (isset($dealerOrders[$order->dealer_id])) {
+                $dealerOrders[$order->dealer_id]++;
+            } else {
+                $dealerOrders[$order->dealer_id] = 1;
+            }
+        }
+        
+        $dealerOrderData = [];
+        foreach ($dealerOrders as $dealerId => $count) {
+            $dealer = User::where('id', $dealerId)->first("name");
+            $dealerOrderData[$dealer->name] = $count;
+        }
+
+        // En çok sipariş edilen ürünler
+        $productOrders = [];
+        $stockRecords = StockRecords::all();
+        foreach ($stockRecords as $record) {
+            if (isset($productOrders[$record->product_id])) {
+                $productOrders[$record->product_id]++;
+            } else {
+                $productOrders[$record->product_id] = 1;
+            }
+        }
+
+        $productOrderData = [];
+        foreach ($productOrders as $productId => $count) {
+            $product = Products::where('id', $productId)->first("name");
+            $productOrderData[$product->name] = $count;
+        }
+
+        return [
+            "dealerOrders" => [
+                "labels" => array_keys($dealerOrderData),
+                "data" => array_values($dealerOrderData)
+            ],
+            "productOrders" => [
+                "labels" => array_keys($productOrderData),
+                "data" => array_values($productOrderData)
+            ]
+        ];
+    }
 }

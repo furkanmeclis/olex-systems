@@ -24,6 +24,8 @@ export default function Update({
                                    setRecords,
                                    statuses,
                                    salesmans,
+                                   dealerOrderPage = false,
+                                   dealerPage = false
                                }) {
     const [selectedDealer, setSelectedDealer] = useState({
         id: record.dealer.id,
@@ -93,11 +95,12 @@ export default function Update({
 
     const handleSubmit = () => {
         let formData = new FormData();
+        formData.append("dealerPage", dealerPage);
         formData.append("dealer_id", selectedDealer.id);
         formData.append("note", note);
         formData.append("status", activeStatus);
         formData.append("user_id", selectedOfficial.id);
-        
+
         if (activeStatus === 'shipping') {
             formData.append("tracking_code", trackingCode);
             formData.append("tracking_url", trackingUrl);
@@ -111,7 +114,7 @@ export default function Update({
         });
         formData.append("products", JSON.stringify(productData));
         formData.append('_method', 'PUT');
-        
+
         setLoading(true);
         fetch(route('super.orders.update', record.id), {
             method: 'POST',
@@ -147,7 +150,7 @@ export default function Update({
                 </>
             );
         });
-    }, [addModal, selectedDealer, loading, disabled,dirty]);
+    }, [addModal, selectedDealer, loading, disabled, dirty]);
     const handleNumberChange = (event, item) => {
         let value = event.value;
         setSelectedProducts(prevState => {
@@ -183,7 +186,8 @@ export default function Update({
                                 #{option.sku} - {option.name} - {option.price} $
                             </span>
                     )
-                }} virtualScrollerOptions={{itemSize:38}} value={selectedProducts} emptyFilterMessage={"Ürün Bulunamadı"} filterBy={"name,sku,price"}
+                }} virtualScrollerOptions={{itemSize: 38}} value={selectedProducts}
+                             emptyFilterMessage={"Ürün Bulunamadı"} filterBy={"name,sku,price"}
                              onChange={(e) => setSelectedProducts(e.value)} options={products} optionLabel="name"
                              className="w-full"/>
                 <label htmlFor="ms-cities">Ürünleri Seçiniz</label>
@@ -207,6 +211,9 @@ export default function Update({
             </div>}
             <FloatLabel className={"mb-10"}>
                 <InputTextarea id="order_note" value={note} onChange={(e) => setNote(e.target.value)} rows={5}
+                               onKeyDown={(e) => {
+                                   setNote(e.target.value);
+                               }}
                                className={"w-full"}/>
                 <label htmlFor="order_note">Sipariş Notu</label>
             </FloatLabel>
@@ -230,29 +237,29 @@ export default function Update({
             {activeStatus === 'shipping' && (
                 <>
                     <FloatLabel className="w-full mb-10">
-                            <InputText
-                                value={trackingCode}
-                                onChange={(e) => {
-                                    setTrackingCode(e.target.value);
-                                    setDirty(true);
-                                }}
-                                placeholder="Kargo takip kodunu giriniz"
-                                className="w-full"
-                            />
-                            <label>Kargo Takip Kodu</label>
-                        </FloatLabel>
-                        <FloatLabel className="w-full mb-10">
-                            <InputText
-                                value={trackingUrl}
-                                onChange={(e) => {
-                                    setTrackingUrl(e.target.value);
-                                    setDirty(true);
-                                }}
-                                placeholder="Kargo takip URL'sini giriniz"
-                                className="w-full"
-                            />
-                            <label>Kargo Takip URL (Opsiyonel)</label>
-                        </FloatLabel>
+                        <InputText
+                            value={trackingCode}
+                            onChange={(e) => {
+                                setTrackingCode(e.target.value);
+                                setDirty(true);
+                            }}
+                            placeholder="Kargo takip kodunu giriniz"
+                            className="w-full"
+                        />
+                        <label>Kargo Takip Kodu</label>
+                    </FloatLabel>
+                    <FloatLabel className="w-full mb-10">
+                        <InputText
+                            value={trackingUrl}
+                            onChange={(e) => {
+                                setTrackingUrl(e.target.value);
+                                setDirty(true);
+                            }}
+                            placeholder="Kargo takip URL'sini giriniz"
+                            className="w-full"
+                        />
+                        <label>Kargo Takip URL (Opsiyonel)</label>
+                    </FloatLabel>
                 </>
             )}
         </div>

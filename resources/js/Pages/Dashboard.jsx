@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {Head, router} from '@inertiajs/react';
 import {Card} from "primereact/card";
-import React from "react";
+import React, {useMemo} from "react";
 import {Toast} from "primereact/toast";
 import {BlockUI} from "primereact/blockui";
 import {motion} from "framer-motion";
@@ -9,22 +9,37 @@ import CustomButton from "@/Components/CustomButton";
 import CustomChart from "@/Components/CustomChart";
 
 export default function Dashboard({auth, metrics, csrf_token}) {
-    const [statics, setStatics] = React.useState();
     const [loading, setLoading] = React.useState(false);
     const toast = React.useRef(null);
-    const [chartData, setChartData] = React.useState({});
-    const [chartDataBrand, setChartDataBrand] = React.useState({});
-    const [chartDataDealer, setChartDataDealer] = React.useState({});
-    const [chartDataWorker,setChartDataWorker] = React.useState({});
-    const [productsChartOptions, setProductsChartOptions] = React.useState({});
-    const [productsChartData, setProductsChartData] = React.useState({});
-    const [dealerCustomerData, setDealerCustomerData] = React.useState({});
-    const [chartDataServiceWorker, setChartDataServiceWorker] = React.useState({});
-    const [chartProductStockData, setChartProductStockData] = React.useState({});
-    const [chartOptions, setChartOptions] = React.useState({});
+    const [verticalChartOptions, setVerticalChartOptions] = React.useState({});
+    const [horizontalChartOptions, setHorizontalChartOptions] = React.useState({});
     const [chartVisibility, setChartVisibility] = React.useState({});
+    const [chartData, setChartData] = React.useState({
+        serviceChart: {},
+        brandChart: {},
+        dealerChart: {},
+        workerChart: {},
+        productsChart: {},
+        dealerCustomerChart: {},
+        serviceWorkerChart: {},
+        productStockChart: {},
+    });
 
-    // Animasyon varyantları
+    const applyData = (chartKey, data) => {
+        setChartData(prevState => ({
+            ...prevState,
+            [chartKey]: data
+        }));
+    };
+    const staticUrl = useMemo(() => {
+        if(auth.user.role === "super"){
+            return route("super.staticsData");
+        }else if(auth.user.role === "admin"){
+            return route("dealer.staticsData");
+        }else if(auth.user.role.includes("central")){
+            return route("central.staticsDataCentral");
+        }
+    }, [auth.user.role]);
     const cardVariants = {
         hidden: { opacity: 0, y: 20 },
         visible: {
@@ -43,100 +58,143 @@ export default function Dashboard({auth, metrics, csrf_token}) {
             }
         }
     };
-
     const getStatics = () => {
         setLoading(true)
         const documentStyle = getComputedStyle(document.documentElement);
-        fetch(route(`${auth.user.role === "super" ? "super" : "dealer"}.staticsData`), {
-            method: 'POST', headers: {
+        fetch(staticUrl, {
+            method: 'POST',
+            headers: {
                 'X-CSRF-TOKEN': csrf_token
             },
-
         }).then(response => response.json()).then(data => {
-            setChartData({
-                labels: data.chart.chart.labels, 
-                datasets: [{
-                    label: "Tamamlanan Hizmetler",
-                    backgroundColor: '#60A5FA', // blue-400
-                    borderColor: '#3B82F6',     // blue-500
-                    data: data.chart.chart.data,
-                    borderRadius: 10
-                }]
-            });
-            setChartDataBrand({
-                labels: data.chart.brands.labels, 
-                datasets: [{
-                    label: "Marka Dağılımı",
-                    backgroundColor: '#F472B6', // pink-400
-                    borderColor: '#EC4899',     // pink-500
-                    data: data.chart.brands.data,
-                    borderRadius: 10
-                }]
-            });
-            if(auth.user.role === "super"){
-                setChartDataDealer({
-                    labels: data.chart.dealer.labels, 
+            if (auth.user.role === "super") {
+                applyData('serviceChart', {
+                    labels: data.chart.chart.labels,
+                    datasets: [{
+                        label: "Tamamlanan Hizmetler",
+                        backgroundColor: '#60A5FA',
+                        borderColor: '#3B82F6',
+                        data: data.chart.chart.data,
+                        borderRadius: 10
+                    }]
+                });
+                applyData('brandChart', {
+                    labels: data.chart.brands.labels,
+                    datasets: [{
+                        label: "Marka Dağılımı",
+                        backgroundColor: '#F472B6',
+                        borderColor: '#EC4899',
+                        data: data.chart.brands.data,
+                        borderRadius: 10
+                    }]
+                });
+                applyData('dealerChart', {
+                    labels: data.chart.dealer.labels,
                     datasets: [{
                         label: "Hizmet Bayi Dağılımı",
-                        backgroundColor: '#34D399', // emerald-400
-                        borderColor: '#10B981',     // emerald-500
+                        backgroundColor: '#34D399',
+                        borderColor: '#10B981',
                         data: data.chart.dealer.data,
                         borderRadius: 10
                     }]
                 });
-                setProductsChartData({
-                    labels: data.chart.products.labels, 
+                applyData('productsChart', {
+                    labels: data.chart.products.labels,
                     datasets: [{
                         label: "Ürün Dağılımı",
-                        backgroundColor: '#A78BFA', // violet-400
-                        borderColor: '#8B5CF6',     // violet-500
+                        backgroundColor: '#A78BFA',
+                        borderColor: '#8B5CF6',
                         data: data.chart.products.data,
                         borderRadius: 10
                     }]
-                })
-                setDealerCustomerData({
-                    labels: data.chart.dealerCustomer.labels, 
+                });
+                applyData('dealerCustomerChart', {
+                    labels: data.chart.dealerCustomer.labels,
                     datasets: [{
                         label: "Bayi Müşteri Dağılımı",
-                        backgroundColor: '#FBBF24', // amber-400
-                        borderColor: '#F59E0B',     // amber-500
+                        backgroundColor: '#FBBF24',
+                        borderColor: '#F59E0B',
                         data: data.chart.dealerCustomer.data,
                         borderRadius: 10
                     }]
-                })
-                setChartDataServiceWorker({
-                    labels: data.chart.serviceWorker.labels, 
+                });
+                applyData('serviceWorkerChart', {
+                    labels: data.chart.serviceWorker.labels,
                     datasets: [{
                         label: "Çalışan Hizmet Dağılımı",
-                        backgroundColor: '#FB7185', // rose-400
-                        borderColor: '#F43F5E',     // rose-500
+                        backgroundColor: '#FB7185',
+                        borderColor: '#F43F5E',
                         data: data.chart.serviceWorker.data,
                         borderRadius: 10
                     }]
                 });
-                setChartProductStockData({
+                applyData('productStockChart', {
                     labels: data.chart.productStock.labels,
                     datasets: [{
                         label: "Kullanılmayan",
-                        backgroundColor: '#38BDF8', // sky-400
-                        borderColor: '#0EA5E9',     // sky-500
+                        backgroundColor: '#38BDF8',
+                        borderColor: '#0EA5E9',
                         data: data.chart.productStock.data.map(item => item.unused),
-                    },{
+                    }, {
                         label: "Kullanılan",
-                        backgroundColor: '#4ADE80', // green-400
-                        borderColor: '#22C55E',     // green-500
+                        backgroundColor: '#4ADE80',
+                        borderColor: '#22C55E',
                         data: data.chart.productStock.data.map(item => item.used)
                     }]
-                })
+                });
             }
-            if(auth.user.role === "admin"){
-                setChartDataWorker({
-                    labels: data.chart.worker.labels, 
+
+            if (auth.user.role === "admin") {
+                applyData('serviceChart', {
+                    labels: data.chart.chart.labels,
+                    datasets: [{
+                        label: "Tamamlanan Hizmetler",
+                        backgroundColor: '#60A5FA',
+                        borderColor: '#3B82F6',
+                        data: data.chart.chart.data,
+                        borderRadius: 10
+                    }]
+                });
+    
+                applyData('brandChart', {
+                    labels: data.chart.brands.labels,
+                    datasets: [{
+                        label: "Marka Dağılımı",
+                        backgroundColor: '#F472B6',
+                        borderColor: '#EC4899',
+                        data: data.chart.brands.data,
+                        borderRadius: 10
+                    }]
+                });
+                applyData('workerChart', {
+                    labels: data.chart.worker.labels,
                     datasets: [{
                         label: "Çalışan Hizmet Dağılımı",
-                        backgroundColor: '#2DD4BF', // teal-400
-                        borderColor: '#14B8A6',     // teal-500
+                        backgroundColor: '#2DD4BF',
+                        borderColor: '#14B8A6',
                         data: data.chart.worker.data,
+                        borderRadius: 10
+                    }]
+                });
+            }
+            if(auth.user.role.includes("central")){
+                applyData('dealerOrders', {
+                    labels: data.chart.dealerOrders.labels,
+                    datasets: [{
+                        label: "Bayi Siparişleri",
+                        backgroundColor: '#FBBF24',
+                        borderColor: '#F59E0B',
+                        data: data.chart.dealerOrders.data,
+                        borderRadius: 10
+                    }]
+                });
+                applyData('productOrders', {
+                    labels: data.chart.productOrders.labels,
+                    datasets: [{
+                        label: "Ürün Siparişleri",
+                        backgroundColor: '#38BDF8',
+                        borderColor: '#0EA5E9',
+                        data: data.chart.productOrders.data,
                         borderRadius: 10
                     }]
                 });
@@ -144,12 +202,15 @@ export default function Dashboard({auth, metrics, csrf_token}) {
         }).catch((error) => {
             console.error('Error:', error);
             toast.current.show({
-                severity: 'error', summary: 'Hata', detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                severity: 'error',
+                summary: 'Hata',
+                detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
             });
         }).finally(() => {
             setLoading(false);
-        })
-    }
+        });
+    };
+
     React.useEffect(() => {
         getStatics();
     }, []);
@@ -200,8 +261,8 @@ export default function Dashboard({auth, metrics, csrf_token}) {
             }
         };
 
-        setChartOptions(options);
-        setProductsChartOptions({
+        setHorizontalChartOptions(options);
+        setVerticalChartOptions({
             ...options,
             indexAxis: 'y',
         });
@@ -255,7 +316,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                     </div>
                 )}
 
-                <motion.div 
+                <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
@@ -263,10 +324,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                 >
                     {(auth.user.role === "super") && <>
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-users text-blue-500"></i>
                                         Bayiler
                                     </div>
@@ -277,7 +339,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Bayiler"
                                     icon="pi-users"
                                     color="blue"
@@ -287,10 +349,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         </motion.div>
 
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-users text-green-500"></i>
                                         Çalışanlar
                                     </div>
@@ -301,7 +364,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Çalışanlar"
                                     icon="pi-users"
                                     color="green"
@@ -311,10 +374,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         </motion.div>
 
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-box text-yellow-500"></i>
                                         Ürünler
                                     </div>
@@ -325,7 +389,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Ürünler"
                                     icon="pi-box"
                                     color="yellow"
@@ -335,10 +399,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         </motion.div>
 
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-database text-purple-500"></i>
                                         Bayi Ürün Siparişleri
                                     </div>
@@ -349,7 +414,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Siparişler"
                                     icon="pi-database"
                                     color="purple"
@@ -359,10 +424,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         </motion.div>
 
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-users text-red-500"></i>
                                         Müşteriler
                                     </div>
@@ -373,7 +439,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Müşteriler"
                                     icon="pi-users"
                                     color="red"
@@ -383,10 +449,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         </motion.div>
 
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-file text-pink-500"></i>
                                         Hizmetler
                                     </div>
@@ -397,7 +464,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Hizmetler"
                                     icon="pi-file"
                                     color="pink"
@@ -412,10 +479,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                     </>}
                     {String(auth.user.role).includes("central") && <>
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-users text-blue-500"></i>
                                         Bayiler
                                     </div>
@@ -426,7 +494,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Bayiler"
                                     icon="pi-users"
                                     color="blue"
@@ -436,10 +504,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         </motion.div>
 
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-users text-green-500"></i>
                                         Çalışanlar
                                     </div>
@@ -450,7 +519,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Çalışanlar"
                                     icon="pi-users"
                                     color="green"
@@ -460,10 +529,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         </motion.div>
 
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-box text-yellow-500"></i>
                                         Ürünler
                                     </div>
@@ -474,7 +544,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Ürünler"
                                     icon="pi-box"
                                     color="yellow"
@@ -484,10 +554,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         </motion.div>
 
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-database text-purple-500"></i>
                                         Bayi Ürün Siparişleri
                                     </div>
@@ -498,7 +569,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Siparişler"
                                     icon="pi-database"
                                     color="purple"
@@ -508,10 +579,11 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         </motion.div>
 
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-users text-red-500"></i>
                                         Müşteriler
                                     </div>
@@ -522,7 +594,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
                                     label="Müşteriler"
                                     icon="pi-users"
                                     color="red"
@@ -530,85 +602,12 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                 />
                             </Card>
                         </motion.div>
-                    </>}
-                    {(auth.user.role === "admin") && <>
                         <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
                                 title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
-                                        <i className="pi pi-users text-green-500"></i>
-                                        Çalışanlar
-                                    </div>
-                                }
-                                subTitle={
-                                    <div className="text-lg font-semibold text-gray-600 dark:text-gray-300">
-                                        <i className="pi pi-users"></i> {metrics.workers} Adet Çalışan
-                                    </div>
-                                }
-                            >
-                                <CustomButton 
-                                    label="Çalışanlar"
-                                    icon="pi-users"
-                                    color="green"
-                                    onClick={() => router.visit(route('dealer.workers.index'))}
-                                />
-                            </Card>
-                        </motion.div>
-
-                        <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
-                                title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
-                                        <i className="pi pi-database text-purple-500"></i>
-                                        Siparişler
-                                    </div>
-                                }
-                                subTitle={
-                                    <div className="text-lg font-semibold text-gray-600 dark:text-gray-300">
-                                        <i className="pi pi-database"></i> {metrics.orders} Adet Sipariş
-                                    </div>
-                                }
-                            >
-                                <CustomButton 
-                                    label="Siparişler"
-                                    icon="pi-database"
-                                    color="purple"
-                                    onClick={() => router.visit(route('dealer.orders'))}
-                                />
-                            </Card>
-                        </motion.div>
-
-                        <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
-                                title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
-                                        <i className="pi pi-users text-red-500"></i>
-                                        Müşteriler
-                                    </div>
-                                }
-                                subTitle={
-                                    <div className="text-lg font-semibold text-gray-600 dark:text-gray-300">
-                                        <i className="pi pi-users"></i> {metrics.customers} Adet Müşteri
-                                    </div>
-                                }
-                            >
-                                <CustomButton 
-                                    label="Müşteriler"
-                                    icon="pi-users"
-                                    color="red"
-                                    onClick={() => router.visit(route('dealer.customers'))}
-                                />
-                            </Card>
-                        </motion.div>
-
-                        <motion.div variants={cardVariants}>
-                            <Card 
-                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transform hover:-translate-y-1"
-                                title={
-                                    <div className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                                         <i className="pi pi-file text-pink-500"></i>
                                         Hizmetler
                                     </div>
@@ -619,7 +618,112 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     </div>
                                 }
                             >
-                                <CustomButton 
+                                <CustomButton
+                                    label="Hizmetler"
+                                    icon="pi-file"
+                                    color="pink"
+                                    onClick={() => toast.current.show({
+                                        severity: 'info',
+                                        summary: 'Bilgi',
+                                        detail: 'En Kısa Sürede Tamamlayacağız.'
+                                    })}
+                                />
+                            </Card>
+                        </motion.div>
+                    </>}
+                    {(auth.user.role === "admin") && <>
+                        <motion.div variants={cardVariants}>
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
+                                title={
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                        <i className="pi pi-users text-green-500"></i>
+                                        Çalışanlar
+                                    </div>
+                                }
+                                subTitle={
+                                    <div className="text-lg font-semibold text-gray-600 dark:text-gray-300">
+                                        <i className="pi pi-users"></i> {metrics.workers} Adet Çalışan
+                                    </div>
+                                }
+                            >
+                                <CustomButton
+                                    label="Çalışanlar"
+                                    icon="pi-users"
+                                    color="green"
+                                    onClick={() => router.visit(route('dealer.workers.index'))}
+                                />
+                            </Card>
+                        </motion.div>
+
+                        <motion.div variants={cardVariants}>
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
+                                title={
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                        <i className="pi pi-database text-purple-500"></i>
+                                        Siparişler
+                                    </div>
+                                }
+                                subTitle={
+                                    <div className="text-lg font-semibold text-gray-600 dark:text-gray-300">
+                                        <i className="pi pi-database"></i> {metrics.orders} Adet Sipariş
+                                    </div>
+                                }
+                            >
+                                <CustomButton
+                                    label="Siparişler"
+                                    icon="pi-database"
+                                    color="purple"
+                                    onClick={() => router.visit(route('dealer.orders'))}
+                                />
+                            </Card>
+                        </motion.div>
+
+                        <motion.div variants={cardVariants}>
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
+                                title={
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                        <i className="pi pi-users text-red-500"></i>
+                                        Müşteriler
+                                    </div>
+                                }
+                                subTitle={
+                                    <div className="text-lg font-semibold text-gray-600 dark:text-gray-300">
+                                        <i className="pi pi-users"></i> {metrics.customers} Adet Müşteri
+                                    </div>
+                                }
+                            >
+                                <CustomButton
+                                    label="Müşteriler"
+                                    icon="pi-users"
+                                    color="red"
+                                    onClick={() => router.visit(route('dealer.customers'))}
+                                />
+                            </Card>
+                        </motion.div>
+
+                        <motion.div variants={cardVariants}>
+                            <Card
+                                className="shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br  transform hover:-translate-y-1"
+                                title={
+                                    <div
+                                        className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
+                                        <i className="pi pi-file text-pink-500"></i>
+                                        Hizmetler
+                                    </div>
+                                }
+                                subTitle={
+                                    <div className="text-lg font-semibold text-gray-600 dark:text-gray-300">
+                                        <i className="pi pi-file"></i> {metrics.services} Adet Hizmet Kaydı
+                                    </div>
+                                }
+                            >
+                                <CustomButton
                                     label="Hizmetler"
                                     icon="pi-file"
                                     color="pink"
@@ -630,25 +734,26 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                     </>}
                 </motion.div>
 
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
+                <motion.div
+                    initial={{opacity: 0, y: 20}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{delay: 0.3}}
                     className={"mt-6"}
                 >
                     <BlockUI blocked={loading}
-                            template={<i className="pi pi-spin pi-spinner text-primary-500" style={{fontSize: '3rem'}}></i>}>
-                        
+                             template={<i className="pi pi-spin pi-spinner text-primary-500"
+                                          style={{fontSize: '3rem'}}></i>}>
+
                         {/* Super admin grafikleri */}
                         {auth.user.role === "super" && (
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                                 {chartVisibility['products'] !== false && (
-                                    <Card className="shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                                        <CustomChart 
-                                            type="bar" 
-                                            data={productsChartData} 
-                                            horizontalOptions={productsChartOptions}
-                                            verticalOptions={chartOptions}
+                                    <Card className="shadow-lg bg-gradient-to-br ">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.productsChart}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
                                             title="Ürün Kullanım Grafiği"
                                             chartId="products"
                                             onVisibilityChange={handleVisibilityChange}
@@ -657,12 +762,12 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                 )}
 
                                 {chartVisibility['productStock'] !== false && (
-                                    <Card className="shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                                        <CustomChart 
-                                            type="bar" 
-                                            data={chartProductStockData} 
-                                            horizontalOptions={productsChartOptions}
-                                            verticalOptions={chartOptions}
+                                    <Card className="shadow-lg bg-gradient-to-br ">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.productStockChart}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
                                             title="Ürün Stok Grafiği"
                                             chartId="productStock"
                                             onVisibilityChange={handleVisibilityChange}
@@ -671,12 +776,12 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                 )}
 
                                 {chartVisibility['services'] !== false && (
-                                    <Card className="shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                                        <CustomChart 
-                                            type="bar" 
-                                            data={chartData} 
-                                            horizontalOptions={productsChartOptions}
-                                            verticalOptions={chartOptions}
+                                    <Card className="shadow-lg bg-gradient-to-br ">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.serviceChart}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
                                             title="Hizmet Dağılımı"
                                             chartId="services"
                                             onVisibilityChange={handleVisibilityChange}
@@ -685,12 +790,12 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                 )}
 
                                 {chartVisibility['dealer'] !== false && (
-                                    <Card className="shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                                        <CustomChart 
-                                            type="bar" 
-                                            data={chartDataDealer} 
-                                            horizontalOptions={productsChartOptions}
-                                            verticalOptions={chartOptions}
+                                    <Card className="shadow-lg bg-gradient-to-br ">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.dealerChart}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
                                             title="Hizmet Bayi Dağılımı"
                                             chartId="dealer"
                                             onVisibilityChange={handleVisibilityChange}
@@ -699,12 +804,12 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                 )}
 
                                 {chartVisibility['serviceWorker'] !== false && (
-                                    <Card className="shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                                        <CustomChart 
-                                            type="bar" 
-                                            data={chartDataServiceWorker} 
-                                            horizontalOptions={productsChartOptions}
-                                            verticalOptions={chartOptions}
+                                    <Card className="shadow-lg bg-gradient-to-br ">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.serviceWorkerChart}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
                                             title="Çalışan Hizmet Dağılımı"
                                             chartId="serviceWorker"
                                             onVisibilityChange={handleVisibilityChange}
@@ -713,12 +818,12 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                 )}
 
                                 {chartVisibility['dealerCustomer'] !== false && (
-                                    <Card className="shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                                        <CustomChart 
-                                            type="bar" 
-                                            data={dealerCustomerData} 
-                                            horizontalOptions={productsChartOptions}
-                                            verticalOptions={chartOptions}
+                                    <Card className="shadow-lg bg-gradient-to-br ">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.dealerCustomerChart}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
                                             title="Bayi Müşteri Dağılımı"
                                             chartId="dealerCustomer"
                                             onVisibilityChange={handleVisibilityChange}
@@ -727,12 +832,12 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                 )}
 
                                 {chartVisibility['brands'] !== false && (
-                                    <Card className="shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 md:col-span-2 xl:col-span-3">
-                                        <CustomChart 
-                                            type="bar" 
-                                            data={chartDataBrand} 
-                                            horizontalOptions={productsChartOptions}
-                                            verticalOptions={chartOptions}
+                                    <Card className="shadow-lg bg-gradient-to-br  md:col-span-2 xl:col-span-3">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.brandChart}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
                                             title="Hizmet Marka Dağılımı"
                                             chartId="brands"
                                             onVisibilityChange={handleVisibilityChange}
@@ -741,17 +846,46 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                 )}
                             </div>
                         )}
-
+                        {auth.user.role.includes("central") && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {chartVisibility['dealerOrders'] !== false && (
+                                    <Card className="shadow-lg bg-gradient-to-br ">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.dealerOrders}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
+                                            title="Bayi Siparişleri"
+                                            chartId="dealerOrders"
+                                            onVisibilityChange={handleVisibilityChange}
+                                        />
+                                    </Card>
+                                )}
+                                {chartVisibility['productOrders'] !== false && (
+                                    <Card className="shadow-lg bg-gradient-to-br ">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.productOrders}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
+                                            title="Ürün Siparişleri"
+                                            chartId="productOrders"
+                                            onVisibilityChange={handleVisibilityChange}
+                                        />
+                                    </Card>
+                                )}
+                            </div>
+                        )}
                         {/* Admin grafikleri */}
                         {auth.user.role === "admin" && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {chartVisibility['services'] !== false && (
-                                    <Card className="shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                                        <CustomChart 
-                                            type="bar" 
-                                            data={chartData} 
-                                            horizontalOptions={productsChartOptions}
-                                            verticalOptions={chartOptions}
+                                    <Card className="shadow-lg bg-gradient-to-br ">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.serviceChart}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
                                             title="Hizmet Dağılımı"
                                             chartId="services"
                                             onVisibilityChange={handleVisibilityChange}
@@ -760,12 +894,12 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                 )}
 
                                 {chartVisibility['workers'] !== false && (
-                                    <Card className="shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                                        <CustomChart 
-                                            type="bar" 
-                                            data={chartDataWorker} 
-                                            horizontalOptions={productsChartOptions}
-                                            verticalOptions={chartOptions}
+                                    <Card className="shadow-lg bg-gradient-to-br ">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.workerChart}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
                                             title="Çalışan Performans Grafiği"
                                             chartId="workers"
                                             onVisibilityChange={handleVisibilityChange}
@@ -774,12 +908,12 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                 )}
 
                                 {chartVisibility['brands'] !== false && (
-                                    <Card className="shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 md:col-span-2">
-                                        <CustomChart 
-                                            type="bar" 
-                                            data={chartDataBrand} 
-                                            horizontalOptions={productsChartOptions}
-                                            verticalOptions={chartOptions}
+                                    <Card className="shadow-lg bg-gradient-to-br  md:col-span-2">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.brandChart}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
                                             title="Hizmet Marka Dağılımı"
                                             chartId="brands"
                                             onVisibilityChange={handleVisibilityChange}

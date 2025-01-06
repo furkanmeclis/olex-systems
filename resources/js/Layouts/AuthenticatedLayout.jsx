@@ -189,16 +189,16 @@ export default function Authenticated({user, header, children}) {
     }];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#001100] to-[#002200]">
+        <div className="min-h-screen bg-[#1a1f2c]">
             <Toast ref={toast}/>
             
             {/* Mobile Header - Sticky */}
             <div className="lg:hidden">
-                <div className="fixed top-0 left-0 right-0 z-40 bg-[#001800]/95 backdrop-blur-xl border-b border-green-900/30">
+                <div className="fixed top-0 left-0 right-0 z-40 bg-[#1e2533]/95 backdrop-blur-xl border-b border-slate-700/50">
                     <div className="flex items-center justify-between px-4 py-3">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-2 rounded-lg text-green-400 hover:text-white transition-colors flex items-center gap-2"
+                            className="p-2 rounded-lg text-[var(--primary-500)] hover:text-white transition-colors flex items-center gap-2"
                         >
                             <i className={`pi ${isSidebarOpen ? 'pi-times' : 'pi-bars'} text-xl`}></i>
                         </button>
@@ -221,7 +221,7 @@ export default function Authenticated({user, header, children}) {
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: -300, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                        className="fixed top-0 left-0 h-full w-72 bg-[#001800]/95 backdrop-blur-xl border-r border-green-900/30 z-40 overflow-y-auto lg:translate-x-0"
+                        className="fixed top-0 left-0 h-full w-72 bg-[#1e2533]/95 backdrop-blur-xl border-r border-slate-700/50 z-40 overflow-y-auto lg:translate-x-0"
                     >
                         <div className="p-6">
                             <Link href={route("dashboard")} className="block mb-8">
@@ -233,17 +233,22 @@ export default function Authenticated({user, header, children}) {
                             </Link>
 
                             {/* User Info */}
-                            <div className="mb-8 p-4 rounded-xl bg-[#002200]/50 border border-green-900/30">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#004d00] to-[#E6B800] flex items-center justify-center text-white font-bold">
+                            <div className="mb-8 p-4 rounded-xl bg-[#252d3d] border border-slate-700/50">
+                                <div className="flex items-center gap-3 mb-1.5">
+                                    <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white font-medium">
                                         {user.name.charAt(0)}
                                     </div>
                                     <div>
                                         <div className="text-white font-medium">{user.name}</div>
+                                        <div className="text-gray-400 text-sm">{user.email}</div>
                                     </div>
                                 </div>
-                                <div className="text-gray-400 text-sm truncate">{user.email}</div>
-                                <div className="text-green-400 text-sm">{badgeRole()}</div>
+                                <div className="mt-2">
+                                    <div className="inline-flex items-center gap-1.5">
+                                        {badgeRole()}
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Navigation */}
@@ -256,8 +261,8 @@ export default function Authenticated({user, header, children}) {
                                                 href={href}
                                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                                                     active
-                                                        ? 'bg-gradient-to-r from-[#004d00] to-[#E6B800] text-white'
-                                                        : 'text-gray-400 hover:bg-[#002200] hover:text-white'
+                                                        ? 'bg-gradient-to-r from-[var(--primary-700)] to-[var(--primary-500)] text-white'
+                                                        : 'text-gray-400 hover:bg-[#252d3d] hover:text-white'
                                                 }`}
                                             >
                                                 <i className={`${icon} text-lg`}></i>
@@ -274,12 +279,16 @@ export default function Authenticated({user, header, children}) {
                                     return null;
                                 })}
                             </nav>
-
+                            
                             {/* Footer Actions */}
                             <div className="mt-8 space-y-2">
                                 <Link
                                     href={route('profile.edit')}
-                                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-[#002200] hover:text-white transition-all duration-200"
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                                        route().current("profile.edit")
+                                            ? 'bg-gradient-to-r from-[var(--primary-700)] to-[var(--primary-500)] text-white'
+                                            : 'text-gray-400 hover:bg-[#252d3d] hover:text-white'
+                                    }`}
                                 >
                                     <i className="pi pi-user text-lg"></i>
                                     <span>Profil</span>
@@ -288,7 +297,7 @@ export default function Authenticated({user, header, children}) {
                                     href={route('logout')}
                                     method="post"
                                     as="button"
-                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-[#002200] hover:text-white transition-all duration-200"
+                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-red-500 hover:text-white transition-all duration-200"
                                 >
                                     <i className="pi pi-sign-out text-lg"></i>
                                     <span>Çıkış Yap</span>
@@ -302,7 +311,7 @@ export default function Authenticated({user, header, children}) {
             {/* Main Content */}
             <main className="lg:pl-72 min-h-screen">
                 {header && (
-                    <header className="bg-[#001800]/50 backdrop-blur-sm border-b border-green-900/30 shadow-lg">
+                    <header className="bg-[#1e2533]/80 backdrop-blur-sm border-b border-slate-700/50 shadow-lg">
                         <div className=" mx-auto py-6 px-4">
                             {header}
                         </div>

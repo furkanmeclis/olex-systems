@@ -37,6 +37,7 @@ export default function Index({
         const [filters, setFilters] = useState({
             global: {value: null, matchMode: FilterMatchMode.CONTAINS},
         });
+
         const [loading, setLoading] = useState(false);
         const [globalFilterValue, setGlobalFilterValue] = useState('');
         const [records, setRecords] = useState(ordersAll);
@@ -51,16 +52,16 @@ export default function Index({
         const [selectedOrder, setSelectedOrder] = useState(null);
         const noteOp = useRef(null);
         const columns = [
-            { field: 'id', header: 'ID', default: true },
-            { field: 'dealer', header: 'Bayi', default: true },
-            { field: 'user', header: 'Yetkili', default: true },
-            { field: 'status', header: 'Durumu', default: true },
-            { field: 'products_count', header: 'Ürün Adedi', default: true },
-            { field: 'price', header: 'Sipariş Tutarı', default: true },
-            { field: 'tracking_code', header: 'Kargo Takip Kodu', default: true },
-            { field: 'created_at', header: 'Eklenme Tarihi', default: false },
-            { field: 'updated_at', header: 'Güncellenme Tarihi', default: false },
-            { field: 'actions', header: 'İşlemler', default: true }
+            {field: 'id', header: 'ID', default: true},
+            {field: 'dealer', header: 'Bayi', default: true},
+            {field: 'user', header: 'Yetkili', default: true},
+            {field: 'status', header: 'Durumu', default: true},
+            {field: 'products_count', header: 'Ürün Adedi', default: true},
+            {field: 'price', header: 'Sipariş Tutarı', default: true},
+            {field: 'tracking_code', header: 'Kargo Takip Kodu', default: true},
+            {field: 'created_at', header: 'Eklenme Tarihi', default: false},
+            {field: 'updated_at', header: 'Güncellenme Tarihi', default: false},
+            {field: 'actions', header: 'İşlemler', default: true}
         ];
         const [selectedColumns, setSelectedColumns] = useState(localStorage.getItem('selectedColumnsForOrdersTable') ? JSON.parse(localStorage.getItem('selectedColumnsForOrdersTable')) : columns);
         const columnsTurkishNames = {
@@ -349,9 +350,11 @@ export default function Index({
         }
         const SetTrackingCodeElement = ({record, toast, csrf_token, setRecords, isModal = false}) => {
             const [trackingCode, setTrackingCode] = useState(record.tracking_code || "");
-            const [trackingUrl, setTrackingUrl] = useState(record.tracking_url || "");
+            const [trackingUrl, setTrackingUrl] = useState(record.tracking_url || "https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=");
             const [loading, setLoading] = useState(false);
-
+            useEffect(() => {
+                setTrackingUrl(prev => `https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=${trackingCode}`);
+            }, [trackingCode]);
             const saveTrackingCode = () => {
                 if (trackingCode === "") {
                     toast.current.show({
@@ -438,7 +441,7 @@ export default function Index({
                             />
                         </div>
                         <div className="flex justify-end gap-2 mt-4">
-                            <Button 
+                            <Button
                                 label="Kaydet"
                                 icon="pi pi-check"
                                 onClick={saveTrackingCode}
@@ -446,9 +449,9 @@ export default function Index({
                                 size="small"
                                 loading={loading}
                             />
-                            <Button 
-                                label="Vazgeç" 
-                                icon="pi pi-times" 
+                            <Button
+                                label="Vazgeç"
+                                icon="pi pi-times"
                                 onClick={() => {
                                     setSelectedOrder(null);
                                     setTrackingModal(false);
@@ -473,7 +476,7 @@ export default function Index({
                             setTrackingModal(true);
                         }}
                         tooltip="Kargo Takip Bilgilerini Gir"
-                        tooltipOptions={{ position: 'top' }}
+                        tooltipOptions={{position: 'top'}}
                         className="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
                     />
                     <span className="text-gray-400 text-sm">Kargo takip bilgisi girilmemiş</span>
@@ -485,33 +488,57 @@ export default function Index({
             <Tooltip target=".custom-target-icon"/>
             <ConfirmPopup/>
             <Toast ref={toast}/>
-            <OverlayPanel ref={op}>
+            <OverlayPanel ref={op} className="w-96">
                 <div className="flex flex-col">
-                    <div className="flex justify-between items-center">
-                        <h3>Kolonları Yönet</h3>
-                    </div>
-                    <div className="flex flex-col">
-                        {columns.map((column, index) => {
-                            return <div key={index} className="flex my-1 items-center">
-                                <Checkbox inputId={column} checked={selectedColumns.includes(column)}
-                                          onChange={(e) => {
-                                              let _selectedColumns = [...selectedColumns];
-                                              if (e.checked) {
-                                                  _selectedColumns.push(column);
-                                              } else {
-                                                  _selectedColumns = _selectedColumns.filter(col => col !== column);
-                                              }
-                                              setSelectedColumns(_selectedColumns);
-                                          }}/>
-                                <label htmlFor={column}
-                                       className="ml-2">{columnsTurkishNames[column]}</label>
-                            </div>
-                        })}
-                        <div className="flex justify-end mt-4">
-                            <Button label="Kaydet" severity={"success"} size={"small"} onClick={() => {
-                                op.current.hide();
-                            }}/>
+                    <div className="flex justify-between items-center border-b pb-2 mb-2">
+                        <h3 className="text-lg font-semibold">Görünür Kolonlar</h3>
+                        <div className="flex gap-2">
+                            <Button
+                                icon="pi pi-check"
+                                severity="success"
+                                size="small"
+                                tooltip="Tümünü Seç"
+                                onClick={() => setSelectedColumns(columns.map(col => col.field))}
+                            />
+                            <Button
+                                icon="pi pi-times"
+                                severity="danger"
+                                size="small"
+                                tooltip="Tümünü Kaldır"
+                                onClick={() => setSelectedColumns(columns.filter(col => col.default).map(col => col.field))}
+                            />
                         </div>
+                    </div>
+                    <div className="flex flex-col max-h-[400px] overflow-y-auto">
+                        {columns.map((column, index) => (
+                            <div key={index}
+                                 className="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer"
+                                 onClick={() => {
+                                     let _selectedColumns = [...selectedColumns];
+                                     if (_selectedColumns.includes(column.field)) {
+                                         _selectedColumns = _selectedColumns.filter(col => col !== column.field);
+                                     } else {
+                                         _selectedColumns.push(column.field);
+                                     }
+                                     setSelectedColumns(_selectedColumns);
+                                 }}>
+                                <Checkbox
+                                    inputId={column.field}
+                                    checked={selectedColumns.includes(column.field)}
+                                    onChange={() => {
+                                    }}
+                                />
+                                <label htmlFor={column.field} className="ml-2 cursor-pointer flex-1">
+                                    {column.header}
+                                </label>
+                                {column.default && (
+                                    <span
+                                        className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-2 py-1 rounded">
+                                        Varsayılan
+                                    </span>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 </div>
             </OverlayPanel>
@@ -528,7 +555,7 @@ export default function Index({
                        selectionMode={"checkbox"}
                        selection={selectedRows}
                        onSelectionChange={(e) => {
-                           if(!dealerOrderPage) {
+                           if (!dealerOrderPage) {
                                setSelectedRows(e.value)
                            }
                        }}
@@ -544,7 +571,7 @@ export default function Index({
                                                                                           size={"small"}
                                                                                           label={rowData.dealer.name}
                                                                                           onClick={() => {
-                                                                                              if(!dealerOrderPage) {
+                                                                                              if (!dealerOrderPage) {
                                                                                                   router.visit(route('central.dealers.show', rowData.dealer.id))
                                                                                               }
                                                                                           }}/>}
@@ -579,7 +606,8 @@ export default function Index({
                             setProductsModalData(rowData.products);
                         }
                     }} tooltip={"Detayları Görmek İçin Tıklayınız."}
-                                                                              label={rowData.products_count + " Adet"}
+                                                                              label={`${rowData.products ? rowData.products.map(res => res.quantity).reduce((total, num) => total + num, 0) : 0}` + " Adet"}
+
                                                                               size={"small"}/>} sortable
                             header="Ürün Adedi"/>}
                 {selectedColumns.includes('price') && auth.user.role === "super" &&
@@ -590,7 +618,7 @@ export default function Index({
                                 }, 0)).toFixed(2) + " $"
                             }}
                             sortable/>}
-                            {selectedColumns.includes('tracking_code') && (
+                {selectedColumns.includes('tracking_code') && (
                     <Column field="tracking_code" header="Kargo Takip" sortable
                             body={(rowData) => {
                                 if (rowData.status === 'shipping') {
@@ -598,21 +626,21 @@ export default function Index({
                                         return (
                                             <div className="flex items-center gap-2">
                                                 {rowData.tracking_url ? (
-                                                    <a 
-                                                        href={rowData.tracking_url} 
-                                                        target="_blank" 
+                                                    <a
+                                                        href={rowData.tracking_url}
+                                                        target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-blue-500 hover:text-blue-700 flex items-center gap-1"
                                                     >
-                                                        <i className="pi pi-external-link" />
+                                                        <i className="pi pi-external-link"/>
                                                         {rowData.tracking_code}
                                                     </a>
                                                 ) : (
                                                     <span>{rowData.tracking_code}</span>
                                                 )}
-                                                <Button 
-                                                    icon="pi pi-pencil" 
-                                                    text 
+                                                <Button
+                                                    icon="pi pi-pencil"
+                                                    text
                                                     severity="secondary"
                                                     size="small"
                                                     onClick={() => {
@@ -623,9 +651,9 @@ export default function Index({
                                             </div>
                                         );
                                     } else {
-                                        return <SetTrackingCodeElement 
-                                            record={rowData} 
-                                            toast={toast} 
+                                        return <SetTrackingCodeElement
+                                            record={rowData}
+                                            toast={toast}
                                             csrf_token={csrf_token}
                                             setRecords={setRecords}
                                         />;
@@ -661,13 +689,14 @@ export default function Index({
                                         tooltipOptions={{
                                             position: 'top'
                                         }} severity={"success"}/>
-                                {!dealerOrderPage &&<Button icon="pi pi-pencil" size={"small"} tooltip={"Siparişi Düzenle"}
-                                        onClick={() => {
-                                            updatePreparation(rowData);
-                                        }}
-                                        tooltipOptions={{
-                                            position: 'top'
-                                        }} severity={"warning"}/>}
+                                {!dealerOrderPage &&
+                                    <Button icon="pi pi-pencil" size={"small"} tooltip={"Siparişi Düzenle"}
+                                            onClick={() => {
+                                                updatePreparation(rowData);
+                                            }}
+                                            tooltipOptions={{
+                                                position: 'top'
+                                            }} severity={"warning"}/>}
                                 {!dealerOrderPage && <Button icon="pi pi-times" tooltip={"Siparişi Sil"}
                                                              tooltipOptions={{
                                                                  position: 'top',
@@ -723,7 +752,7 @@ export default function Index({
                             </div>
                         </>
                     }}/>}
-                
+
             </DataTable>
             <Dialog header="Yeni Sipariş Ekle" style={{width: '70vw'}}
                     breakpoints={{'960px': '75vw', '641px': '100vw'}}
@@ -732,7 +761,7 @@ export default function Index({
                 <Create addModal={addModal} csrf_token={csrf_token} dealers={dealers} products={products}
                         toast={toast}
                         auth={auth}
-                        initialDealer={dealerOrderPage ? auth.user:null} dealerOrderPage={dealerOrderPage}
+                        initialDealer={dealerOrderPage ? auth.user : null} dealerOrderPage={dealerOrderPage}
                         onHide={() => setAddModal(false)} setRecords={setRecords}
                         setAddModalFooter={setAddModalFooter}/>
             </Dialog>
@@ -753,7 +782,8 @@ export default function Index({
                                        src={product.image} alt={product.name}/>
                                 <span
                                     className="font-bold flex-1">{item.quantity} Adet - {product.name} (#{product.sku})</span>
-                                {auth.user.role === "super" && <span className="font-bold text-900">$ {item.price}</span>}
+                                {auth.user.role === "super" &&
+                                    <span className="font-bold text-900">$ {item.price}</span>}
                             </div>
                             <Divider/>
                         </>
@@ -774,6 +804,7 @@ export default function Index({
                                          footer={updateModalFooter}>
                 <Update updateModal={updateModal} salesmans={salesmans} statuses={statuses}
                         dealerOrderPage={dealerOrderPage}
+                        dealerPage={dealerPage}
                         csrf_token={csrf_token}
                         auth={auth}
                         dealers={dealers} products={products} record={updateModalData} toast={toast}
@@ -788,9 +819,9 @@ export default function Index({
                               setRecords={setRecords} csrf_token={csrf_token} toast={toast}
                               onHide={() => setProductCodesModal(false)} setFooter={setProductCodesFooter}/>
             </Dialog>
-            <Dialog 
-                header="Kargo Takip Bilgileri" 
-                visible={trackingModal} 
+            <Dialog
+                header="Kargo Takip Bilgileri"
+                visible={trackingModal}
                 style={{width: '30vw'}}
                 breakpoints={{'960px': '75vw', '641px': '100vw'}}
                 onHide={() => {
@@ -799,9 +830,9 @@ export default function Index({
                 }}
             >
                 {selectedOrder && (
-                    <SetTrackingCodeElement 
-                        record={selectedOrder} 
-                        toast={toast} 
+                    <SetTrackingCodeElement
+                        record={selectedOrder}
+                        toast={toast}
                         csrf_token={csrf_token}
                         setRecords={(newRecords) => {
                             setRecords(newRecords);

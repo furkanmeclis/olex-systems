@@ -22,7 +22,8 @@ export default function Update({
                                    setRecords,
                                    statuses,
                                    salesmans,
-                                   auth
+                                   auth,
+                                   dealerPage = false
                                }) {
     const [selectedDealer, setSelectedDealer] = useState({
         id: record.dealer.id,
@@ -93,11 +94,12 @@ export default function Update({
 
     const handleSubmit = () => {
         let formData = new FormData();
+        formData.append("dealerPage", dealerPage);
         formData.append("dealer_id", selectedDealer.id);
         formData.append("note", note);
         formData.append("status", activeStatus);
         formData.append("user_id", selectedOfficial.id);
-        
+
         if (activeStatus === 'shipping') {
             formData.append("tracking_code", trackingCode);
             formData.append("tracking_url", trackingUrl);
@@ -202,9 +204,9 @@ export default function Update({
                                                         onChange={e => handleNumberChange(e, rowData)}/>}></Column>
                 {auth.user.role === "super" && <Column field={"total"} header="Tutar" body={(rowData) => <span>
                         {rowData.total} $
-                    </span>}></Column> }
+                    </span>}></Column>}
             </DataTable>
-            {selectedProducts.length > 0 &&auth.user.role === "super" && <div className={"my-5"}>
+            {selectedProducts.length > 0 && auth.user.role === "super" && <div className={"my-5"}>
                 <h3>Toplam Tutar: {selectedProducts.reduce((acc, item) => acc + item.total, 0)} $</h3>
             </div>}
             <FloatLabel className={"mb-10"}>
@@ -231,29 +233,29 @@ export default function Update({
             {activeStatus === 'shipping' && (
                 <>
                     <FloatLabel className="w-full mb-10">
-                            <InputText
-                                value={trackingCode}
-                                onChange={(e) => {
-                                    setTrackingCode(e.target.value);
-                                    setDirty(true);
-                                }}
-                                placeholder="Kargo takip kodunu giriniz"
-                                className="w-full"
-                            />
-                            <label>Kargo Takip Kodu</label>
-                        </FloatLabel>
-                        <FloatLabel className="w-full mb-10">
-                            <InputText
-                                value={trackingUrl}
-                                onChange={(e) => {
-                                    setTrackingUrl(e.target.value);
-                                    setDirty(true);
-                                }}
-                                placeholder="Kargo takip URL'sini giriniz"
-                                className="w-full"
-                            />
-                            <label>Kargo Takip URL (Opsiyonel)</label>
-                        </FloatLabel>
+                        <InputText
+                            value={trackingCode}
+                            onChange={(e) => {
+                                setTrackingCode(e.target.value);
+                                setDirty(true);
+                            }}
+                            placeholder="Kargo takip kodunu giriniz"
+                            className="w-full"
+                        />
+                        <label>Kargo Takip Kodu</label>
+                    </FloatLabel>
+                    <FloatLabel className="w-full mb-10">
+                        <InputText
+                            value={trackingUrl}
+                            onChange={(e) => {
+                                setTrackingUrl(e.target.value);
+                                setDirty(true);
+                            }}
+                            placeholder="Kargo takip URL'sini giriniz"
+                            className="w-full"
+                        />
+                        <label>Kargo Takip URL (Opsiyonel)</label>
+                    </FloatLabel>
                 </>
             )}
         </div>

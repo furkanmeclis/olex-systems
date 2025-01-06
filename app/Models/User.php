@@ -163,8 +163,8 @@ class User extends Authenticatable
                     $productIds[] = $record->product_id;
                 }
             }
-            $products = Products::whereIn('id', $productIds)->get()->map(function($product){
-                $product->codes = ProductCode::where('product_id', $product->id)->where("location","dealer")->where("dealer_id",$this->id)->get();
+            $products = Products::whereIn('id', $productIds)->get()->map(function ($product) {
+                $product->codes = ProductCode::where('product_id', $product->id)->where("location", "dealer")->where("dealer_id", $this->id)->get();
                 return $product;
             })->toArray();
             $productList = [
@@ -229,27 +229,28 @@ class User extends Authenticatable
     public function getMetrics(): array
     {
         $returnData = [];
-        if($this->role == "admin"){
+        if ($this->role == "admin") {
             $returnData["workers"] = User::where('role', 'worker')->where('parent_id', $this->id)->count();
             $returnData["customers"] = Customers::where('dealer_id', $this->id)->count();
             $returnData["services"] = Services::where('dealer_id', $this->id)->count();
             $returnData["orders"] = Orders::where('dealer_id', $this->id)->count();
-        }elseif ($this->role == "worker"){
+        } elseif ($this->role == "worker") {
             $returnData["customers"] = Customers::where('worker_id', $this->id)->count();
             $returnData["services"] = Services::where('worker_id', $this->id)->count();
-        }elseif($this->role == "super"){
+        } elseif ($this->role == "super") {
             $returnData["orders"] = Orders::count();
             $returnData["dealers"] = User::where('role', 'admin')->count();
             $returnData["workers"] = User::where('role', 'worker')->count();
             $returnData["customers"] = Customers::count();
             $returnData["services"] = Services::count();
             $returnData["products"] = Products::count();
-        }elseif (strpos($this->role, 'central') !== false){
+        } elseif (strpos($this->role, 'central') !== false) {
             $returnData["dealers"] = User::where('role', 'admin')->count();
             $returnData["workers"] = User::where('role', 'worker')->count();
             $returnData["customers"] = Customers::count();
             $returnData["services"] = Services::count();
             $returnData["products"] = Products::count();
+            $returnData["orders"] = Orders::count();
         }
         return $returnData;
     }

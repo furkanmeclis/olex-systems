@@ -43,7 +43,6 @@ const CarSelect = ({
                 brandLogo: getBrandLogoUrl(selectedBrand.name),
                 year: selectedYear,
             }
-            if (selectedGeneration?.non) {
                 props.generation = {
                     name: generationText,
                     modelYear: "",
@@ -54,7 +53,6 @@ const CarSelect = ({
                     modelYear: "",
                     non: true
                 });
-            }
             onComplete(selectedGeneration);
         }
     }, [selectedYear]);
@@ -86,29 +84,6 @@ const CarSelect = ({
 
     async function generateYearsArray(generation) {
         let years = [];
-        if (!generation?.non) {
-            let maxYear;
-            let minYear;
-            let modifications = generation.modifications.modification;
-
-            modifications.forEach((modification) => {
-                if (minYear === undefined || parseInt(modification.yearstart) < minYear) {
-                    minYear = parseInt(modification.yearstart);
-                }
-                if (maxYear === undefined || parseInt(modification.yearstop) > maxYear) {
-                    maxYear = parseInt(modification.yearstop);
-                }
-            });
-            for (let i = minYear; i <= maxYear; i++) {
-                years.push({
-                    name: i
-                });
-            }
-        }
-        if (years.length > 0) {
-            return years;
-        } else {
-            let years = [];
             for (let i = 1975; i <= Number(new Date().getFullYear()); i++) {
                 years.push({
                     name: i
@@ -116,7 +91,6 @@ const CarSelect = ({
             }
             years.sort((a, b) => b.name - a.name);
             return years;
-        }
     }
 
     const selectedOptionTemplate = (option,props) => {
@@ -132,10 +106,8 @@ const CarSelect = ({
     }
     const [years, setYears] = useState([]);
     useEffect(() => {
-        if (selectedGeneration) {
             generateYearsArray(selectedGeneration).then(setYears);
-        }
-    }, [selectedGeneration]);
+    }, [selectedModel]);
     return <>
         <FloatLabel className="w-full md:w-14rem mt-4">
             <Dropdown
@@ -193,42 +165,12 @@ const CarSelect = ({
             />
             <label htmlFor="dd-model">Araç Modeli</label>
         </FloatLabel>}
-        {selectedModel && <FloatLabel className="w-full md:w-14rem mt-4">
-            <Dropdown
-                inputId={"dd-generation"}
-                value={selectedGeneration}
-                onChange={(e) => {
-                    setSelectedGeneration(e.value);
-                    setSelectedYear(null);
-                }}
-                options={[{
-                    name: "Listede Bulamadım",
-                    modelYear: "",
-                    non: true
-                }, ...selectedModel.generations.generation]} optionLabel="name"
-                placeholder="Araç Serisini Seçiniz"
-                virtualScrollerOptions={{itemSize: 38}}
-                checkmark={true}
-                filter
-                showFilterClear={true}
-                valueTemplate={selectedOptionTemplate}
-                highlightOnSelect={false}
-                className="w-full md:w-14rem"
-                itemTemplate={(option) => (
-                    <div className="flex items-center">
-                        <img src={getBrandLogoUrl(selectedBrand.name)} alt={option.name} className="w-8 h-8 mr-2"/>
-                        <span>{option.name} {option.modelYear}</span>
-                    </div>
-                )}
-            />
-            <label htmlFor="dd-generation">Araç Serisi</label>
-        </FloatLabel>}
-        {selectedGeneration && selectedGeneration?.non && <FloatLabel className="w-full md:w-14rem mt-4">
+        {selectedModel &&  <FloatLabel className="w-full md:w-14rem mt-4">
             <InputText id="dd-generation-text" value={generationText} onChange={e => setGenerationText(e.target.value)}
                        className="w-full md:w-14rem"/>
-            <label htmlFor="dd-generation-text">Araç Serisi</label>
+            <label htmlFor="dd-generation-text">Paket Detayı</label>
         </FloatLabel>}
-        {selectedGeneration && <FloatLabel className="w-full md:w-14rem mt-4">
+        {selectedModel && <FloatLabel className="w-full md:w-14rem mt-4">
             <Dropdown
                 inputId={"dd-year"}
                 value={selectedYear}

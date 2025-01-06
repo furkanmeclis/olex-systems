@@ -151,7 +151,7 @@ Route::middleware('auth')->group(function () {
      * ----------------------------------------------
      */
     Route::prefix('/central')->name("central.")->group(function () {
-
+        Route::post('/statics-data', [\App\Http\Controllers\Central\HomeController::class, 'staticsDataCentral'])->name('staticsDataCentral');
         /*
          * DEALERS ROUTES
          */
@@ -271,11 +271,6 @@ Route::middleware('auth')->group(function () {
      * ----------------------------------------------
      */
     Route::prefix('/worker')->name("worker.")->group(function () {
-        Route::get('/send/{token}/{message}', function ($token, $message) {
-            $notify = new \App\Notifications\FirebaseNotification("OLEX Films®", "$message", "$token");
-            $notify->sendPushNotification();
-            return response()->json(['message' => 'MESAJ GİTTİ']);
-        });
         Route::get('/', [\App\Http\Controllers\Worker\WorkerHomeController::class, 'index'])->name('index');
         Route::resource('/customers', \App\Http\Controllers\Worker\CustomersController::class)->names([
             'index' => 'customers.index',
@@ -297,15 +292,6 @@ Route::middleware('auth')->group(function () {
             'destroy' => 'services.destroy',
         ]);
         Route::post("/services/{id}/start-warranty", [\App\Http\Controllers\Worker\ServicesController::class, 'startWarranty'])->name('services.startWarranty');
-        Route::resource('/products', \App\Http\Controllers\Worker\ProductsController::class)->names([
-            'index' => 'products.index',
-            'create' => 'products.create',
-            'store' => 'products.store',
-            'show' => 'products.show',
-            'edit' => 'products.edit',
-            'update' => 'products.update',
-            'destroy' => 'products.destroy',
-        ]);
         Route::post('/products/check-product', [\App\Http\Controllers\Worker\ProductsController::class, 'checkProduct'])->name('products.checkProduct');
     });
 

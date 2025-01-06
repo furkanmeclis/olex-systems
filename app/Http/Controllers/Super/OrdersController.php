@@ -234,7 +234,13 @@ class OrdersController extends Controller
                             StockRecords::where('order_id', $order->id)->whereIn('product_id', $deletedItems)->delete();
                         }
                         if ($savedItems == count($products)) {
-                            return response()->json(['message' => 'Sipariş güncellendi', 'status' => true, 'orders' => Orders::getAllData()]);
+                            $orders = [];
+                            if ($request->dealerPage) {
+                                $orders = Orders::getAllData(false, $order->dealer_id);
+                            } else {
+                                $orders = Orders::getAllData();
+                            }
+                            return response()->json(['message' => 'Sipariş güncellendi', 'status' => true, 'orders' => $orders]);
                         } else {
                             return response()->json(['message' => 'Sipariş Güncellendi.Bazı ürünler eklenemedi', 'status' => false, 'unSavedItems' => $unSavedItems]);
                         }
