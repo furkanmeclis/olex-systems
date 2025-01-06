@@ -77,7 +77,7 @@ class CustomersController extends Controller
             \Illuminate\Support\Facades\Mail::to($customer->email)->send(new \App\Mail\SubscribeWebPushMail($customer));
             return response()->json(['message' => 'Müşteri başarıyla eklendi.','status' => true, 'customers' => Customers::getCustomersForDealer()]);
         }catch(\Exception $e){
-            return response()->json(['message' => 'Müşteri başarıyla eklendi.Bilgilendirme SMS ve E-Posta gönderimi sırasında bir hata oluştu.','status' => true, 'customers' => Customers::getCustomersForDealer()]);
+            return response()->json(['message' => 'Müşteri başarıyla eklendi.Bilgilendirme SMS veya E-Posta gönderimi sırasında bir hata oluştu.','status' => true, 'customers' => Customers::getCustomersForDealer()]);
            }
         } else {
             return response()->json(['message' => 'Müşteri eklenirken bir hata oluştu.', 'status' => false]);
