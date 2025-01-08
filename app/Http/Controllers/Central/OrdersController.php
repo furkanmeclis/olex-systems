@@ -408,6 +408,7 @@ class OrdersController extends Controller
                 'message' => 'Sipariş kargoda durumunda değil.'
             ]);
         }
+        //s
 
         $order->tracking_code = $request->tracking_code;
         $order->tracking_url = $request->tracking_url;
