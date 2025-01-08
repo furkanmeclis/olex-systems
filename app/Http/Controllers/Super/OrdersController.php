@@ -235,7 +235,7 @@ class OrdersController extends Controller
                         }
                         if ($savedItems == count($products)) {
                             $orders = [];
-                            if ($request->dealerPage) {
+                            if ($request->dealerPage == 'true') {
                                 $orders = Orders::getAllData(false, $order->dealer_id);
                             } else {
                                 $orders = Orders::getAllData();
