@@ -413,6 +413,12 @@ class OrdersController extends Controller
         $order->tracking_url = $request->tracking_url;
 
         if ($order->save()) {
+            $shortenedUrl = VatanSmsService::shortenUrl($request->tracking_url);
+            if ($shortenedUrl) {
+                $dealer = $order->dealer();
+                $message = "Sayın " . $dealer->name . ", siparişiniz kargoya verildi. Kargo takip numaranız: " . $request->tracking_code . " Kargo takip linki: " . $shortenedUrl;
+                VatanSmsService::sendSingleSms($dealer->phone, $message);
+            }
             return response()->json([
                 'status' => true,
                 'message' => 'Kargo takip bilgileri güncellendi.',

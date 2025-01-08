@@ -90,39 +90,43 @@ const ProductCodes = ({csrf_token, product, productCodesModal, setFooter, onHide
                    paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
                    rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id" loading={loading} editMode="row"
                    onRowEditComplete={(e) => {
-                        let {code,id,product_id} = e.newData;
-                        setLoading(true);
-                        if(e.data.code !== code){
-                            fetch(route('super.products.updateCode',product_id), {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': csrf_token
-                                },
-                                body: JSON.stringify({
-                                    code_id: id,
-                                    code,
-                                    _method: 'put'
-                                })
-                            }).then(r => r.json()).then(response => {
-                                if (response.status) {
-                                    toast.current.show({severity: 'success', summary: 'Başarılı', detail: response.message});
-                                    setCodes(response.codes);
-                                } else {
-                                    toast.current.show({severity: 'error', summary: 'Hata', detail: response.message});
-                                }
-                            }).catch((err) => {
-                                toast.current.show({
-                                    severity: 'error',
-                                    summary: 'Hata',
-                                    detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
-                                });
-                            }).finally(() => {
-                                setLoading(false);
-                            });
-                        }else{
-                            setLoading(false);
-                        }
+                       let {code, id, product_id} = e.newData;
+                       setLoading(true);
+                       if (e.data.code !== code) {
+                           fetch(route('super.products.updateCode', product_id), {
+                               method: 'POST',
+                               headers: {
+                                   'Content-Type': 'application/json',
+                                   'X-CSRF-TOKEN': csrf_token
+                               },
+                               body: JSON.stringify({
+                                   code_id: id,
+                                   code,
+                                   _method: 'put'
+                               })
+                           }).then(r => r.json()).then(response => {
+                               if (response.status) {
+                                   toast.current.show({
+                                       severity: 'success',
+                                       summary: 'Başarılı',
+                                       detail: response.message
+                                   });
+                                   setCodes(response.codes);
+                               } else {
+                                   toast.current.show({severity: 'error', summary: 'Hata', detail: response.message});
+                               }
+                           }).catch((err) => {
+                               toast.current.show({
+                                   severity: 'error',
+                                   summary: 'Hata',
+                                   detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+                               });
+                           }).finally(() => {
+                               setLoading(false);
+                           });
+                       } else {
+                           setLoading(false);
+                       }
                    }}>
             <Column field="code" sortable header="Ürün Kodu"
                     editor={(options) => <InputText type="text" size={"small"} value={options.value}
@@ -141,18 +145,33 @@ const ProductCodes = ({csrf_token, product, productCodesModal, setFooter, onHide
             }}/>
             <Column sortable header="Konumu" body={(rowData) => {
                 if (rowData.location !== "central") {
-                    return <Button label={rowData.dealer.name} link size={"small"} tooltip={"Bayiyi Görüntüle"} onClick={() => {
-                        router.visit(route('super.dealers.show', rowData.dealer.id));
-                    }}/>
+                    return <Button label={rowData.dealer.name} link size={"small"} tooltip={"Bayiyi Görüntüle"}
+                                   onClick={() => {
+                                       router.visit(route('super.dealers.show', rowData.dealer.id));
+                                   }}/>
                 } else {
                     return "Merkez";
                 }
             }}/>
-
+            <Column header="Hizmet" field={"service_number"} filter
+                    filterPlaceholder={"Hizmet Numarasına Göre Filtreleyin"} body={(rowData) => {
+                if (rowData.location !== "central") {
+                    if (rowData.used) {
+                        return <Button label={rowData.service_number} link size={"small"} tooltip={"Hizmeti Görüntüle"}
+                                       onClick={() => {
+                                           window.open(route('warranty.index', rowData.service_number), '_blank');
+                                       }}/>
+                    } else {
+                        return "Kullanılmamış";
+                    }
+                } else {
+                    return "Kullanılmamış";
+                }
+            }}/>
             <Column field="used_at" sortable header="Kullanılma Tarihi" body={(rowData) => {
-                if(rowData.used_at !== null){
+                if (rowData.used_at !== null) {
                     return new Date(rowData.used_at).toLocaleString();
-                }else{
+                } else {
                     return "...";
                 }
             }}/>

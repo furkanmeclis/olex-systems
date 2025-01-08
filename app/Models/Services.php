@@ -410,6 +410,26 @@ class Services extends Model
             $product = Products::where('id', $productId)->first("name");
             $productOrderData[$product->name] = $count;
         }
+        $productStocks = [];
+        foreach (ProductCode::whereIn("product_id",Products::where("category","PPF")->get("id")->pluck("id")->toArray())->get(["product_id","location"]) as $code) {
+            if($code->location == "dealer"){
+                if(isset($productStocks[$code->product_id]["dealer"])){
+                    $productStocks[$code->product_id]["dealer"]++;
+                }else{
+                    $productStocks[$code->product_id]["dealer"] = 1;
+                }
+            }
+            if(isset($productStocks[$code->product_id]["total"])){
+                $productStocks[$code->product_id]["total"]++;
+            }else{
+                $productStocks[$code->product_id]["total"] = 1;
+            }
+        }
+        $productStockData = [];
+        foreach ($productStocks as $productId => $stock) {
+            $product = Products::where('id', $productId)->first("name");
+            $productStockData[$product->name] = $stock;
+        }
 
         return [
             "dealerOrders" => [
@@ -419,6 +439,10 @@ class Services extends Model
             "productOrders" => [
                 "labels" => array_keys($productOrderData),
                 "data" => array_values($productOrderData)
+            ],
+            "productStock" => [
+                "labels" => array_keys($productStockData),
+                "data" => array_values($productStockData)
             ]
         ];
     }

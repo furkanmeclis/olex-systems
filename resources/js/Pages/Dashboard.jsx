@@ -198,6 +198,20 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         borderRadius: 10
                     }]
                 });
+                applyData('productStock', {
+                    labels: data.chart.productStock.labels,
+                    datasets: [{
+                        label: "Toplam",
+                        backgroundColor: '#38BDF8',
+                        borderColor: '#0EA5E9',
+                        data: data.chart.productStock.data.map(item => item.total),
+                    }, {
+                        label: "Satılan",
+                        backgroundColor: '#4ADE80',
+                        borderColor: '#22C55E',
+                        data: data.chart.productStock.data.map(item => item.dealer)
+                    }]
+                });
             }
         }).catch((error) => {
             console.error('Error:', error);
@@ -870,6 +884,19 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                             verticalOptions={horizontalChartOptions}
                                             title="Ürün Siparişleri"
                                             chartId="productOrders"
+                                            onVisibilityChange={handleVisibilityChange}
+                                        />
+                                    </Card>
+                                )}
+                                {chartVisibility['productStock'] !== false && (
+                                    <Card className="shadow-lg bg-gradient-to-br  md:col-span-2 xl:col-span-3">
+                                        <CustomChart
+                                            type="bar"
+                                            data={chartData.productStock}
+                                            horizontalOptions={verticalChartOptions}
+                                            verticalOptions={horizontalChartOptions}
+                                            title="Ürün Stokları"
+                                            chartId="productStock"
                                             onVisibilityChange={handleVisibilityChange}
                                         />
                                     </Card>
