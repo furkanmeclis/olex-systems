@@ -117,7 +117,7 @@ const Create = ({auth, csrf_token}) => {
         value.forEach((item, index) => {
             formData.append(`body[${index}]`, item);
         });
-        selectedProducts.map(product => ({id:product.id,code:product.code})).map((product, index) => {
+        selectedProducts.map(product => ({id: product.id, code: product.code})).map((product, index) => {
             formData.append(`products[${index}][id]`, product.id);
             formData.append(`products[${index}][code]`, product.code);
         });
@@ -133,7 +133,7 @@ const Create = ({auth, csrf_token}) => {
                 toast.current.show({severity: 'success', summary: 'Başarılı', detail: data.message});
                 setTimeout(() => {
                     router.visit(route("worker.services.index"))
-                },3000)
+                }, 3000)
             } else {
                 toast.current.show({severity: 'error', summary: 'Hata', detail: data.message});
             }
@@ -178,7 +178,7 @@ const Create = ({auth, csrf_token}) => {
                                 </div>
                             </StepperPanel>
                             <StepperPanel header="Araç Bilgileri">
-                                <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+                                <div className="grid grid-cols-2 gap-3">
                                     <CarSelect
                                         onComplete={(data) => {
                                             setCarSelected(true);
@@ -195,10 +195,6 @@ const Create = ({auth, csrf_token}) => {
                                         selectedModel={carData.model}
                                         setSelectedModel={(data) => setCarData(prevState => {
                                             return {...prevState, model: data};
-                                        })}
-                                        selectedGeneration={carData.generation}
-                                        setSelectedGeneration={(data) => setCarData(prevState => {
-                                            return {...prevState, generation: data};
                                         })}
                                         selectedYear={carData.year}
                                         setSelectedYear={(data) => setCarData(prevState => {
@@ -228,7 +224,8 @@ const Create = ({auth, csrf_token}) => {
                                 <DataView dataKey="id" value={selectedProducts}
                                           onChange={(e) => setSelectedProducts(e.value)} itemTemplate={item => <div
                                     className="flex flex-wrap p-2 align-items-center gap-3">
-                                    <img className="w-[4rem] h-auto shadow-lg flex-shrink-0 rounded" src={`${item.image}`}
+                                    <img className="w-[4rem] h-auto shadow-lg flex-shrink-0 rounded"
+                                         src={`${item.image}`}
                                          alt={item.name}/>
                                     <div className="flex-1 flex flex-col gap-2 xl:mr-8">
                                         <span className="font-bold">{item.name}</span>
@@ -297,8 +294,9 @@ const Create = ({auth, csrf_token}) => {
                                         </div>
                                         <div className={"mb-6"}>
                                             <FloatLabel>
-                                                <InputText className={"w-full"} id="service-number-input" value={serviceNo}
-                                                             onChange={(e) => setServiceNo(e.target.value)}/>
+                                                <InputText className={"w-full"} id="service-number-input"
+                                                           value={serviceNo}
+                                                           onChange={(e) => setServiceNo(e.target.value)}/>
                                                 <label htmlFor="service-number-input">Hizmet Numarası</label>
                                             </FloatLabel>
                                         </div>

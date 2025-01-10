@@ -91,6 +91,13 @@ export default function Authenticated({user, header, children}) {
         roles: ['super'],
         icon: 'pi pi-bell'
     },
+    {
+        name: 'Araç Verileri',
+        href: route('super.car.brands.index'),
+        active: route().current('super.car.brands*'),
+        roles: ['super'],
+        icon: 'pi pi-car'
+    },
     // Central Routes
     {
         name: 'Bayiler',

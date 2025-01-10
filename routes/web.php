@@ -8,6 +8,22 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\CarDataImportController;
+
+Route::get('/setup', function () {
+    try {
+        Artisan::call('migrate');
+        return response()->json([
+            'message' => 'Setup completed successfully',
+            'details' => Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Setup failed',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -38,6 +54,38 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::prefix('/super')->name('super.')->group(function () {
+        /*
+         * CAR MANAGEMENT ROUTES
+         */
+        Route::prefix('/car')->name('car.')->group(function () {
+            // Brand Routes
+            Route::prefix('/brands')->name('brands.')->group(function () {
+                Route::get('/', [CarDataImportController::class, 'brands'])->name('index');
+                Route::post('/', [CarDataImportController::class, 'storeBrand'])->name('store');
+                Route::put('/{brand}', [CarDataImportController::class, 'updateBrand'])->name('update');
+                Route::delete('/{brand}', [CarDataImportController::class, 'destroyBrand'])->name('destroy');
+                Route::post('/get-brands', [CarDataImportController::class, 'getBrands'])->name('get');
+                Route::post('/bulk-status', [CarDataImportController::class, 'bulkStatusBrands'])->name('bulk-status');
+                
+                // Model Routes (Nested under brands)
+                Route::prefix('/{brand}/models')->name('models.')->group(function () {
+                    Route::get('/', [CarDataImportController::class, 'models'])->name('index');
+                    Route::post('/', [CarDataImportController::class, 'storeModel'])->name('store');
+                    Route::put('/{model}', [CarDataImportController::class, 'updateModel'])->name('update');
+                    Route::delete('/{model}', [CarDataImportController::class, 'destroyModel'])->name('destroy');
+                    Route::post('/get-models', [CarDataImportController::class, 'getModels'])->name('get');
+                    Route::post('/bulk-status', [CarDataImportController::class, 'bulkStatusModels'])->name('bulk-status');
+                });
+            });
+
+            // Data Import Routes
+            Route::prefix('/data')->name('data.')->group(function () {
+                Route::post('/import', [CarDataImportController::class, 'import'])->name('import');
+                Route::post('/reset', [CarDataImportController::class, 'reset'])->name('reset');
+                Route::get('/status', [CarDataImportController::class, 'importStatus'])->name('status');
+            });
+        });
+        
         Route::prefix("/notify-sms")->name('notifySms.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Super\NotifySmsController::class, 'index'])->name('index');
             Route::post('/send-sms', [\App\Http\Controllers\Super\NotifySmsController::class, 'sendSMS'])->name('sendSMS');
