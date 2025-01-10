@@ -69,7 +69,7 @@ export default function Index({auth, brands: initialBrands}) {
     const importData = async () => {
         try {
             setLoading(true);
-            const response = await axios.post(route('super.car.brands.import'));
+            const response = await axios.post(route('super.car.data.import'));
             toast.current.show({
                 severity: 'success',
                 summary: 'Başarılı',
@@ -77,6 +77,7 @@ export default function Index({auth, brands: initialBrands}) {
                 life: 3000
             });
         } catch (error) {
+            console.log(error);
             toast.current.show({
                 severity: 'error',
                 summary: 'Hata',
