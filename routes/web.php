@@ -25,6 +25,19 @@ Route::get('/setup', function () {
     }
 });
 
+Route::get('/match-logos', function () {
+    try {
+        $result = \App\Models\Services::matchLogos();
+        return response()->json($result);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Logo eşleştirme işlemi sırasında hata oluştu',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),

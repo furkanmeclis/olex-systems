@@ -446,4 +446,63 @@ class Services extends Model
             ]
         ];
     }
+
+    public static function matchLogos()
+    {
+        try {
+            // Tüm markaları yeni sistemden al
+            $brands = CarBrand::all()->pluck('logo', 'name')->toArray();
+            
+            // Tüm hizmetleri al
+            $services = Services::all();
+            
+            $updatedCount = 0;
+            $errorCount = 0;
+            
+            foreach ($services as $service) {
+                try {
+                    $car = $service->car;
+                    
+                    if (isset($car['brand']) && isset($brands[$car['brand']])) {
+                        // Logo URL'sini güncelle
+                        $car['brand_logo'] = $brands[$car['brand']];
+                        
+                        // Servisi güncelle
+                        $service->car = $car;
+                        $service->save();
+                        
+                        $updatedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errorCount++;
+                    \Log::error('Hizmet logo güncellemesi hatası:', [
+                        'service_id' => $service->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+            
+            return [
+                'success' => true,
+                'message' => 'Logo eşleştirme tamamlandı',
+                'details' => [
+                    'total_services' => $services->count(),
+                    'updated_count' => $updatedCount,
+                    'error_count' => $errorCount
+                ]
+            ];
+            
+        } catch (\Exception $e) {
+            \Log::error('Logo eşleştirme işlemi hatası:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return [
+                'success' => false,
+                'message' => 'Logo eşleştirme işlemi sırasında hata oluştu',
+                'error' => $e->getMessage()
+            ];
+        }
+    }
 }
