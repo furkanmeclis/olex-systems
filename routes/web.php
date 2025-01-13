@@ -49,9 +49,7 @@ Route::get('/', function () {
 Route::get('/dashboard', [\App\Http\Controllers\HomeController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/redirect/{id}', function ($mail) {
-    $customer = \App\Models\Customers::where('id', $mail)->first();
-    $hash = Crypt::encrypt($customer->id);
-    return redirect()->route('customer.notify', $hash);
+    return redirect()->route('home');
 });
 Route::get('/migrate', function () {
     Artisan::call("migrate");
