@@ -12,6 +12,7 @@ const CarSelect = ({
                        selectedYear,
                        setSelectedYear,
                        onChange,
+
                        onComplete,
                    }) => {
     const [brands, setBrands] = useState([]);
@@ -147,14 +148,15 @@ const CarSelect = ({
     const yearTemplate = (option) => {
         return (
             <div className="flex items-center">
-                {selectedBrand?.logo && <img src={selectedBrand.logo} alt={option.name + " .yıl"} className="w-8 h-8 mr-2"/>}
+                {selectedBrand?.logo &&
+                    <img src={selectedBrand.logo} alt={option.name + " .yıl"} className="w-8 h-8 mr-2"/>}
                 <span>{option.name}</span>
             </div>
         );
     };
 
     const [years, setYears] = useState([]);
-    
+
     useEffect(() => {
         const loadYears = async () => {
             const yearsArray = await generateYearsArray();
@@ -165,19 +167,19 @@ const CarSelect = ({
 
     useEffect(() => {
         if (selectedBrand && modelRef.current) {
-            modelRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            modelRef.current.scrollIntoView({behavior: 'smooth', block: 'center'});
         }
     }, [selectedBrand]);
 
     useEffect(() => {
         if (selectedModel && yearRef.current) {
-            yearRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            yearRef.current.scrollIntoView({behavior: 'smooth', block: 'center'});
         }
     }, [selectedModel]);
 
     useEffect(() => {
         if (selectedYear && packageRef.current) {
-            packageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            packageRef.current.scrollIntoView({behavior: 'smooth', block: 'center'});
             setTimeout(() => {
                 packageInputRef.current?.focus();
             }, 500);
@@ -201,7 +203,7 @@ const CarSelect = ({
                     filter
                     className="w-full md:w-14rem"
                     itemTemplate={brandTemplate}
-                    listStyle={{ height: '300px' }}
+                    listStyle={{height: '300px'}}
                 />
             </BlockUI>
         </div>
@@ -222,7 +224,7 @@ const CarSelect = ({
                         filter
                         className="w-full md:w-14rem"
                         itemTemplate={modelTemplate}
-                        listStyle={{ height: '300px' }}
+                        listStyle={{height: '300px'}}
                     />
                 </BlockUI>
             </div>
@@ -240,7 +242,7 @@ const CarSelect = ({
                     filter
                     className="w-full md:w-14rem"
                     itemTemplate={yearTemplate}
-                    listStyle={{ height: '300px' }}
+                    listStyle={{height: '300px'}}
                 />
             </div>
         )}
@@ -248,9 +250,9 @@ const CarSelect = ({
         {selectedModel && (
             <div className="flex flex-col gap-2 mt-4" ref={packageRef}>
                 <label className="font-medium">Paket Detayı</label>
-                <InputText 
+                <InputText
                     ref={packageInputRef}
-                    value={generationText} 
+                    value={generationText}
                     onChange={e => setGenerationText(e.target.value)}
                     className="w-full md:w-14rem"
                     placeholder="Paket detayını giriniz"
