@@ -1,8 +1,8 @@
-import {Dropdown} from 'primereact/dropdown';
-import {useEffect, useState} from "react";
-import {FloatLabel} from 'primereact/floatlabel';
+import {ListBox} from 'primereact/listbox';
+import {useEffect, useState, useRef} from "react";
 import {InputText} from "primereact/inputtext";
 import axios from 'axios';
+import {BlockUI} from 'primereact/blockui';
 
 const CarSelect = ({
                        selectedBrand,
@@ -18,18 +18,25 @@ const CarSelect = ({
     const [models, setModels] = useState([]);
     const [generationText, setGenerationText] = useState("");
     const [loading, setLoading] = useState(false);
+    const [loadingBrands, setLoadingBrands] = useState(false);
+    const [loadingModels, setLoadingModels] = useState(false);
+
+    const modelRef = useRef(null);
+    const yearRef = useRef(null);
+    const packageRef = useRef(null);
+    const packageInputRef = useRef(null);
 
     // Markaları yükle
     useEffect(() => {
         const fetchBrands = async () => {
             try {
-                setLoading(true);
+                setLoadingBrands(true);
                 const response = await axios.post(route('super.car.brands.get'));
                 setBrands(response.data);
             } catch (error) {
                 console.error('Markalar yüklenirken hata oluştu:', error);
             } finally {
-                setLoading(false);
+                setLoadingBrands(false);
             }
         };
 
@@ -41,13 +48,13 @@ const CarSelect = ({
         const fetchModels = async () => {
             if (selectedBrand) {
                 try {
-                    setLoading(true);
+                    setLoadingModels(true);
                     const response = await axios.post(route('super.car.brands.models.get', selectedBrand.id));
                     setModels(response.data);
                 } catch (error) {
                     console.error('Modeller yüklenirken hata oluştu:', error);
                 } finally {
-                    setLoading(false);
+                    setLoadingModels(false);
                 }
             } else {
                 setModels([]);
@@ -109,16 +116,42 @@ const CarSelect = ({
         return years;
     }
 
-    const selectedOptionTemplate = (option, props) => {
+    const selectedOptionTemplate = (option) => {
         if (option) {
             return <div className="flex items-center">
                 {selectedBrand?.logo && <img src={selectedBrand.logo} alt={option.name} className="w-6 h-6 mr-2"/>}
                 <span>{option.name}</span>
             </div>;
-        } else {
-            return <span>{props.placeholder}</span>
         }
+        return null;
     }
+
+    const brandTemplate = (option) => {
+        return (
+            <div className="flex items-center">
+                {option.logo && <img src={option.logo} alt={option.name} className="w-8 h-8 mr-2"/>}
+                <span>{option.name}</span>
+            </div>
+        );
+    };
+
+    const modelTemplate = (option) => {
+        return (
+            <div className="flex items-center">
+                {selectedBrand?.logo && <img src={selectedBrand.logo} alt={option.name} className="w-8 h-8 mr-2"/>}
+                <span>{option.name}</span>
+            </div>
+        );
+    };
+
+    const yearTemplate = (option) => {
+        return (
+            <div className="flex items-center">
+                {selectedBrand?.logo && <img src={selectedBrand.logo} alt={option.name + " .yıl"} className="w-8 h-8 mr-2"/>}
+                <span>{option.name}</span>
+            </div>
+        );
+    };
 
     const [years, setYears] = useState([]);
     
@@ -130,96 +163,100 @@ const CarSelect = ({
         loadYears();
     }, []);
 
+    useEffect(() => {
+        if (selectedBrand && modelRef.current) {
+            modelRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [selectedBrand]);
+
+    useEffect(() => {
+        if (selectedModel && yearRef.current) {
+            yearRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [selectedModel]);
+
+    useEffect(() => {
+        if (selectedYear && packageRef.current) {
+            packageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                packageInputRef.current?.focus();
+            }, 500);
+        }
+    }, [selectedYear]);
+
     return <>
-        <FloatLabel className="w-full md:w-14rem mt-4">
-            <Dropdown
-                inputId={"dd-brand"}
-                value={selectedBrand}
-                valueTemplate={selectedOptionTemplate}
-                onChange={(e) => {
-                    setSelectedBrand(e.value);
-                    setSelectedModel(null);
-                    setSelectedYear(null);
-                }}
-                options={brands}
-                optionLabel="name"
-                placeholder="Araç Markası Seçiniz"
-                virtualScrollerOptions={{itemSize: 38}}
-                checkmark={true}
-                filter
-                showFilterClear={true}
-                highlightOnSelect={false}
-                className="w-full md:w-14rem"
-                loading={loading}
-                itemTemplate={(option) => (
-                    <div className="flex items-center">
-                        {option.logo && <img src={option.logo} alt={option.name} className="w-8 h-8 mr-2"/>}
-                        <span>{option.name}</span>
-                    </div>
-                )}
-            />
-            <label htmlFor="dd-brand">Araç Markası</label>
-        </FloatLabel>
+        <div className="flex flex-col gap-2 mt-4">
+            <label className="font-medium">Araç Markası</label>
+            <BlockUI blocked={loadingBrands} template={<i className="pi pi-spin pi-spinner text-3xl"></i>}>
+                <ListBox
+                    value={selectedBrand}
+                    onChange={(e) => {
+                        setSelectedBrand(e.value);
+                        setSelectedModel(null);
+                        setSelectedYear(null);
+                    }}
+                    options={brands}
+                    optionLabel="name"
+                    placeholder="Araç Markası Seçiniz"
+                    filter
+                    className="w-full md:w-14rem"
+                    itemTemplate={brandTemplate}
+                    listStyle={{ height: '300px' }}
+                />
+            </BlockUI>
+        </div>
 
-        {selectedBrand && <FloatLabel className="w-full md:w-14rem mt-4">
-            <Dropdown
-                inputId={"dd-model"}
-                value={selectedModel}
-                onChange={(e) => {
-                    setSelectedModel(e.value);
-                    setSelectedYear(null);
-                }}
-                options={models}
-                optionLabel="name"
-                placeholder="Araç Modelini Seçiniz"
-                valueTemplate={selectedOptionTemplate}
-                virtualScrollerOptions={{itemSize: 38}}
-                checkmark={true}
-                filter
-                showFilterClear={true}
-                highlightOnSelect={false}
-                className="w-full md:w-14rem"
-                loading={loading}
-                itemTemplate={(option) => (
-                    <div className="flex items-center">
-                        {selectedBrand.logo && <img src={selectedBrand.logo} alt={option.name} className="w-8 h-8 mr-2"/>}
-                        <span>{option.name}</span>
-                    </div>
-                )}
-            />
-            <label htmlFor="dd-model">Araç Modeli</label>
-        </FloatLabel>}
+        {selectedBrand && (
+            <div className="flex flex-col gap-2 mt-4" ref={modelRef}>
+                <label className="font-medium">Araç Modeli</label>
+                <BlockUI blocked={loadingModels} template={<i className="pi pi-spin pi-spinner text-3xl"></i>}>
+                    <ListBox
+                        value={selectedModel}
+                        onChange={(e) => {
+                            setSelectedModel(e.value);
+                            setSelectedYear(null);
+                        }}
+                        options={models}
+                        optionLabel="name"
+                        placeholder="Araç Modelini Seçiniz"
+                        filter
+                        className="w-full md:w-14rem"
+                        itemTemplate={modelTemplate}
+                        listStyle={{ height: '300px' }}
+                    />
+                </BlockUI>
+            </div>
+        )}
 
-        {selectedModel && <FloatLabel className="w-full md:w-14rem mt-4">
-            <InputText id="dd-generation-text" value={generationText} onChange={e => setGenerationText(e.target.value)}
-                       className="w-full md:w-14rem"/>
-            <label htmlFor="dd-generation-text">Paket Detayı</label>
-        </FloatLabel>}
+        {selectedModel && (
+            <div className="flex flex-col gap-2 mt-4" ref={yearRef}>
+                <label className="font-medium">Araç Yılı</label>
+                <ListBox
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.value)}
+                    options={years}
+                    placeholder="Araç Yılı Seçiniz"
+                    optionLabel="name"
+                    filter
+                    className="w-full md:w-14rem"
+                    itemTemplate={yearTemplate}
+                    listStyle={{ height: '300px' }}
+                />
+            </div>
+        )}
 
-        {selectedModel && <FloatLabel className="w-full md:w-14rem mt-4">
-            <Dropdown
-                inputId={"dd-year"}
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.value)}
-                options={years}
-                placeholder="Araç Yılı Seçiniz"
-                virtualScrollerOptions={{itemSize: 38}}
-                valueTemplate={selectedOptionTemplate}
-                checkmark={true}
-                optionLabel={"name"}
-                filter
-                showFilterClear={true}
-                highlightOnSelect={false}
-                className="w-full md:w-14rem"
-                itemTemplate={(option) => (
-                    <div className="flex items-center">
-                        {selectedBrand.logo && <img src={selectedBrand.logo} alt={option.name + " .yıl"} className="w-8 h-8 mr-2"/>}
-                        <span>{option.name}</span>
-                    </div>
-                )}
-            />
-            <label htmlFor="dd-year">Araç Yılı</label>
-        </FloatLabel>}
+        {selectedModel && (
+            <div className="flex flex-col gap-2 mt-4" ref={packageRef}>
+                <label className="font-medium">Paket Detayı</label>
+                <InputText 
+                    ref={packageInputRef}
+                    value={generationText} 
+                    onChange={e => setGenerationText(e.target.value)}
+                    className="w-full md:w-14rem"
+                    placeholder="Paket detayını giriniz"
+                />
+            </div>
+        )}
     </>
 }
 export default CarSelect;

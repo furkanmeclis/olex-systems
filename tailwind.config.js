@@ -14,7 +14,8 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-                avaganti:['Avaganti Regular',"sans-serif"],
+                avaganti:['Michroma',"sans-serif"],
+
             },
         },
     },

@@ -178,7 +178,7 @@ const Create = ({auth, csrf_token}) => {
                                 </div>
                             </StepperPanel>
                             <StepperPanel header="Araç Bilgileri">
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                                     <CarSelect
                                         onComplete={(data) => {
                                             setCarSelected(true);
