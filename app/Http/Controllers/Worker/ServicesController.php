@@ -191,7 +191,7 @@ class ServicesController extends Controller
         if ($service) {
             $serviceProducts = $service->getProducts();
             $products = [];
-            foreach ($serviceProducts as $serviceProduct) {
+            foreach ($serviceProducts as $serviceProduct) { 
                 $product = Products::find($serviceProduct->product_id);
                 if ($product) {
                     $products[] = [
