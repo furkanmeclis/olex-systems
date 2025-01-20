@@ -55,7 +55,7 @@ return [
          *
          * Note: This directory must exist and be writable by the webserver process.
          */
-        'font_cache' => public_path('fonts'),
+        'font_cache' => storage_path('fonts/cache'),
 
         /**
          * The location of a temporary directory.
@@ -178,7 +178,7 @@ return [
          *
          * @var string
          */
-        'default_font' => 'serif',
+        'default_font' => 'Michroma Regular',
 
         /**
          * Image DPI setting
