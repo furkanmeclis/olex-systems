@@ -82,7 +82,7 @@ class Services extends Model
                 }
 
                 return $product;
-            }else{
+            } else {
                 return null;
             }
         })->filter(function ($product) {
@@ -103,6 +103,7 @@ class Services extends Model
         if ($dealerId) {
             $services = Services::where('dealer_id', $dealerId);
         }
+        $services->orderBy('created_at', 'desc');
         $services = $services->get()->map(function ($service) {
             $statusSeverities = [
                 'pending' => 'help',
@@ -239,17 +240,17 @@ class Services extends Model
             $returnProductData[$product->name] = $count;
         }
         $productStocks = [];
-        foreach (ProductCode::whereIn("product_id",Products::where("category","PPF")->get("id")->pluck("id")->toArray())->get(["product_id","used"]) as $code) {
-            if($code->used == 0){
-                if(isset($productStocks[$code->product_id]["unused"])){
+        foreach (ProductCode::whereIn("product_id", Products::where("category", "PPF")->get("id")->pluck("id")->toArray())->get(["product_id", "used"]) as $code) {
+            if ($code->used == 0) {
+                if (isset($productStocks[$code->product_id]["unused"])) {
                     $productStocks[$code->product_id]["unused"]++;
-                }else{
+                } else {
                     $productStocks[$code->product_id]["unused"] = 1;
                 }
-            }else{
-                if(isset($productStocks[$code->product_id]["used"])){
+            } else {
+                if (isset($productStocks[$code->product_id]["used"])) {
                     $productStocks[$code->product_id]["used"]++;
-                }else{
+                } else {
                     $productStocks[$code->product_id]["used"] = 1;
                 }
             }
@@ -387,7 +388,7 @@ class Services extends Model
                 $dealerOrders[$order->dealer_id] = 1;
             }
         }
-        
+
         $dealerOrderData = [];
         foreach ($dealerOrders as $dealerId => $count) {
             $dealer = User::where('id', $dealerId)->first("name");
@@ -411,17 +412,17 @@ class Services extends Model
             $productOrderData[$product->name] = $count;
         }
         $productStocks = [];
-        foreach (ProductCode::whereIn("product_id",Products::where("category","PPF")->get("id")->pluck("id")->toArray())->get(["product_id","location"]) as $code) {
-            if($code->location == "dealer"){
-                if(isset($productStocks[$code->product_id]["dealer"])){
+        foreach (ProductCode::whereIn("product_id", Products::where("category", "PPF")->get("id")->pluck("id")->toArray())->get(["product_id", "location"]) as $code) {
+            if ($code->location == "dealer") {
+                if (isset($productStocks[$code->product_id]["dealer"])) {
                     $productStocks[$code->product_id]["dealer"]++;
-                }else{
+                } else {
                     $productStocks[$code->product_id]["dealer"] = 1;
                 }
             }
-            if(isset($productStocks[$code->product_id]["total"])){
+            if (isset($productStocks[$code->product_id]["total"])) {
                 $productStocks[$code->product_id]["total"]++;
-            }else{
+            } else {
                 $productStocks[$code->product_id]["total"] = 1;
             }
         }
@@ -452,25 +453,25 @@ class Services extends Model
         try {
             // Tüm markaları yeni sistemden al
             $brands = CarBrand::all()->pluck('logo', 'name')->toArray();
-            
+
             // Tüm hizmetleri al
             $services = Services::all();
-            
+
             $updatedCount = 0;
             $errorCount = 0;
-            
+
             foreach ($services as $service) {
                 try {
                     $car = $service->car;
-                    
+
                     if (isset($car['brand']) && isset($brands[$car['brand']])) {
                         // Logo URL'sini güncelle
                         $car['brand_logo'] = $brands[$car['brand']];
-                        
+
                         // Servisi güncelle
                         $service->car = $car;
                         $service->save();
-                        
+
                         $updatedCount++;
                     }
                 } catch (\Exception $e) {
@@ -481,7 +482,7 @@ class Services extends Model
                     ]);
                 }
             }
-            
+
             return [
                 'success' => true,
                 'message' => 'Logo eşleştirme tamamlandı',
@@ -491,13 +492,13 @@ class Services extends Model
                     'error_count' => $errorCount
                 ]
             ];
-            
+
         } catch (\Exception $e) {
             \Log::error('Logo eşleştirme işlemi hatası:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return [
                 'success' => false,
                 'message' => 'Logo eşleştirme işlemi sırasında hata oluştu',
