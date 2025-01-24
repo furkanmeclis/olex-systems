@@ -7,6 +7,7 @@ import React, {useEffect} from "react";
 import useServiceTemplate from "@/Pages/Worker/Pdf.jsx";
 import {Button} from "primereact/button";
 import {ScrollPanel} from "primereact/scrollpanel";
+import {IPhoneMockup} from "react-device-mockup";
 
 const WarrantyIndex = ({serviceNumber, csrf_token}) => {
     const [visible, setVisible] = React.useState(false);
@@ -76,7 +77,7 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
                             <td className={"border-r-2 border-[#00482b] w-1/2"}>
                                 <div className="flex justify-between items-center py-2 px-4">
                                     <div className="flex justify-between flex-col">
-                                        <span className="text-xs">Hizmet Numarası:</span>
+                                        <span className="text-sm">Hizmet Numarası:</span>
                                         <span>{serviceData.service_no}</span>
 
                                     </div>
@@ -85,10 +86,10 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
                             <td>
                                 <div className="flex justify-between items-center py-2 px-4">
                                     <div className="flex justify-between flex-col">
-                                        <span className="text-xs">Plaka:</span>
+                                        <span className="text-sm">Plaka:</span>
                                         <div className={"flex justify-start gap-x-2"}>
                                                 <span
-                                                    className={"h-6 w-6 rounded bg-blue-800 p-1 text-xs flex justify-center items-center"}>TR</span>
+                                                    className={"h-6 w-6 rounded bg-blue-800 p-1 text-sm flex justify-center items-center"}>TR</span>
                                             <span>{serviceData.plate}</span>
                                         </div>
 
@@ -123,18 +124,18 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
                                     <td className={"border-r-2 border-[#00482b] w-1/2"}>
                                         <div className="flex justify-between items-center py-2 px-4">
                                             <div className="flex justify-between flex-col text-sm">
-                                                <span className="text-xs">Ürün:</span>
+                                                <span className="text-sm">Ürün:</span>
                                                 <span
-                                                    className={product?.multiple === true ? "text-xs" : ""}>{product.name}</span>
+                                                    className={product?.multiple === true ? "text-sm" : ""}>{product.name}</span>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div className="flex justify-between items-center py-2 px-4">
                                             <div className="flex justify-between flex-col text-sm">
-                                                <span className="text-xs">Garanti:</span>
+                                                <span className="text-sm">Garanti:</span>
                                                 <span
-                                                    className={product?.warrantyMultiple === true ? "text-xs" : ""}
+                                                    className={product?.warrantyMultiple === true ? "text-sm" : ""}
                                                     dangerouslySetInnerHTML={{__html: product.warranty.replace("X", '<i class="pi pi-exclamation-triangle text-red-600"></i>')}}></span>
 
                                             </div>
@@ -172,7 +173,7 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
                 </div>
                 <div className={"w-full flex justify-center items-center"}>
                     <button onClick={() => {
-                         window.open(route('warranty.pdf', serviceNumber), '_blank');
+                        window.open(route('warranty.pdf', serviceNumber), '_blank');
                         //setVisible(true);
                     }}
                             className={"py-2 px-6 bg-white rounded-lg text-black font-avaganti tracking-tight hover:font-bold delay-100 ring-0 outline-0 focus:outline-none focus:ring-2 focus:ring-green-300 focus:font-bold"}>
@@ -201,9 +202,13 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
                 <Content mobile/>
             </div>
             <div className={"hidden sm:block my-4"}>
-                <DeviceFrameset device={"iPhone X"}>
+                <IPhoneMockup
+                    screenWidth={400}
+                    frameColor={"#000"}
+                    hideStatusBar
+                    transparentNavBar>
                     <Content/>
-                </DeviceFrameset>
+                </IPhoneMockup>
             </div>
         </div>
         <Dialog header="Dijital Sertifika" visible={visible} footer={() => {
