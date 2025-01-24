@@ -70,10 +70,10 @@
 
         .servicePdf .pdfPage2 .tableWrapper {
             margin: 20px 1.3cm;
-            margin-bottom:0 !important;
+            margin-bottom: 0 !important;
             border-radius: 10px;
             overflow: hidden;
-            border: 2px solid rgb(71,162,125);
+            border: 2px solid rgb(71, 162, 125);
         }
 
         .servicePdf .pdfPage2 table.appliedProducts {
@@ -83,12 +83,14 @@
         }
 
         .servicePdf .pdfPage2 table.appliedProducts thead {
-            background-color: rgb(0,58,34);
+            background-color: rgb(0, 58, 34);
             color: white;
         }
+
         .servicePdf .pdfPage2 table.appliedProducts tbody tr {
-            background-color: rgb(0,35,21);
+            background-color: rgb(0, 35, 21);
         }
+
         .servicePdf .pdfPage2 table.appliedProducts thead td span.title {
             font-size: 24px;
             letter-spacing: 1px;
@@ -98,12 +100,13 @@
             padding: 6px 20px;
             width: 100%;
         }
+
         .servicePdf .pdfPage2 table.appliedProducts thead td div.container .title {
             font-size: 20px;
             font-weight: bold;
             display: inline;
             font-family: 'Michroma Regular' !important;
-            text-align:right;
+            text-align: right;
             width: 100%;
         }
 
@@ -112,9 +115,11 @@
             padding: 10px 10px;
             height: 40px;
         }
+
         .appliedServiceTrWrapper {
-            border-bottom: 1px solid rgb(0,58,34);
+            border-bottom: 1px solid rgb(0, 58, 34);
         }
+
         .servicePdf .pdfPage2 table.appliedProducts tbody td:last-child {
             border-right: none;
         }
@@ -123,7 +128,6 @@
             border-bottom: none;
         }
 
-        
 
         .servicePdf .pdfPage2 table.appliedProducts tbody tr .tdWrapper {
             display: flex;
@@ -184,7 +188,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap:10px;
+            gap: 10px;
         }
 
         .servicePdf .pdfPage1 .carArea .brand .brandLogo,
@@ -200,7 +204,8 @@
             font-weight: 400;
             letter-spacing: .5px;
         }
-         .servicePdf .pdfPage1 .carArea .model, .servicePdf .pdfPage2 .carArea .model {
+
+        .servicePdf .pdfPage1 .carArea .model, .servicePdf .pdfPage2 .carArea .model {
             font-size: 20px;
             font-weight: 400;
             letter-spacing: .5px;
@@ -247,12 +252,12 @@
                 <thead>
                 <tr>
                     <td colspan="3">
-                       <div style="padding: 15px 20px; height: 50px;">
+                        <div style="padding: 15px 20px; height: 50px;">
                             <img src="{{$page2TableLogo}}"
-                            style="height:50px; float:left; display:block;"
-                            alt="Logo">
-                            <span class="title" style="float:right;">Applied Services</span>
-                       </div>
+                                 style="height:50px; float:left; display:block;"
+                                 alt="Logo">
+                            <span class="title" style="float:right;">Uygulanan Hizmetler</span>
+                        </div>
                     </td>
                 </tr>
                 </thead>
@@ -261,19 +266,19 @@
                     <tr class="appliedServiceTrWrapper">
                         <td>
                             <div class="tdWrapper">
-                                <div class="title">Category:</div>
+                                <div class="title">Kategori:</div>
                                 <span class="namexx">{{ $service['category'] }}</span>
                             </div>
                         </td>
                         <td>
                             <div class="tdWrapper">
-                                <div class="title">Product: <span class="highlight">#{{ $service['code'] }}</span></div>
+                                <div class="title">Ürün: <span class="highlight">#{{ $service['code'] }}</span></div>
                                 <span class="namexx">{{ $service['name'] }}</span>
                             </div>
                         </td>
                         <td>
                             <div class="tdWrapper">
-                                <div class="title">Warranty:</div>
+                                <div class="title">Garanti:</div>
                                 <span class="warranty">
                                     {{ $service['warranty'] }}
                                     <span class="icon">
