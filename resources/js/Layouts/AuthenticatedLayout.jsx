@@ -6,7 +6,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import {Link, usePage} from '@inertiajs/react';
 import {Tag} from 'primereact/tag';
 import {Toast} from "primereact/toast";
-import { motion, AnimatePresence } from 'framer-motion';
+import {motion, AnimatePresence} from 'framer-motion';
 
 export default function Authenticated({user, header, children}) {
     const toast = useRef(null);
@@ -73,6 +73,12 @@ export default function Authenticated({user, header, children}) {
         roles: ['super'],
         icon: 'pi pi-shopping-cart'
     }, {
+        name: 'Hizmetler',
+        href: route('super.services'),
+        active: route().current('super.services'),
+        roles: ['super'],
+        icon: 'pi pi-wrench'
+    }, {
         name: 'Stok Yönetimi',
         href: route('super.stock-management.index'),
         active: route().current('super.stock-management*'),
@@ -91,117 +97,124 @@ export default function Authenticated({user, header, children}) {
         roles: ['super'],
         icon: 'pi pi-bell'
     },
-    {
-        name: 'Araç Verileri',
-        href: route('super.car.brands.index'),
-        active: route().current('super.car.brands*'),
-        roles: ['super'],
-        icon: 'pi pi-car'
-    },
-    // Central Routes
-    {
-        name: 'Bayiler',
-        href: route('central.dealers.index'),
-        active: route().current('central.dealers*'),
-        roles: ['central', 'central_salesman', 'central_contact'],
-        icon: 'pi pi-building'
-    }, {
-        name: 'Çalışanlar',
-        href: route('central.workers.index'),
-        active: route().current('central.workers*'),
-        roles: ['central', 'central_salesman', 'central_contact'],
-        icon: 'pi pi-users'
-    }, {
-        name: 'Ürünler',
-        href: route('central.products.index'),
-        active: route().current('central.products*'),
-        roles: ['central', 'central_salesman', 'central_contact', 'central_worker'],
-        icon: 'pi pi-box'
-    }, {
-        name: 'Siparişler',
-        href: route('central.orders.index'),
-        active: route().current('central.orders*'),
-        roles: ['central', 'central_salesman', 'central_contact', 'central_worker'],
-        icon: 'pi pi-shopping-cart'
-    }, {
-        name: 'Stok Yönetimi',
-        href: route('central.stock-management.index'),
-        active: route().current('central.stock-management*'),
-        roles: ['central', 'central_salesman', 'central_contact', 'central_worker'],
-        icon: 'pi pi-database'
-    }, {
-        name: 'Müşteriler',
-        href: route('central.customers.index'),
-        active: route().current('central.customers*'),
-        roles: ['central', 'central_salesman', 'central_contact'],
-        icon: 'pi pi-users'
-    },
-    // Dealer Routes
-    {
-        name: "Siparişler",
-        href: route('dealer.orders'),
-        active: route().current('dealer.orders'),
-        roles: ['admin'],
-        icon: 'pi pi-shopping-cart'
-    }, {
-        name: 'Hizmetler',
-        href: route('dealer.services'),
-        active: route().current('dealer.services'),
-        roles: ['admin'],
-        icon: 'pi pi-wrench'
-    }, {
-        name: 'Müşteriler',
-        href: route('dealer.customers'),
-        active: route().current('dealer.customers'),
-        roles: ['admin'],
-        icon: 'pi pi-users'
-    }, {
-        name: 'Çalışanlar',
-        href: route('dealer.workers.index'),
-        active: route().current('dealer.workers*'),
-        roles: ['admin'],
-        icon: 'pi pi-user'
-    }, {
-        name: 'Stok Kayıtları',
-        href: route('dealer.stockRecords'),
-        active: route().current('dealer.stockRecords'),
-        roles: ['admin'],
-        icon: 'pi pi-database'
-    }, {
-        name: 'Bayi Ayarları',
-        href: route('dealer.settings'),
-        active: route().current('dealer.settings'),
-        roles: ['admin'],
-        icon: 'pi pi-cog'
-    },
-    // Worker Routes
-    {
-        name: 'Anasayfa',
-        href: route('worker.index'),
-        active: route().current('worker.index'),
-        roles: ['worker'],
-        icon: 'pi pi-home'
-    }, {
-        name: 'Müşteriler',
-        href: route('worker.customers.index'),
-        active: route().current('worker.customers*'),
-        roles: ['worker'],
-        icon: 'pi pi-users'
-    }, {
-        name: 'Hizmetler',
-        href: route('worker.services.index'),
-        active: route().current('worker.services*'),
-        roles: ['worker'],
-        icon: 'pi pi-wrench'
-    }];
+        {
+            name: 'Araç Verileri',
+            href: route('super.car.brands.index'),
+            active: route().current('super.car.brands*'),
+            roles: ['super'],
+            icon: 'pi pi-car'
+        },
+        // Central Routes
+        {
+            name: 'Bayiler',
+            href: route('central.dealers.index'),
+            active: route().current('central.dealers*'),
+            roles: ['central', 'central_salesman', 'central_contact'],
+            icon: 'pi pi-building'
+        }, {
+            name: 'Çalışanlar',
+            href: route('central.workers.index'),
+            active: route().current('central.workers*'),
+            roles: ['central', 'central_salesman', 'central_contact'],
+            icon: 'pi pi-users'
+        }, {
+            name: 'Ürünler',
+            href: route('central.products.index'),
+            active: route().current('central.products*'),
+            roles: ['central', 'central_salesman', 'central_contact', 'central_worker'],
+            icon: 'pi pi-box'
+        }, {
+            name: 'Siparişler',
+            href: route('central.orders.index'),
+            active: route().current('central.orders*'),
+            roles: ['central', 'central_salesman', 'central_contact', 'central_worker'],
+            icon: 'pi pi-shopping-cart'
+        }, {
+            name: 'Hizmetler',
+            href: route('central.services'),
+            active: route().current('central.services'),
+            roles: ['central', 'central_salesman', 'central_contact', 'central_worker'],
+            icon: 'pi pi-wrench'
+        }, {
+            name: 'Stok Yönetimi',
+            href: route('central.stock-management.index'),
+            active: route().current('central.stock-management*'),
+            roles: ['central', 'central_salesman', 'central_contact', 'central_worker'],
+            icon: 'pi pi-database'
+        }, {
+            name: 'Müşteriler',
+            href: route('central.customers.index'),
+            active: route().current('central.customers*'),
+            roles: ['central', 'central_salesman', 'central_contact'],
+            icon: 'pi pi-users'
+        },
+        // Dealer Routes
+        {
+            name: "Siparişler",
+            href: route('dealer.orders'),
+            active: route().current('dealer.orders'),
+            roles: ['admin'],
+            icon: 'pi pi-shopping-cart'
+        }, {
+            name: 'Hizmetler',
+            href: route('dealer.services'),
+            active: route().current('dealer.services'),
+            roles: ['admin'],
+            icon: 'pi pi-wrench'
+        }, {
+            name: 'Müşteriler',
+            href: route('dealer.customers'),
+            active: route().current('dealer.customers'),
+            roles: ['admin'],
+            icon: 'pi pi-users'
+        }, {
+            name: 'Çalışanlar',
+            href: route('dealer.workers.index'),
+            active: route().current('dealer.workers*'),
+            roles: ['admin'],
+            icon: 'pi pi-user'
+        }, {
+            name: 'Stok Kayıtları',
+            href: route('dealer.stockRecords'),
+            active: route().current('dealer.stockRecords'),
+            roles: ['admin'],
+            icon: 'pi pi-database'
+        }, {
+            name: 'Bayi Ayarları',
+            href: route('dealer.settings'),
+            active: route().current('dealer.settings'),
+            roles: ['admin'],
+            icon: 'pi pi-cog'
+        },
+        // Worker Routes
+        {
+            name: 'Anasayfa',
+            href: route('worker.index'),
+            active: route().current('worker.index'),
+            roles: ['worker'],
+            icon: 'pi pi-home'
+        }, {
+            name: 'Müşteriler',
+            href: route('worker.customers.index'),
+            active: route().current('worker.customers*'),
+            roles: ['worker'],
+            icon: 'pi pi-users'
+        }, {
+            name: 'Hizmetler',
+            href: route('worker.services.index'),
+            active: route().current('worker.services*'),
+            roles: ['worker'],
+            icon: 'pi pi-wrench'
+        }];
 
     return (
         <div className="min-h-screen bg-[#1a1f2c]">
             <Toast ref={toast}/>
-            
+
             {/* Mobile Header - Sticky */}
             <div className="lg:hidden">
-                <div className="fixed top-0 left-0 right-0 z-40 bg-[#1e2533]/95 backdrop-blur-xl border-b border-slate-700/50">
+                <div
+                    className="fixed top-0 left-0 right-0 z-40 bg-[#1e2533]/95 backdrop-blur-xl border-b border-slate-700/50">
                     <div className="flex items-center justify-between px-4 py-3">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -209,32 +222,34 @@ export default function Authenticated({user, header, children}) {
                         >
                             <i className={`pi ${isSidebarOpen ? 'pi-times' : 'pi-bars'} text-xl`}></i>
                         </button>
-                        <img 
-                            src="/uploads/olex-logo-yatay.svg" 
-                            alt="Olex Films Logo" 
+                        <img
+                            src="/uploads/olex-logo-yatay.svg"
+                            alt="Olex Films Logo"
                             className="h-8 w-auto"
                         />
-                        <div className="w-10"></div> {/* Dengeleme için boş div */}
+                        <div className="w-10"></div>
+                        {/* Dengeleme için boş div */}
                     </div>
                 </div>
-                <div className="h-14"></div> {/* Header'ın yüksekliği kadar boşluk */}
+                <div className="h-14"></div>
+                {/* Header'ın yüksekliği kadar boşluk */}
             </div>
 
             {/* Sidebar */}
             <AnimatePresence>
                 {(isSidebarOpen || window.innerWidth >= 1024) && (
                     <motion.div
-                        initial={{ x: -300, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: -300, opacity: 0 }}
-                        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                        initial={{x: -300, opacity: 0}}
+                        animate={{x: 0, opacity: 1}}
+                        exit={{x: -300, opacity: 0}}
+                        transition={{type: "spring", stiffness: 260, damping: 20}}
                         className="fixed top-0 left-0 h-full w-72 bg-[#1e2533]/95 backdrop-blur-xl border-r border-slate-700/50 z-40 overflow-y-auto lg:translate-x-0"
                     >
                         <div className="p-6">
                             <Link href={route("dashboard")} className="block mb-8">
-                                <img 
-                                    src="/uploads/olex-logo-yatay.svg" 
-                                    alt="Olex Films Logo" 
+                                <img
+                                    src="/uploads/olex-logo-yatay.svg"
+                                    alt="Olex Films Logo"
                                     className="h-12 w-auto mx-auto"
                                 />
                             </Link>
@@ -242,7 +257,8 @@ export default function Authenticated({user, header, children}) {
                             {/* User Info */}
                             <div className="mb-8 p-4 rounded-xl bg-[#252d3d] border border-slate-700/50">
                                 <div className="flex items-center gap-3 mb-1.5">
-                                    <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white font-medium">
+                                    <div
+                                        className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white font-medium">
                                         {user.name.charAt(0)}
                                     </div>
                                     <div>
@@ -286,7 +302,7 @@ export default function Authenticated({user, header, children}) {
                                     return null;
                                 })}
                             </nav>
-                            
+
                             {/* Footer Actions */}
                             <div className="mt-8 space-y-2">
                                 <Link
@@ -332,9 +348,9 @@ export default function Authenticated({user, header, children}) {
             {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
                 <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    initial={{opacity: 0}}
+                    animate={{opacity: 1}}
+                    exit={{opacity: 0}}
                     onClick={() => setIsSidebarOpen(false)}
                     className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden"
                 />

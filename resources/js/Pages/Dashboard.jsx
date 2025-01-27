@@ -32,25 +32,25 @@ export default function Dashboard({auth, metrics, csrf_token}) {
         }));
     };
     const staticUrl = useMemo(() => {
-        if(auth.user.role === "super"){
+        if (auth.user.role === "super") {
             return route("super.staticsData");
-        }else if(auth.user.role === "admin"){
+        } else if (auth.user.role === "admin") {
             return route("dealer.staticsData");
-        }else if(auth.user.role.includes("central")){
+        } else if (auth.user.role.includes("central")) {
             return route("central.staticsDataCentral");
         }
     }, [auth.user.role]);
     const cardVariants = {
-        hidden: { opacity: 0, y: 20 },
+        hidden: {opacity: 0, y: 20},
         visible: {
             opacity: 1,
             y: 0,
-            transition: { duration: 0.5 }
+            transition: {duration: 0.5}
         }
     };
 
     const containerVariants = {
-        hidden: { opacity: 0 },
+        hidden: {opacity: 0},
         visible: {
             opacity: 1,
             transition: {
@@ -155,7 +155,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                         borderRadius: 10
                     }]
                 });
-    
+
                 applyData('brandChart', {
                     labels: data.chart.brands.labels,
                     datasets: [{
@@ -177,7 +177,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                     }]
                 });
             }
-            if(auth.user.role.includes("central")){
+            if (auth.user.role.includes("central")) {
                 applyData('dealerOrders', {
                     labels: data.chart.dealerOrders.labels,
                     datasets: [{
@@ -482,11 +482,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     label="Hizmetler"
                                     icon="pi-file"
                                     color="pink"
-                                    onClick={() => toast.current.show({
-                                        severity: 'info',
-                                        summary: 'Bilgi',
-                                        detail: 'En Kısa Sürede Tamamlayacağız.'
-                                    })}
+                                    onClick={() => router.visit(route('super.services'))}
                                 />
                             </Card>
                         </motion.div>
@@ -636,11 +632,7 @@ export default function Dashboard({auth, metrics, csrf_token}) {
                                     label="Hizmetler"
                                     icon="pi-file"
                                     color="pink"
-                                    onClick={() => toast.current.show({
-                                        severity: 'info',
-                                        summary: 'Bilgi',
-                                        detail: 'En Kısa Sürede Tamamlayacağız.'
-                                    })}
+                                    onClick={() => router.visit(route('central.services'))}
                                 />
                             </Card>
                         </motion.div>

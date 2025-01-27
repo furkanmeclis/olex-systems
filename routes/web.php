@@ -77,7 +77,7 @@ Route::middleware('auth')->group(function () {
                 Route::delete('/{brand}', [CarDataImportController::class, 'destroyBrand'])->name('destroy');
                 Route::post('/get-brands', [CarDataImportController::class, 'getBrands'])->name('get');
                 Route::post('/bulk-status', [CarDataImportController::class, 'bulkStatusBrands'])->name('bulk-status');
-                
+
                 // Model Routes (Nested under brands)
                 Route::prefix('/{brand}/models')->name('models.')->group(function () {
                     Route::get('/', [CarDataImportController::class, 'models'])->name('index');
@@ -96,7 +96,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('/status', [CarDataImportController::class, 'importStatus'])->name('status');
             });
         });
-        
+
         Route::prefix("/notify-sms")->name('notifySms.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Super\NotifySmsController::class, 'index'])->name('index');
             Route::post('/send-sms', [\App\Http\Controllers\Super\NotifySmsController::class, 'sendSMS'])->name('sendSMS');
@@ -202,7 +202,7 @@ Route::middleware('auth')->group(function () {
         ]);
         Route::post('/customers/multiple-destroy', [\App\Http\Controllers\Super\CustomersController::class, 'multipleDestroy'])->name('customers.multipleDestroy');
 
-
+        Route::get('/services', [\App\Http\Controllers\Super\HomeController::class, 'services'])->name('services');
     });
     /*
      * ----------------------------------------------
@@ -210,6 +210,8 @@ Route::middleware('auth')->group(function () {
      * ----------------------------------------------
      */
     Route::prefix('/central')->name("central.")->group(function () {
+
+        Route::get('/services', [\App\Http\Controllers\Super\HomeController::class, 'services'])->name('services');
         Route::post('/statics-data', [\App\Http\Controllers\Central\HomeController::class, 'staticsDataCentral'])->name('staticsDataCentral');
         /*
          * DEALERS ROUTES

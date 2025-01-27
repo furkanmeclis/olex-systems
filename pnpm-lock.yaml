@@ -61,8 +61,8 @@ importers:
         specifier: ^1.4.2
         version: 1.7.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@inertiajs/react':
-        specifier: ^1.0.0
-        version: 1.3.0(react@18.3.1)
+        specifier: ^2.0.3
+        version: 2.0.3(react@18.3.1)
       '@tailwindcss/forms':
         specifier: ^0.5.3
         version: 0.5.9(tailwindcss@3.4.17)
@@ -964,11 +964,11 @@ packages:
       react: ^16 || ^17 || ^18
       react-dom: ^16 || ^17 || ^18
 
-  '@inertiajs/core@1.3.0':
-    resolution: {integrity: sha512-TJ8R1eUYY473m9DaKlCPRdHTdznFWTDuy5VvEzXg3t/hohbDQedLj46yn/uAqziJPEUZJrSftZzPI2NMzL9tQA==}
+  '@inertiajs/core@2.0.3':
+    resolution: {integrity: sha512-JvXzqc2XAt3WgEDMyxCyXO6bDLMCsBjFsYREU1/+3wtNTib7QKwK71+aF+MrhILpz+kRTi29TsLqnbkPHBAZjw==}
 
-  '@inertiajs/react@1.3.0':
-    resolution: {integrity: sha512-K+PF23xP6jjMkubs8PbxT1MroSDdH1z3VTEGbO3685Xyf0QNwoNIF95hnyqJxlWaeG4fB0GAag40gh04fefRUA==}
+  '@inertiajs/react@2.0.3':
+    resolution: {integrity: sha512-eUMywEY+w4jcROiNjD7Vm+2GFapqOQmMh3OGlSat9XJB5+H7vtsQI+cvDa7oQXvt3CCv9Y/+HrKDHC/m969peA==}
     peerDependencies:
       react: ^16.9.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -2081,6 +2081,7 @@ packages:
 
   lodash.isequal@4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
 
   lodash.sortby@4.7.0:
     resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}
@@ -2179,9 +2180,6 @@ packages:
 
   normalize-svg-path@1.1.0:
     resolution: {integrity: sha512-r9KHKG2UUeB5LoTouwDzBy2VxXlHsiM6fyLQvnJa0S5hrhzqElH/CH7TUGhT1fVvIYBIKf3OpY4YJ4CK+iaqHg==}
-
-  nprogress@0.2.0:
-    resolution: {integrity: sha512-I19aIingLgR1fmhftnbWWO3dXc0hSxqHQHQb3H8m+K3TnEn/iSeTZZOyvKXWqQESMwuUVnatlCnZdLBZZt2VSA==}
 
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
@@ -4175,18 +4173,17 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@inertiajs/core@1.3.0':
+  '@inertiajs/core@2.0.3':
     dependencies:
       axios: 1.7.9
       deepmerge: 4.3.1
-      nprogress: 0.2.0
       qs: 6.13.1
     transitivePeerDependencies:
       - debug
 
-  '@inertiajs/react@1.3.0(react@18.3.1)':
+  '@inertiajs/react@2.0.3(react@18.3.1)':
     dependencies:
-      '@inertiajs/core': 1.3.0
+      '@inertiajs/core': 2.0.3
       lodash.isequal: 4.5.0
       react: 18.3.1
     transitivePeerDependencies:
@@ -5512,8 +5509,6 @@ snapshots:
   normalize-svg-path@1.1.0:
     dependencies:
       svg-arc-to-cubic-bezier: 3.2.0
-
-  nprogress@0.2.0: {}
 
   object-assign@4.1.1: {}
 
