@@ -28,7 +28,7 @@ export default function Services() {
         global: {value: null, matchMode: FilterMatchMode.CONTAINS},
     });
     const [globalFilterValue, setGlobalFilterValue] = useState('');
-    const columns = ['id', 'service_no', 'customer_name', 'dealer_name', 'worker_name', "warranty", 'status', 'car', 'updated_at', 'created_at', 'actions', "note"];
+    const columns = ['id', 'service_no', 'customer_name', 'dealer_name', 'worker_name', "warranty", 'plate', 'status', 'car', 'updated_at', 'created_at', 'actions', "note"];
     const columnsTurkishNames = {
         'id': 'ID',
         'service_no': 'Hizmet Numarası',
@@ -36,6 +36,7 @@ export default function Services() {
         'customer_name': 'Müşteri Adı',
         'worker_name': 'Ekleyen Çalışan',
         "warranty": "Garanti Bilgileri",
+        'plate': 'Plaka',
         'status': 'Durumu',
         'car': 'Araç',
         'updated_at': 'Güncellenme Tarihi',
@@ -136,7 +137,7 @@ export default function Services() {
                        paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
                        rowsPerPageOptions={[5, 10, 25, 50]} rows={10} dataKey="id" filters={filters}
                        loading={loading}
-                       globalFilterFields={['service_no', 'worker_name', 'car', 'customer_name', 'status']}
+                       globalFilterFields={['service_no', 'worker.name', 'car', 'customer_name', 'status', 'dealer.name', 'car.plate']}
                        header={header}
                        emptyMessage="Hizmet bulunamadı."
                        currentPageReportTemplate="{first}. ile {last}. arası toplam {totalRecords} kayıttan">
@@ -170,6 +171,8 @@ export default function Services() {
                             }} tooltip={"Garanti Bilgileri"} severity={"success"}/>}
                         </div>
                     }}/>}
+                {selectedColumns.includes('plate') &&
+                    <Column field="car.plate" sortable header="Plaka"/>}
                 {selectedColumns.includes('status') && <Column field="status" sortable header="Durumu"
                                                                body={({status_label, status_severity}) => <Tag
                                                                    value={status_label} severity={status_severity}/>}/>}
