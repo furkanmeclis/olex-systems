@@ -198,15 +198,14 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
 
         <Head title="Garanti Sorgulama"/>
         <div
-            className={"flex justify-center items-center min-h-screen lg:py-4 lg:bg-gradient-to-r from-green-900 via-green-600 to-green-900"}>
-            <div className={"sm:hidden w-full"}>
+            className={"flex justify-center items-center lg:min-h-screen lg:bg-gradient-to-r from-green-900 via-green-600 to-green-900"}>
+            <div className={"sm:hidden w-full h-screen"}>
                 <Content mobile/>
             </div>
             <div className={"hidden sm:block"}>
                 <IPhoneMockup
                     screenWidth={400}
                     frameColor={"#000"}
-
                     hideStatusBar
                     transparentNavBar>
                     <Content/>
