@@ -7,6 +7,7 @@ use App\Models\Customers;
 use App\Services\VatanSmsService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -81,7 +82,8 @@ class AuthController extends Controller
             [
                 'customer_id' => $customer->id,
                 'name' => $customer->name,
-                'phone' => $customer->phone
+                'phone' => $customer->phone,
+                'services_url' => route('customer.notify', ['hash' => Crypt::encrypt($customer->id)])
             ],
             'Doğrulama başarılı'
         );
