@@ -24,22 +24,28 @@ class AuthController extends Controller
         }
 
         $normalizedPhone = VatanSmsService::formatPhoneNumber($request->phone);
-        
+
         if ($normalizedPhone === null) {
             return $this->errorResponse('Sadece bireysel telefon numaraları desteklenmektedir.');
         }
 
-        $customer = Customers::whereRaw("REPLACE(REPLACE(REPLACE(phone, ' ', ''), '(', ''), ')', '') = ?", [$normalizedPhone])->first();
-
+        $customers = Customers::where('id', ">", 0)->get(['id', 'phone', 'name']);
+        $customer = null;
+        foreach ($customers as $c) {
+            if (VatanSmsService::formatPhoneNumber($c->phone) == $normalizedPhone) {
+                $customer = $c;
+                break;
+            }
+        }
         if (!$customer) {
             return $this->errorResponse('Müşteri bulunamadı');
         }
 
         $otp = rand(100000, 999999);
         $sms = "Merhaba {$customer->name}, Tek Kullanımlık Şifreniz: {$otp} Geçerlilik Süresi 5 Dakikadır.";
-        
+
         VatanSmsService::sendSingleSms($customer->phone, $sms);
-        
+
         $otpCacheKey = "otp_{$customer->id}";
         cache([$otpCacheKey => $otp], now()->addMinutes(5));
 
@@ -70,7 +76,7 @@ class AuthController extends Controller
         cache()->forget($otpCacheKey);
 
         $customer = Customers::find($request->customer_id);
-        
+
         return $this->successResponse(
             [
                 'customer_id' => $customer->id,
@@ -80,4 +86,4 @@ class AuthController extends Controller
             'Doğrulama başarılı'
         );
     }
-} 
+}
