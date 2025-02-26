@@ -187,11 +187,11 @@ class ServicesController extends Controller
      */
     public function pdfSourceDataService($idOrServiceNumber, $returnArray = false): \Illuminate\Http\JsonResponse|array
     {
-        $service = Services::where('service_no', $idOrServiceNumber)->orWhere('id', $idOrServiceNumber)->first();
+        $service = Services::where('service_no', $idOrServiceNumber)->first();
         if ($service) {
             $serviceProducts = $service->getProducts();
             $products = [];
-            foreach ($serviceProducts as $serviceProduct) { 
+            foreach ($serviceProducts as $serviceProduct) {
                 $product = Products::find($serviceProduct->product_id);
                 if ($product) {
                     $products[] = [
