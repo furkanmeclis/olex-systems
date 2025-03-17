@@ -352,6 +352,7 @@ Route::middleware('auth')->group(function () {
             'update' => 'services.update',
             'destroy' => 'services.destroy',
         ]);
+        Route::post('/services/get-digital-service', [\App\Http\Controllers\Worker\ServicesController::class, 'getDigitalService'])->name('services.getDigitalService');
         Route::post("/services/{id}/start-warranty", [\App\Http\Controllers\Worker\ServicesController::class, 'startWarranty'])->name('services.startWarranty');
         Route::post('/products/check-product', [\App\Http\Controllers\Worker\ProductsController::class, 'checkProduct'])->name('products.checkProduct');
     });

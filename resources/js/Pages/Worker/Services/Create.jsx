@@ -147,6 +147,24 @@ const Create = ({auth, csrf_token}) => {
             setLoading(false);
         });
     }
+    const getDigitalServiceCode = () => {
+        fetch(route('worker.services.getDigitalService'), {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrf_token,
+            },
+        }).then(r => r.json()).then(data => {
+            setServiceNo(data.service_no);
+        }).catch((err) => {
+            toast.current.show({
+                severity: 'error',
+                summary: 'Hata',
+                detail: "CSRF Token Hatası Lütfen Sayfayı Yenileyiniz.."
+            });
+        }).finally(() => {
+            setLoading(false);
+        });
+    }
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -159,6 +177,7 @@ const Create = ({auth, csrf_token}) => {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-3">
                         <Stepper ref={stepperRef} style={{flexBasis: '50rem'}} orientation="vertical" linear>
+                        
                             <StepperPanel header="Müşteri Seçimi">
                                 <div className="flex flex-column h-12rem">
                                     <FloatLabel className="w-full md:w-14rem">
@@ -292,13 +311,17 @@ const Create = ({auth, csrf_token}) => {
                                                 <label htmlFor="kilometer-input">Araç Kilometresi</label>
                                             </FloatLabel>
                                         </div>
-                                        <div className={"mb-6"}>
-                                            <FloatLabel>
-                                                <InputText className={"w-full"} id="service-number-input"
-                                                           value={serviceNo}
-                                                           onChange={(e) => setServiceNo(e.target.value)}/>
-                                                <label htmlFor="service-number-input">Hizmet Numarası</label>
-                                            </FloatLabel>
+                                        <div className={"mb-6 flex items-center gap-2"}>
+                                            <div className="flex-1">
+                                                <FloatLabel>
+                                                    <InputText className={"w-full"} id="service-number-input"
+                                                               value={serviceNo}
+                                                               onChange={(e) => setServiceNo(e.target.value)}/>
+                                                    <label htmlFor="service-number-input">Hizmet Numarası</label>
+                                                </FloatLabel>
+                                            </div>
+                                            <Button icon="pi pi-key" size="small" label="Dijital Kod Oluştur" loading={loading} className="p-button-success"
+                                                    onClick={getDigitalServiceCode}/>
                                         </div>
                                         <label htmlFor="editor-notes" className={"font-semibold "}>Hizmet
                                             Notları</label>
@@ -351,7 +374,7 @@ const Create = ({auth, csrf_token}) => {
                                                         <img className="w-8 h-8 rounded-full"
                                                              src={selectedCar?.brandLogo}
                                                              alt={selectedCar?.brand?.name}/>
-                                                        <span>{selectedCar?.brand?.name} >> {selectedCar?.model?.name} >> {selectedCar?.generation?.name} ({selectedCar?.year?.name})</span>
+                                                        <span>{selectedCar?.brand?.name} {">>"} {selectedCar?.model?.name} {">>"} {selectedCar?.generation?.name} ({selectedCar?.year?.name})</span>
                                                     </div>
                                                     <div className="flex items-center gap-2 mb-3">
                                                         <span>{plate} - {Number(kilometer).toLocaleString()}km</span>

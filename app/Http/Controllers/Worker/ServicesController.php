@@ -15,6 +15,7 @@ use DateInterval;
 use DateTime;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class ServicesController extends Controller
 {
@@ -233,7 +234,21 @@ class ServicesController extends Controller
             }
         }
     }
-
+    public function createCode(){
+        $serviceNumber = "DH";
+        $randomAlphaNumeric = Str::random(6);
+        $randomAlphaNumeric = strtoupper($randomAlphaNumeric);
+        $newCode = $serviceNumber . $randomAlphaNumeric;
+        $control = Services::where('service_no', $newCode)->first();
+        if ($control) {
+            return $this->createCode();
+        }
+        return $newCode;
+    }
+    public function getDigitalService(){
+        $serviceNumber = $this->createCode();
+        return response()->json(['service_no' => $serviceNumber, 'status' => true]);
+    }
     public function startWarranty($serviceNo)
     {
         $service = Services::where('service_no', $serviceNo)->first();
