@@ -360,7 +360,7 @@ Route::middleware('auth')->group(function () {
 /*
  *  OUTWARD ROUTES
  */
-
+Route::inertia('/new-ui', 'Warranty/NewUi')->name('new-ui');
 Route::get('/service-details/{id}', [\App\Http\Controllers\Worker\ServicesController::class, 'pdfSourceDataService'])->name('worker.pdfSourceDataService');
 Route::get('/pdf', [\App\Http\Controllers\HomeController::class, 'pdfSourceDataService']);
 Route::get('/warranty/{id}', [\App\Http\Controllers\WarrantyController::class, 'index'])->name('warranty.index');

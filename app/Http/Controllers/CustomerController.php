@@ -18,7 +18,7 @@ class CustomerController extends Controller
         if (!$customer) {
             return redirect()->route('home');
         }
-        return Inertia::render('Customer/Index', [
+        return Inertia::render('Customer/NewDesign', [
             'customerB' => $customer,
             'hash' => Crypt::encrypt($customerId),
             'services' => $customer->getServices(),

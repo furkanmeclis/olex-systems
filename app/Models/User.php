@@ -24,6 +24,7 @@ class User extends Authenticatable
         'role',
         'avatar',
         'phone',
+        'active'
     ];
     public static $roleDetails = [
         'super' => 'Super Admin',

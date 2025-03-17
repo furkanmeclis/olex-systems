@@ -32,8 +32,11 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard', absolute: false));
+        if (Auth::user()->active == 1) {
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+        Auth::logout();
+        return redirect()->back()->with('error','Hesabınız Deaktif Durumdadır.');
     }
 
     /**

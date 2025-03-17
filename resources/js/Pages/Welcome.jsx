@@ -362,7 +362,7 @@ export default function Welcome({ auth, csrf_token }) {
                                         <h3 className="text-xl font-semibold text-white mb-4">Telefon Numaraları</h3>
                                         <div className="flex items-center gap-4 text-green-300 justify-center">
                                             <i className="pi pi-phone text-xl"></i>
-                                            <span>TR: +90 (507) 173 35 35</span>
+                                            <span>TR: +90 (507) 465 34 34</span>
                                         </div>
                                         <div className="flex items-center gap-4 text-green-300 justify-center">
                                             <i className="pi pi-phone text-xl"></i>

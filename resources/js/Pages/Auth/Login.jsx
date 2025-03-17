@@ -1,10 +1,10 @@
-import {useEffect} from 'react';
+import {useEffect, useRef} from 'react';
 import {Head, Link, router} from '@inertiajs/react';
 import {motion} from 'framer-motion';
 import InputError from '@/Components/InputError';
 import {Formik, Form, Field} from 'formik';
 import * as Yup from 'yup';
-
+import {Toast} from 'primereact/toast';
 const LoginSchema = Yup.object().shape({
     email: Yup.string()
         .email('Geçerli bir email adresi giriniz')
@@ -16,8 +16,19 @@ const LoginSchema = Yup.object().shape({
 });
 
 export default function Login({status, canResetPassword}) {
+    const toast = useRef(null);
     const handleSubmit = (values, {setSubmitting}) => {
         router.post(route('login'), values, {
+            onSuccess:({props}) => {
+                if(props.flash.error !== null){
+                    toast.current.show({
+                        severity: 'error',
+                        summary: 'Hata',
+                        detail: props.flash.error,
+                        life: 3000
+                    });
+                }
+            },
             onFinish: () => setSubmitting(false)
         });
     };
@@ -26,7 +37,7 @@ export default function Login({status, canResetPassword}) {
         <div
             className="min-h-screen bg-gradient-to-br from-[#003300] via-[#004d00] to-[#001a00] flex items-center justify-center p-4">
             <Head title="Giriş Yap"/>
-
+            <Toast ref={toast} />
             <motion.div
                 initial={{opacity: 0, scale: 0.5}}
                 animate={{opacity: 1, scale: 1}}
