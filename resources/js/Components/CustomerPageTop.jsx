@@ -37,7 +37,7 @@ const CustomerPageTop = ({ customerName }) => {
                     <h1 className="text-white text-4xl font-light mb-2">
                         Merhaba,
                     </h1>
-                    <h2 className="text-white text-6xl font-bold tracking-wide">
+                    <h2 className="text-white text-6xl font-bold tracking-wide tracking-tighter">
                         {customerName}
                     </h2>
                 </motion.div>

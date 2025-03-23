@@ -11,7 +11,6 @@ import {Dropdown} from "primereact/dropdown";
 import {FloatLabel} from "primereact/floatlabel";
 import {Toast} from "primereact/toast";
 import {InputText} from "primereact/inputtext";
-import {OrderList} from 'primereact/orderlist';
 import {DataView, DataViewLayoutOptions} from 'primereact/dataview';
 import {Editor} from 'primereact/editor';
 import {InputNumber} from "primereact/inputnumber";
