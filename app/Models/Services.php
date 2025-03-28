@@ -92,7 +92,7 @@ class Services extends Model
                         "rate" => 0 
                     ];
                 }
-
+                $product->car_plate = $this->car['plate'];
                 return $product;
             } else {
                 return null;

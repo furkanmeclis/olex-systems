@@ -10,7 +10,8 @@ const ProductServiceStatusWidget = ({
     endDate,
     progress = 75, // 0-100 arası değer
     status = 'active', // active, expired, warning
-    isSkeleton = false
+    isSkeleton = false,
+    carPlate = ''
 }) => {
     const getStatusColor = () => {
         switch (status) {
@@ -63,7 +64,7 @@ const ProductServiceStatusWidget = ({
                 {/* Başlık ve Kod */}
                 <div className="flex justify-between items-center">
                     <div className="text-white font-medium">{productName}</div>
-                    <div className="text-gray-400 text-sm">{productCode} - <span className='text-white'>34 AFM 44</span></div>
+                    <div className="text-gray-400 text-sm">{productCode} - <span className='text-white'>{carPlate}</span></div>
                 </div>
 
                 {/* Progress Bar */}

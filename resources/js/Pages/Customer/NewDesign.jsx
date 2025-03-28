@@ -189,7 +189,7 @@ const NewDesign = ({ customerB, csrf_token, hash, services }) => {
                     </div>
 
                 </div>
-                <div className=' justify-center text-lg font-semibold text-white'>
+                <div className='flex justify-center text-lg font-semibold text-white'>
                     Garanti Süreleri
                 </div>
                 <div className='mt-2 mb-2'>
@@ -200,6 +200,7 @@ const NewDesign = ({ customerB, csrf_token, hash, services }) => {
                             startDate={service.warranty.start_date}
                             endDate={service.warranty.end_date}
                             progress={service.warranty.rate}
+                            carPlate={service.car_plate}
                         />
                     ))}
                 </div>
