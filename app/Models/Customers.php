@@ -17,7 +17,7 @@ class Customers extends Model
         'phone',
         'player_id',
         'address',
-        'notification_settings',
+        'notification_settings', 
         'birthday',
         'gender',
         'type',

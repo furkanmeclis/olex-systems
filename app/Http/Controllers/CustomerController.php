@@ -10,7 +10,7 @@ use Inertia\Inertia;
 
 class CustomerController extends Controller
 {
-    public function index($hash): \Illuminate\Http\RedirectResponse|\Inertia\Response
+    public function index($hash)
     {
         $customerId = Crypt::decrypt($hash);
         $customer = Customers::find($customerId);
@@ -18,11 +18,18 @@ class CustomerController extends Controller
         if (!$customer) {
             return redirect()->route('home');
         }
-        
+        $services = $customer->getServices();
+        $products = [];
+        foreach ($services as $service) {
+            $products = array_merge($products, collect($service["products"])->map(function ($product) {
+                return $product;
+            })->toArray());
+        }
         return Inertia::render('Customer/NewDesign', [
             'customerB' => $customer,
             'hash' => Crypt::encrypt($customerId),
-            'services' => $customer->getServices(),
+            'services' => $services,
+            "products" => $products
         ]);
     }
 

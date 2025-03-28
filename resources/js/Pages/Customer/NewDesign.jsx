@@ -12,9 +12,9 @@ import ProductServiceStatusWidget from '@/Components/ProductServiceStatusWidget'
 import { Toast } from 'primereact/toast';
 import { getToken } from "firebase/messaging";
 import { messaging } from "@/firebase/index.js";
-const NewDesign = ({customerB, csrf_token, hash, services}) => {
+const NewDesign = ({ customerB, csrf_token, hash, services }) => {
     const page = usePage();
-    
+
     const [customer, setCustomer] = useState(page.props.customerB);
     const [notifications, setNotifications] = useState(
         Object.entries(JSON.parse(customer.notification_settings)).map(([key, value]) => ({
@@ -43,7 +43,7 @@ const NewDesign = ({customerB, csrf_token, hash, services}) => {
     const [serviceWorker, setServiceWorker] = useState(null);
     const [selectedService, setSelectedService] = useState(null);
     const [showIOSGuide, setShowIOSGuide] = useState(false);
-    
+    console.log(page.props.products);
     useEffect(() => {
         // iOS cihaz kontrolü ve kılavuz gösterimi
         if (['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform)) {
@@ -72,10 +72,10 @@ const NewDesign = ({customerB, csrf_token, hash, services}) => {
             return null;
         }
     }).filter((item) => item !== null));
-   const getPermissionGrant = useMemo(() => {
-     let _push = notifications.find((item) => item.key === 'push');
-     return _push ? _push.value : false;
-   },[notifications]);
+    const getPermissionGrant = useMemo(() => {
+        let _push = notifications.find((item) => item.key === 'push');
+        return _push ? _push.value : false;
+    }, [notifications]);
     const [unSaved, setUnSaved] = useState(false);
 
     useEffect(() => {
@@ -189,43 +189,19 @@ const NewDesign = ({customerB, csrf_token, hash, services}) => {
                     </div>
 
                 </div>
-                <div className='hidden justify-center text-lg font-semibold text-white'>
+                <div className=' justify-center text-lg font-semibold text-white'>
                     Garanti Süreleri
                 </div>
-                <div className='mt-2 mb-2 hidden'>
-                    <ProductServiceStatusWidget
-                        productName="CARAT300"
-                        productCode="PPF-2024-001"
-                        startDate="01.01.2024"
-                        endDate="01.01.2025"
-                        progress={75}
-                        status="active"
-                    />
-                    <ProductServiceStatusWidget
-                        productName="CARAT300"
-                        productCode="PPF-2024-001"
-                        startDate="01.01.2024"
-                        endDate="01.01.2025"
-                        progress={75}
-                        status="active"
-                        isSkeleton
-                    />
-                    <ProductServiceStatusWidget
-                        productName="CARAT300"
-                        productCode="PPF-2024-001"
-                        startDate="01.01.2024"
-                        endDate="01.01.2025"
-                        progress={75}
-                        status="active"
-                    />
-                    <ProductServiceStatusWidget
-                        productName="CARAT300"
-                        productCode="PPF-2024-001"
-                        startDate="01.01.2024"
-                        endDate="01.01.2025"
-                        progress={75}
-                        status="active"
-                    />
+                <div className='mt-2 mb-2'>
+                    {page.props.products.map((service) => (
+                        <ProductServiceStatusWidget
+                            productName={service.product.name}
+                            productCode={service.product_code}
+                            startDate={service.warranty.start_date}
+                            endDate={service.warranty.end_date}
+                            progress={service.warranty.rate}
+                        />
+                    ))}
                 </div>
                 <div className="max-w-4xl mx-auto flex flex-row gap-2 justify-between">
                     <button

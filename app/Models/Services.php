@@ -52,13 +52,23 @@ class Services extends Model
                     if ($now->format("U") < $warrantyEndDate->format("U")) { // not working on expired warranty
                         $interval = $implementationDate->diff($now);
                         $yearsPassed = $interval->y;
+                        $rate = 0;
+                        $daysPassed = $interval->days;
+                        $totalDays = $warrantyEndDate->diff($implementationDate)->days;
+                        $rate = ($daysPassed / $totalDays) * 100;
                         $product->warranty_text = str_replace([" yıl", " Yıl"], "", $warrantySure) . ' YIL / ' . $yearsPassed . '.yıl';
                         $product->warranty = [
                             "label" => $product->warranty_text,
                             "severity" => "info",
                             "end_date" => $warrantyEndDate->format('d.m.Y'),
+                            "start_date" => $implementationDate->format('d.m.Y'),
                             "warrantyEnded" => false,
-                            "name" => $product->product->name
+                            "name" => $product->product->name,
+                            "rate" => $rate,
+                            "daysPassed" => $daysPassed,
+                            "totalDays" => $totalDays,
+                            "remainingDays" => $totalDays - $daysPassed
+
                         ];
                     } else {
                         $product->warranty_text = "X - " . $warrantyEndDate->format('d.m.Y');
@@ -67,7 +77,8 @@ class Services extends Model
                             "severity" => "danger",
                             "end_date" => $warrantyEndDate->format('d.m.Y'),
                             "warrantyEnded" => true,
-                            "name" => $product->product->name
+                            "name" => $product->product->name,
+                            "rate" => 100
                         ];
                     }
                 } else {
@@ -77,7 +88,8 @@ class Services extends Model
                         "severity" => "info",
                         "end_date" => "",
                         "warrantyEnded" => false,
-                        "name" => $product->product->name
+                        "name" => $product->product->name,
+                        "rate" => 0 
                     ];
                 }
 
@@ -155,6 +167,7 @@ class Services extends Model
             $service->dealer = User::find($service->dealer_id);
             $service->status_label = $statusLabels[$service->status];
             $service->status_severity = $statusSeverities[$service->status];
+            $service->products = $service->getProducts();
             return $service;
         });
 
