@@ -53,7 +53,7 @@ const WarrantyIndex = ({serviceNumber, csrf_token}) => {
         return serviceData?.brand_logo ?
             <div className={"bg-gradient-to-b  pt-10 h-full from-[#008951] to-[#003d24] " + (mobile && " pb-10 pt-15")}>
                 <div className={"flex justify-center"}>
-                    <OlexLogo text={true} dark className={"w-1/3"}/>
+                    <OlexLogo text={true} dark className={"w-1/2"}/>
                 </div>
                 <h1 className={"font-avaganti text-center mt-4 mb-2 text-white"}>
                     Araç Bilgileri

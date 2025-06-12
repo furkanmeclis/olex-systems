@@ -53,7 +53,7 @@ const CustomerPageTop = ({customerName}) => {
                     <img
                         src={carImage}
                         alt="OLEX Vehicle"
-                        className="h-[150px] lg:h-[300px] md:h-[200px]"
+                        className="h-[190px] lg:h-[340px] md:h-[240px]"
                         style={{
                             filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.3))'
                         }}
