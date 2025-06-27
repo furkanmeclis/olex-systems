@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CarDataImportController;
+use App\Http\Controllers\ExportController;
 
 Route::get('/setup', function () {
     try {
@@ -368,5 +369,8 @@ Route::get('/warranty/{id}', [\App\Http\Controllers\WarrantyController::class, '
 Route::get('/warranty/{id}/pdf', [\App\Http\Controllers\WarrantyController::class, 'pdf'])->name('warranty.pdf');
 Route::get('/customer/{hash}', [\App\Http\Controllers\CustomerController::class, 'index'])->name('customer.notify');
 Route::post('/customer/{hash}/store', [\App\Http\Controllers\CustomerController::class, 'update'])->name('customer.notifyUpdate');
+
+// Excel export route
+Route::get('/export-services', [ExportController::class, 'exportServices'])->name('export.services');
 
 require __DIR__ . '/auth.php';
